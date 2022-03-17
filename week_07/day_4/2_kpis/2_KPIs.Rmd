@@ -1,0 +1,150 @@
+---
+title: "KPIs and metrics"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+    pdf_document: default
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# Learning Objectives<br>
+
+* Know what a KPI is
+* Know the features of a 'good' KPI
+* Be able to create, calculate and document a set of KPIs
+
+**Duration - 20 mins**<br>
+
+
+# Definitions 
+
+There is a lot of terminology in this space, we'll try to demystify this for you, so that by the end of the lesson you'll be able to define your own KPIs.
+
+## KPIs & metrics
+
+* Metrics (or measure) are measurable values, which track progress. 
+* KPIs are a special subset of your metrics which are 'key' and most closely aligned with your critical objectives/targets. 
+
+Let's take a marketing campaign as an example. Their objective is to increase sales. A metric could be how many people that receive the email. A KPI may be conversion rate to sales from those who clicked on the email. The metric is good to track, but is not 'key' to the company's objectives, because even if send the email to more people it doesn't tell us about how we are with sales, where as the KPI (conversion to sales from those who clicked on the email) does.  
+
+Metric and KPIs as raw values are not useful as stand alone values, they need to be in context. We need to know whether the value is good or bad, compared to what, on track to be met, better than the past or worse than forecasted. That's where goals, targets and thresholds come in!
+
+## Goals
+
+The goal is the outcome or result that you want to achieve. The KPI indicates whether you’re on track to achieve that goal.
+
+
+## Targets
+
+Targets provide the context for each measure.
+
+Targets need to be SMART:
+
+* **S**pecific: what exactly do you want to achieve?
+* **M**easurable: how will you know when you've achieved that?
+* **A**chieveable: is it really attainable?
+* **R**ealistic: does it get you where you want to be?
+* **T**imebound: when will you get there?
+
+Some even say they should actually be SMARTER:
+
+* **E**xplainable: easily understood by everyone
+* **R**elative: they can change relatively as the business grows
+
+## Thresholds
+
+Thresholds are the **upper and lower levels of performance**, e.g. good, satisfactory and poor. However, they don't add any value if you haven't decided what action to take once you hit one of these thresholds. Thresholds without pre-defined actions are useless.
+
+# Identifying KPIs
+
+## How to define metrics and KPIs
+
+So now we know what metrics and KPIs are, how do we go about identifying what they should be?
+
+Here is a bit of a recipe to do this:
+
+1. Identify the **strategic goals**
+2. Identify the **measures** which will determine whether the goals have been met
+3. Identify the **activities** required to reach the goals
+4. From the activities identified, pick out those that will have the **biggest impact**
+5. Identify **who is responsible** for these important activities
+6. Identify the **measures** related to the important activities
+7. Determine whether these measures **already exist**, or data exists to be able to calculate them
+8. Write down the **definitions** of these measures
+9. Determine **SMART performance targets** (and possibly thresholds)
+
+## What looking for in a 'good' KPI/metric?
+
+Good KPI/metrics are:
+
+* simple
+* easy to measure
+* easily understood 
+* actionable
+* support the answering of business questions
+
+# Defining KPIs
+
+Let's practice defining a few KPIs for an imaginary business:
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+You are the only analyst currently working for a small fin-tech startup. The startup has a product that notifies consumers when their insurances are up for renewal and recommends the most suitable renewal insurance product. Once the customer has agreed to the recommendation, the product automatically carries out the insurance switch for them. The revenue comes from insurance companies for facilitating a switch.
+
+The startup's app has been live for 6 months and consumer take-up has been slower than hoped. Strategically the startup needs to both grow their customer base and ensure they exceed their revenue level month on month.
+
+Working in pairs, define a KPI for this business using the recipe above, documenting the business goal/objective, KPI name, definition, owner, data sources and targets.
+
+<details>
+<summary>**Example Answer**</summary>
+There are many possible answers to this, but an example could be:
+
+| Step         | Example answer                                 |
+|--------------|------------------------------------------------|
+| Goal         | Grow customer numbers                          |
+| Goal measure | Customer numbers                               |
+| Activity     | Prospect numbers                               |
+| KPI name     | Daily unique website visits                    |
+| Definition   | Number of unique daily website homepage visits |
+| Owner        | Marketing                                      |
+| Target       | 1000 per day                                   |
+| Data source  | Google analytics                               |
+
+</details>
+</blockquote>
+
+# Recap
+
+What is the difference between a metric and a KPI?
+<details>
+<summary>**Answer**</summary>
+KPIs are strategic
+</details>
+
+What kind of targets should be set?
+<details>
+<summary>**Answer**</summary>
+SMART targets
+</details>
+
+How do you ensure that everyone understands the KPI?
+<details>
+<summary>**Answer**</summary>
+Keep it simple and clearly document the definition
+</details>
+
+<hr>
+
+# More resources
+
+* [Technation KPI article](https://technation.io/news/how-to-define-your-startups-key-performance-indicators-kpis)
+* [Klipfolio course](https://www.klipfolio.com/general-kpi-course-sign-up)
+* [KPI examples](https://onstrategyhq.com/resources/27-examples-of-key-performance-indicators/)

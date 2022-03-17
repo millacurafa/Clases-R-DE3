@@ -1,0 +1,332 @@
+---
+title: 'Automated model development'
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "16th August 2019"
+</div>
+
+# Learning objectives
+
+* Understand forward selection, backwards selection and best subset selection.
+* Know how to use the `leaps` package.
+* Understand the limitations of automated model selection.
+
+**Duration - 1 hour**
+
+<hr>
+
+# Automated model development techniques
+
+In the last lesson you learnt all about over-fitting, and ways of measuring model performance that take over-fitting into account. In this lesson you will apply these techniques to find the best model possible. 
+
+## Forward selection
+
+You've already done a model selection procedure called **forward selection** (or **forward stepwise selection**), and we did it manually! Here is the procedure that we followed:
+
+<br>
+<div class='emphasis'>
+**Forward stepwise selection**<br><br>
+
+* Start with the model containing *only the intercept* (the so-called 'null' model)
+* At each step, check all predictors not currently in the model, and find the one that raises $r^2$ (or adjusted $r^2$) the most when it is included
+* Add this predictor to the model
+* Keep note of the number of predictors in the model and the current model formula
+* Go on to include another predictor, or stop if all available predictors have been included
+
+</div>
+<br>
+
+At the end of this process, you'll have a list of models varying by the number of predictors that they contain. For example, our manual method produced a list:
+
+| No. of predictors | Model |
+| --- | --- |
+| 1 | `prestige ~ education` |
+| 2 | `prestige ~ education + income` |
+| 3 | `prestige ~ education + income + type` |
+| 4 | `prestige ~ education + income + type + income:type` |
+
+## Backward selection
+
+An alternative to forward selection is **backward selection** (or **backward stepwise selection**)
+
+<br>
+<div class='emphasis'>
+**Backward stepwise selection**<br><br>
+
+* Start with the model containing *all possible predictors* (the so-called 'full' model)
+* At each step, check all predictors in the model, and find the one that lowers $r^2$ the least when it is removed
+* Remove this predictor from the model
+* Keep note of the number of predictors in the model and the current model formula
+* Go on to remove another predictor, or stop if all predictors in the model have been removed
+
+</div>
+<br>
+
+Again, we get a list of models varying by predictor number. Backward selection has a subtle problem: it will only work if you have **at least as many data points in your sample as there are predictors**. Remember back to when we said "you need two points to determine a line, three to determine a quadratic" etc; this is just another manifestation of the same principle. You need at least $n$ data points to determine $n$ unknown coefficients, and potentially more data points if you want any estimate of coefficient standard errors etc...
+
+Forward selection doesn't suffer from this problem, although small sample size could still limit the regression model you can fit. For example, if you have a sample containing $10$ data points and $15$ predictors, you'll only be able to fit a model with up to $9$ predictors (we lose one to the intercept). 
+
+## Best subset selection
+
+Both forward and backward selection have an even more subtle problem. **In forward selection, once a predictor has been included in the model, it's there for keeps**: it can never be dropped in favour of a better predictor in bigger models. Similarly, **in backward selection, once a predictor has been removed from the model, it's out for keeps**, it can never be added back in to smaller models.
+
+This restriction makes forward and backward selection efficient ways to develop reasonable models, but the models they give us may not be optimal! If we want optimal models, we have to use **exhaustive search** (or **best subset selection**). This method is computationally intensive, but simple to describe:
+
+<br>
+<div class='emphasis'>
+**Exhaustive search**<br><br>
+At each size of model, search all possible combinations of predictors for the best model (i.e. the model with highest $r^2$) of that size.
+
+The effort of this algorithm increases **exponentially** with the number of predictors
+</div>
+<br>
+
+# The `leaps` package
+
+The `regsubsets()` function in the `leaps` package in `R` helps us to perform automated model development using the three methods mentioned above. We can't really treat `regsubsets` as a black box solution to all our multiple regression woes, for the following reasons:
+
+* it will happily include only some of the dummy variables associated with the levels of a categorical predictor (remember, best practice is to include **all or none** of them).
+* it doesn't deal with interactions well: if we let it, it will include interactions between variables not present by themselves in the model (also breaching best practice)
+* We can only test model fit using penalised measures of fit, not using test/train splits or k-fold cross validation. 
+
+A package called `glmulti` offers a better approach, but `leaps` has a simpler interface, so we'll use `leaps` to learn the techniques.
+
+```{r, message = FALSE}
+library(tidyverse)
+library(leaps)
+```
+
+We'll use a new dataset containing listings of the charges associated with health insurance policies along with some (hopefully) relevant attributes of the insured persons:
+
+```{r}
+library(CodeClanData)
+
+insurance
+```
+
+Now, we'll develop a regression model for the `charges` of a policy in terms of various predictors in the dataset. Let's run `regsubsets()` using forward selection:
+
+```{r}
+regsubsets_forward <- regsubsets(charges ~ ., data = insurance, nvmax = 8, method = "forward")
+```
+
+Formula `charges ~ .` tells `regsubsets()` to use all available variables in `insurance`. The `nvmax` argument here tells `regsubsets()` to try models containing up to $8$ predictors (this is the 'full' model in this case).
+
+Let's have a look at the `summary()` of the object returned 
+
+```{r}
+sum_regsubsets_forward <- summary(regsubsets_forward)
+sum_regsubsets_forward
+```
+
+What does each section of the output mean?
+
+* At the top, we see a repeat of the call to the function
+* The first table in the output shows all of the predictors considered and whether they have been 'forced in' or 'forced out' of models.
+* The second table contains the main results of the function. The indices of the rows indicate the number of predictors in each model, and the asterisks shows predictors present in that model. So, for example, forward selection returns `charges ~ age + bmi + children + smokeryes` as the 'best' $4$-predictor model.
+
+The information shown in the second table is also held in the `which` attribute of the `sum_regsubsets_forward` object:
+
+```{r}
+sum_regsubsets_forward$which
+```
+
+But how do we know how many variables to pick? The best way is to use `plot` with a penalised measure like adjusted $r^2$:
+
+```{r}
+plot(regsubsets_forward, scale = "adjr2")
+```
+
+On the left hand side are different adjusted $r^2$ values. The shaded boxes show us which variables are in the model for different values of adjusted $r^2$. By reading the top row you can see that the model with the highest adjusted $r^2$ value is one containing age, bmi, children, smokeryes, regionsoutheast and region southwest. 
+
+If we use BIC, we get a different model. As discussed before BIC is more parsimonious. 
+
+```{r}
+plot(regsubsets_forward, scale = "bic")
+```
+
+The lowest BIC score is found when you have age, bmi, children and smokeryes.
+
+Let's plot the $r^2$ values of each of the models found by forward selection as a function of number of predictors. This data is held in the `rsq` attribute of the `sum_regsubsets_forward` object:
+
+```{r}
+plot(sum_regsubsets_forward$rsq, type = "b")
+```
+
+As predicted, $r^2$ always increases as the number of predictors in the model increases.
+
+However, if we use a penalised measure of fit, like BIC, then we can see that either 3 or 4 predictions has the lowest BIC.
+
+```{r}
+plot(sum_regsubsets_forward$bic, type = "b")
+```
+
+<br>
+<blockquote class='task'>
+**Task - 10 mins**<br><br>
+
+* Re-run the analyses above using the backward selection and exhaustive search variable selection methods [**Hint** - look  at the `regsubsets()` docs to see how to do this]
+* Compare the tables (or plots, whichever you find easier) showing which predictors are included for forward selection, backward selection and exhaustive search. Do you find any differences? Use adjusted R-squared as your measure of fit.
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+regsubsets_backward <- regsubsets(charges ~ ., data = insurance, nvmax = 8, method = "backward")
+regsubsets_exhaustive <- regsubsets(charges ~ ., data = insurance, nvmax = 8, method = "exhaustive")
+
+
+plot(regsubsets_forward, scale = "adjr2")
+plot(regsubsets_backward, scale = "adjr2")
+plot(regsubsets_exhaustive, scale = "adjr2")
+```
+All three selection methods agree on the 'best' model for the `insurance` data!
+</details>
+</blockquote>
+<br>
+
+<hr>
+
+# Human intervention is needed...
+
+Finally, understand that the models returned by the variable selection methods and chosen by us on the basis of AIC, BIC etc. have **not been tested for statistical significance**. We should perform these tests, and also check that any model we select makes sense in terms of the context of the analysis we are undertaking.
+
+Let's check the specification of the $6$-predictor model!
+
+```{r}
+summary(regsubsets_exhaustive)$which[6,]
+```
+
+Straight away here we see a problem - only some levels of the `region` categorical predictor are selected by `leaps`! We need to test for the inclusion of `region` using `anova()`:
+
+```{r}
+mod_without_region <- lm(charges ~ age + bmi + children + smoker, data = insurance)
+summary(mod_without_region)
+```
+```{r}
+mod_with_region <- lm(charges ~ age + bmi + children + smoker + region, data = insurance)
+summary(mod_with_region)
+```
+```{r}
+anova(mod_without_region, mod_with_region)
+```
+
+The model with `region` is not significantly better than the model without, so we should discard `region`. Let's check the diagnostics of `mod_without_region`
+
+```{r}
+par(mfrow = c(2, 2))
+plot(mod_without_region)
+```
+
+Hmm, the diagnostic plots don't look very promising for this model, the residuals are clearly not normal, and there is evidence of heteroscedasticity. Some variable transformations may be necessary (in which case, we would need to start the variable selection process again **after** performing the transformations).
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins**<br><br> 
+
+Go ahead and extract the $4$-predictor model, and then check its significance and the diagnostic plots.
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+summary(regsubsets_exhaustive)$which[4,]
+mod4 <- lm(charges ~ age + bmi + children + smoker, data = insurance)
+summary(mod4)
+par(mfrow = c(2, 2))
+plot(mod4)
+```
+<br>
+Again, the diagnostics of the $4$-predictor model do not look good, confirming that we likely need to consider variable transformations.
+</details>
+</blockquote>
+<br>
+
+
+# Bonus 1 - best subset selection after transformation.
+
+We likely won't cover this in the lesson, as we've seen the broad principles of how to automate model development using `leaps`. But let's see whether variable transformation help us satisfy the regression assumptions...
+
+```{r}
+insurance %>% 
+  ggplot(aes(x = charges)) +
+  geom_histogram()
+insurance %>% 
+  ggplot(aes(x = log10(charges))) +
+  geom_histogram()
+```
+
+```{r}
+regsubsets_exhaustive <- regsubsets(log(charges) ~ ., data = insurance, method = "exhaustive")
+sum_regsubsets_exhaustive <- summary(regsubsets_exhaustive)
+sum_regsubsets_exhaustive
+sum_regsubsets_exhaustive$bic
+plot(sum_regsubsets_exhaustive$bic, type = "b")
+# lowest BIC occurs for 7 predictors, let's see which they are
+sum_regsubsets_exhaustive$which[7, ]
+# all predictors apart from regionnorthwest. Let's do anova to test region inclusion
+mod_without_region <- lm(log(charges) ~ . -region, data = insurance)
+summary(mod_without_region)
+mod_with_region <- lm(log(charges) ~ ., data = insurance)
+summary(mod_with_region)
+anova(mod_without_region, mod_with_region)
+# anova shows model with region is significantly better than model without, so let's keep it!
+par(mfrow = c(2, 2))
+plot(mod_with_region)
+# alas, residuals still not normal. Strong evidence of bimodal residuals - we may be missing a necessary
+# predictor in the data set.
+```
+
+<hr>
+
+# Bonus 2 - the `glmulti` package
+
+Notice how above the `leaps` package did not treat categorical predictors appropriately, and also did not include interactions. The `glmulti()` function in the package of the same name can help with both of these problems.
+
+In cases of large numbers of candidate models to search (for which exhaustive search may not be feasible), it offers search by genetic algorithm, which should be better than forward or backward selection.
+
+```{r, eval = FALSE}
+library(glmulti)
+glmulti_fit <- glmulti(
+  log(charges) ~ ., 
+  data = insurance,
+  level = 2, # 2 = include pairwise interactions, 1 = main effects only (main effect = no pairwise interactions)
+  minsize = 0, # no min size of model
+  maxsize = -1, # -1 = no max size of model
+  marginality = TRUE, # marginality here means the same as 'strongly hierarchical' interactions, i.e. include pairwise interactions only if both predictors present in the model as main effects.
+  method = "g", # the problem is too large for exhaustive search, so search using a genetic algorithm
+  crit = bic, # criteria for model selection is BIC value (lower is better)
+  plotty = FALSE, # don't plot models as function runs
+  report = TRUE, # do produce reports as function runs
+  confsetsize = 100, # return best 100 solutions
+  fitfunction = lm # fit using the `lm` function
+)
+```
+
+```{r}
+# here is the best model (lowest BIC) from the glmulti run above
+mod_interact <- lm(log(charges) ~ sex + smoker + region + age + bmi + children + 
+    children:age + sex:age + smoker:age + smoker:bmi + smoker:children, data = insurance)
+summary(mod_interact)
+# bmi predictor is not significant, but smokeryes:bmi interaction is significant, so probably keep bmi
+# to allow for this interaction
+# let's see diagnostic plots
+par(mfrow = c(2, 2))
+plot(mod_interact)
+# the residuals are better behaved, but still some evidence of bimodality, which again suggests we are missing a key predictor in the data set!
+```
+
+
+```{r, eval = FALSE}
+# calculate predictor importances. This will take a while to run, as lmg tries all possible orders of including predictors!
+library(relaimpo)
+calc.relimp(mod_interact, type = "lmg", rela = TRUE)
+```

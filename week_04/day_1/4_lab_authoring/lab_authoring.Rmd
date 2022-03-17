@@ -1,0 +1,55 @@
+---
+title: "Lab - Authoring"
+author: "Colin Farquhar"
+date: "08/07/2019"
+output:
+  html_document:
+    css: ../../../../template_files/styles.css
+    df_print: paged
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+```
+
+# Learning Objectives
+
+* Practice using different markdown elements
+* Experiment with the table generator
+* Practice styling a report using CSS
+
+**Lesson Duration: 120mins**
+
+# MVP 
+
+We've provided an example of a very badly formatted statistical report. Copy the start point into your work folder, knit it and see the horror for yourself. Your task for this lab is to reformat it into something presentable using the tools you're learned about today.
+
+How you do that is largely up to you, but there are some key things we want to see:
+
+* **Headings** for each section, with sub-headings if necessary
+* **Lists** where appropriate
+* **Working links** -- you can choose what they direct the user to, but they need to go somewhere!
+* **Tables** based on some of the data available in the CodeClanData package. It's up to you which dataset you coose to generate a table from, pick something which you think will let you experiment with what the table generator can do.
+* **Styling**
+  + Change the background colour of the report
+  + Use classes to highlight particular passages of text
+  + Add borders to your tables
+  
+We've provided a `styles.css` file for you to add your CSS to. Don't forget to update the title and author of your report!
+
+
+# Extensions
+
+* Instead of using one of our datasets, find your own and generate plots and/or tables from that. Remember that you can use the table generator with .csv files!
+* Use the knitr documentation to find out how to add images to your report
+* The start point defaults to knitting to HTML, try using one of the other formats
+* Go wild with the CSS! there are a huge range of properties which you can manipulate, experiment with them and see what you can come up with.
+
+# Additional Resources
+
+* [Markdown Tables Generator](https://www.tablesgenerator.com/markdown_tables)
+* [List of CSS properties](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference)
+* [Colour Palette with Hex Codes](https://www.color-hex.com/)

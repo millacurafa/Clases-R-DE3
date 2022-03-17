@@ -1,0 +1,289 @@
+---
+title: "Sentiment Analysis"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Mhairi McNeill"<br>
+date: "27/08/2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center", message = FALSE, warning = FALSE)
+```
+
+# Learning Objectives
+
+* Understand what sentiment analysis is
+* Know about the different sentiment lexicons available
+* Be able to find the sentiment of words and do analysis using those sentiments.
+
+**Duration - 1 hour 30 mins**
+
+In this lesson you'll be learning how to find the sentiment of words and of texts as a whole. Sentiment is the feelings demonstrated in the text. This can be as simple as positive/negative, or include emotions like fear, disgust and joy. 
+
+Sentiment analysis is not an exact science! The results you get may not make scene in context. Always treat any sentiment analysis with some scepticism.
+
+# Different sentiment lexicons
+
+To start, load all the package we'll be using in this lesson.
+
+```{r}
+library(tidytext)
+library(harrypotter)
+library(dplyr)
+```
+
+We'll also need to install a package that gives us access to other sentiment lexicons, although we don't have to load the package.
+
+```{r, eval = FALSE}
+install.packages("textdata")
+```
+
+One complication with sentiment analysis is that we have several options for sentiment *lexicons*. These are different lists of sentiment words and their associated sentiment.
+
+The first we will see is called "afinn". It gives numeric sentiment scores between -5 and 5.
+
+```{r}
+get_sentiments("afinn")
+```
+
+Note you will need to type `1` in the console, to download the sentiment dataset.
+
+A simpler option is the bing sentiment lexicon, which only categorises sentiments as positive or negative.
+
+```{r}
+get_sentiments("bing")
+```
+
+For more options you can use "loughran".
+
+```{r}
+get_sentiments("loughran")
+```
+
+The categories available can be seen below.
+
+```{r}
+get_sentiments("loughran") %>%
+  count(sentiment, sort = TRUE)
+```
+
+There's a fourth sentiment lexicon available called `"nrc"`, which has categorical sentiment scores. This dataset also allows words to display multiple sentiments. However, this is a very large sentiment dataset so we won't be downloading it just now.
+
+```{r}
+# Can take a while to download
+get_sentiments("nrc")
+```
+
+For reference, here are the categories in nrc.
+
+```{r}
+get_sentiments("nrc") %>%
+  count(sentiment, sort = TRUE)
+```
+
+To find the sentiment of your words, all you need to do is join with one of these sentiment lexicons.
+
+First let's prepare data for the third Harry Potter book.
+
+```{r}
+book_3 <- tibble(
+  text = prisoner_of_azkaban,
+  chapter = 1:length(prisoner_of_azkaban)
+) %>%
+unnest_tokens(word, text) %>%
+anti_join(stop_words)
+```
+
+Now if we want to add sentiments we can left join. Every sentiment word in `book_3` now has a sentiment attached.
+
+```{r}
+book_3 %>%
+  left_join(get_sentiments("bing"))
+```
+
+If you want to keep only the sentiment words, you can use an inner join.
+
+```{r}
+book_3 %>%
+  inner_join(get_sentiments("bing"))
+```
+
+# Most common positive, and most common negative words
+
+As a really basic, first analysis let's find the most common positive and most common negative words. First we create a new data frame with sentiments.
+
+```{r}
+book_3_sentiments <- 
+book_3 %>%
+  inner_join(get_sentiments("bing"))
+```
+
+Then simply filter for positive to see the positive words, and count and sort.
+
+```{r}
+book_3_sentiments %>%
+  filter(sentiment == "positive") %>%
+  count(word, sort = TRUE)
+```
+
+We can do the same for negative words.
+
+```{r}
+book_3_sentiments %>%
+  filter(sentiment == "negative") %>%
+  count(word, sort = TRUE)
+```
+
+Here we can see some of the problems with word-based sentiment analysis. Here  "fudge" is the most common negative word. While "fudge" can have a negative meaning (to fudge the numbers), it can also have a neutral meaning as a type of sweet. Which meaning do you think is most common in The Prisoner of Azkaban?
+
+Another problem with word-based sentiment analysis is negation. While the word "well" is positive by itself, it has a negative meaning if combined with not. But since English is complicated the negation isn't necessarily beside the word being negated. For example, look at this sentence:
+
+"Word-based sentiment analysis does not perform well".
+
+<blockquote class = 'task'>
+**Task - 10 minutes**
+
+Find the most common positive, negative and neutral words in the book "Goblet of Fire". Use the "loughran" sentiment analysis dataset.
+
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+book_4 <- tibble(
+  text = goblet_of_fire,
+  chapter = 1:length(goblet_of_fire)
+) %>%
+unnest_tokens(word, text) %>%
+anti_join(stop_words)
+```
+
+```{r}
+book_4_sentiment <-
+  book_4 %>%
+  left_join(get_sentiments("loughran"))
+```
+
+```{r}
+book_4_sentiment %>%
+  filter(sentiment == "positive") %>%
+  count(word, sort = TRUE)
+```
+
+```{r}
+book_4_sentiment %>%
+  filter(is.na(sentiment)) %>%
+  count(word, sort = TRUE)
+```
+
+```{r}
+book_4_sentiment %>%
+  filter(sentiment == "negative") %>%
+  count(word, sort = TRUE)
+```
+
+</details>
+</blockquote>
+
+# Average sentiment per chapter
+
+Now lets look at a different sort of analysis. Let's try to find the average sentiment in each chapter in the third Harry Potter book.
+
+For this we'll need to use the "afinn" sentiment lexicon, because this gives numeric scores.
+
+```{r}
+book_3_sentiments <-
+  book_3 %>%
+  inner_join(get_sentiments("afinn"))
+```
+
+Now it's just a simple matter of using group by and summarise to find the average value in each chapter.
+
+```{r}
+chapter_sentiments <- 
+book_3_sentiments %>%
+  group_by(chapter) %>%
+  summarise(
+    mean_sentiment = mean(value)
+  )
+
+chapter_sentiments
+```
+
+We can use `ggplot2` to plot the average sentiment. 
+
+```{r}
+library(ggplot2)
+
+ggplot(chapter_sentiments) +
+  aes(x = chapter, y = mean_sentiment) +
+  geom_line()
+```
+
+The series of steps you just carried out is a very common pattern:
+
+1. Use `tidytext` to turn text into data
+2. Analyse and shape the data using `dplyr`
+3. Plot the results using `ggplot2`.
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Find average sentiment for each chapter of Goblet of Fire. However, this time we want non-sentiment words to count as zero in the average.
+
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+book_4_sentiments <-
+  book_4 %>%
+  left_join(get_sentiments("afinn"))
+```
+
+```{r}
+book_4_chapter_sentiments <- 
+book_4_sentiments %>%
+  mutate(
+    value = coalesce(value, 0)
+  ) %>%
+  group_by(chapter) %>%
+  summarise(
+    mean_sentiment = mean(value)
+  )
+
+book_4_chapter_sentiments
+```
+
+</details>
+</blockquote>
+
+
+# Recap 
+
+* Name a numeric sentiment lexicon
+<details>
+<summary> **Solution** </summary>
+afinn
+</details>
+
+* Name three categorical sentiment lexicons
+<details>
+<summary> **Solution** </summary>
+bing, loughran, nrc
+</details>
+
+* How do you add sentiment data to a data frame
+<details>
+<summary> **Solution** </summary>
+By using a join
+</details>
+
+

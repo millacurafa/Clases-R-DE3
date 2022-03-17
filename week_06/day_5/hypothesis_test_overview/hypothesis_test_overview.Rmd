@@ -1,0 +1,192 @@
+---
+title: "Hypothesis tests - overview"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# Introduction 
+This overview supplements the lessons on hypothesis testing in the main syllabus. 
+
+Hypothesis testing is a form of inferential statistics that allows us to draw conclusions about an entire population based upon a representative sample. These tests can be performed via computation-based or theory-based methods. This summary focuses on computation-based methods, please see the lesson on 'Classical tests' for a summary table of theory-based (AKA classical) tests. 
+
+The high level steps for the computation-based methods are the same in each case:
+
+<br>
+<div class='emphasis'>
+**Step-through of a hypothesis test**<br><br>
+
+* We decide upon a **significance level** $\alpha$ for our test. This is the **false positive** or **type-I error** rate: it tells us **how often we will incorrectly reject $H_0$ and accept $H_a$ in cases where $H_0$ is actually true**.<br><br> Often we set $\alpha = 0.05$: if you've done any statistics before, you may have seen this value being used essentially by convention. A value $\alpha = 0.01$ is also often used: this results in a more stringent test. 
+
+* Next, we calculate the **statistic** we are interested in from the current sample (for example, this could be a sample mean or proportion). 
+
+* Next, we treat the situation specified by the **null hypothesis as if it were true**, and use this to generate a sampling distribution, which we call the **null sampling distribution**. 
+
+* Finally, we see where our calculated statistic falls on the null sampling distribution. We calculate the **probability of obtaining a statistic equal to or greater than our observed value**, i.e. how much of the null distribution lies beyond our observed statistic. We call this the **$p$-value** of the test.
+
+* Finally:
+    * if the calculated $p$-value is **less than or equal to** $\alpha$ then **we reject the null hypothesis in favour of the alternative hypothesis**. 
+    * if the $p$-value is greater than $\alpha$ then we **fail to reject the null hypothesis**.
+</div>
+<br>
+
+Differences in the process come from our choice of statistic of interest and how we generate the null distribution. Both depend on what we are seeking to test!
+
+# Using infer
+The general workflow to generate the null distribution using the `infer` package is:
+```{r, eval = FALSE}
+specify() #specify the the variables of interest 
+hypothesize() # state the null hypothesis  
+generate() # what method will use to generate null hypotheses  
+calculate() #statistic of interest
+```
+
+To calculate the sample statistic, you can simplify the code above to include just the `specify()` and `calculate()` lines. 
+
+# One-sample tests 
+
+## One-sample mean
+* **What are we testing?**: comparing the mean from one sample against a specified value. 
+* **Null hypothesis**: $H_0: \mu_0 = a$ (where $a$ is a given value, say 0) 
+* **Statistic**: sample mean ($\bar{x}$). 
+* **Generation of null distibution**: *boostrap* (sample with replacement) from our original sample, calculate the mean for the bootstrap sample, repeat this process many times (e.g. $10,000$) to create the null distribution. Then shift the center of this distribution to $a$.
+
+<blockquote class='task'>
+<details>
+<summary>**Example**</summary>
+
+* **Question**: A teacher claims their students are above average intelligence. A sample of 15 of their students have been tested and the average of their IQ scores is 112. It has been reported in the news that the average IQ for school students is 100. 
+* **Null hypothesis** $H_0$: $\mu_0 = 100$ 
+* **Statistic**: $\bar{x} = 112$
+* **Example code** for `infer`:
+```{r, eval = FALSE}
+null_distribution<- sample_data %>% 
+  specify(response = iq) %>% 
+  hypothesize(null = "point", mu = 100) %>% 
+  generate(reps = 10000, type = "bootstrap") %>% 
+  calculate(stat = "mean")
+```
+</details>
+</blockquote>
+
+
+## One-sample proportion
+* **What are we testing?**: comparing a proportion from one sample against a specified value. 
+* **Null hypothesis**: $H_0: \pi_0 = a$ (where $a$ is a given value, say 0.1) 
+* **Statistic**: sample proportion ($\hat{p}$). 
+* **Generation of null distibution**: *simulate* the null distribution (does not rely on our sample data). We simulate flipping an 'unfair' coin as many times as there are rows in the data, where the probability of success (say landing a heads) is $a$. Add up the number of observed successes i.e. heads, divide by the number of rows, this gives us one simulated success proportion. Repeat this process many times (e.g. $10,000$) to create the null distribution. 
+
+<blockquote class='task'>
+<details>
+<summary>**Example**</summary>
+
+* **Question**: A teacher claims that the proportion of their students who pass is higher than the national average. A sample of 15 of their students was collected and the proportion who passed was calculated at 63%. It has been reported in the news that the national average rate for schools is 61%.
+* **Null hypothesis** $H_0$: $\pi_0 = 0.61$ 
+* **Statistic**: $\hat{p} = 0.63$ 
+* **Example code** for `infer`:
+```{r, eval = FALSE}
+null_distribution<- sample_data %>% 
+  specify(response = pass_fail, success = "pass") %>% 
+  hypothesize(null = "point", p = 0.61) %>% 
+  generate(reps = 10000, type = "simulate") %>% 
+  calculate(stat = "prop")
+```
+</details>
+</blockquote>
+
+
+# Two-samples 
+
+## Two means or proportions - independent samples
+* **What are we testing?**: comparing means or proportions from two independent samples (testing independence)
+* **Null hypothesis**: $H_0$: $\mu_1 - \mu_2 = 0$ or $\pi_1 - \pi_2 = 0$
+* **Statistic**: difference in sample means ($\bar{x}_1 - \bar{x}_2$) or difference in proportions ($\hat{p}_1 - \hat{p}_2$) 
+* **Generation of null distibution**: under $H_0$, where $x$s and $y$s are independent, it wouldn't matter how you split the oberservations into group 1 or group 2, there wouldn't be a statistically significant difference between the means or proportions of the 2 groups. So we randomly shuffle (i.e. **permute**) the labels (the $y$s) of the observations to randomly assign the observations into groups 1 and 2. We then calculate the difference in sample means or proportions for the two groups. This is repeated many times (e.g. $10,000$) to create the null distribution. 
+
+<blockquote class='task'>
+<details>
+<summary>**Example - mean**</summary>
+
+* **Question**: As part of an advertising campaign a large cinema has claimed that people in Glasgow spend much more on movies every month as compared with people in Edinburgh. Your company has asked you to test this claim and has sampled 40 people at a cinema in Glasgow, who on average spent £40 that month, and 50 people at a cinema in Edinburgh, who on average spent £38.50 that month. 
+* **Null hypothesis** $H_0$: $\mu_1 - \mu_2 = 0$ 
+* **Statistic**: $\bar{x}_G - \bar{x}_E = 1.50$ 
+* **Example code** for `infer`:
+```{r, eval = FALSE}
+null_distribution <- sample_data %>% 
+  specify(spent ~ location) %>% 
+  hypothesize(null = "independence") %>% 
+  generate(reps = 10000, type = "permute") %>% 
+  calculate(stat = "diff in means", order = c("glasgow", "edinburgh"))
+```
+</details>
+</blockquote>
+
+
+<blockquote class='task'>
+<details>
+<summary>**Example - proportion**</summary>
+
+* **Question**: As part of an advertising campaign a large cinema has claimed that a higher proportion of cinema-goers in Glasgow buy popcorn than cinema-goers in Edinburgh. Your company has asked you to test this claim, and has sampled 40 people at a cinema in Glasgow of whom 30% purchased popcorn, and 50 people at a cinema in Edinburgh of whom 32% purchased popcorn. 
+* **Null hypothesis** $H_0$: $p_1 - p_2 = 0$ 
+* **Statistic**: $\hat{p}_G - \hat{p}_E = -0.02$ 
+* **Example code** for `infer`:
+```{r, eval = FALSE}
+null_distribution <- sample_data %>% 
+  specify(popcorn_purchase ~ location) %>% 
+  hypothesize(null = "independence") %>% 
+  generate(reps = 10000, type = "permute") %>% 
+  calculate(stat = "diff in prop", order = c("glasgow", "edinburgh"))
+```
+</details>
+</blockquote>
+
+
+## Two means - paired/dependent samples
+* **What are we testing?**: comparing means from two paired samples
+* **Null hypothesis** $H_0: \mu_{diff} = 0$ 
+* **Statistic**: difference in sample means ($\bar{x}_{diff}$)
+* **Generation of null distibution**: create a new variable that is the difference of the the two paired responses and **treat like a one-sample mean test** based on the difference variable. 
+
+<blockquote class='task'>
+<details>
+<summary>**Example**</summary>
+
+* **Question**: A teacher claims his new lesson will significantly improve students test scores. A sample of 15 of his students have been tested and their average scores from tests which happen before and after the teacher's lesson are recorded. 
+</details>
+</blockquote>
+
+
+# One-sided or two sided?
+
+If the question is about whether something is **bigger** or **smaller** than a value then it is **one-sided**, in which case the alternative hypothesis ($H_a$) will be a 'less than' or 'greater than' statement:
+
+For example if the question asked *'whether the average is significantly greater than 4'* then the alternative hypothesis would be $H_a: \mu_0 > 4$ and this would be a **right-sided** test. 
+
+If the question asked *'whether the average is significantly less than 4'* then the alternative hypothesis would be $H_a: \mu_0 < 4$, this is a **left-sided** test. 
+
+If the question is about whether there is a significant **difference** (regardless of sign) then will be a **two-sided** test. You don't care whether it is higher or lower, but only that it is significantly different in one of the directions. In this case the question may be *'whether the average is significantly different from 4'* and then the alternative hypothesis would be $H_a: \mu_0 \ne 4$, and this is a **two-sided** test
+
+# Interpreting the results
+
+The $p$-value is the probability that we would observe a value equal to or more extreme than our observed sample statistic if the null hypothesis were true. The smaller the calculated $p$-value, the more unlikely it is that we are in a situation where the null hypothesis is true. 
+
+The critical value $\alpha$ is a pre-determined threshold for the $p$-value determining whether we reject $H_0$ or not. If we reject $H_0$, we are saying that it is unlikely that the difference between the observed statistic and $H_0$ is due to chance, and instead represents a statistically significant difference. 
+
+If the **$p$-value is less than $\alpha$** we **reject $H_0$ in favour of $H_a$**. We found enough evidence in the sample to suggest that the sample mean/proportion is statistically significantly different from, less than or greater than the null value.
+
+If the **p-value is greater than $\alpha$** then we lack sufficient evidence to reject $H_0$ and so we **fail to reject $H_0$**. Based on our sample, we do not have enough evidence that the mean/proportion is statistically significantly different from, less than or greater than the null value. 
+
+It is good practice to use the terminology **statistically significant** because, as discussed in class, a significant difference in the 'real-world' depends upon context. So we aren't claiming that the difference is practically significant to the 'real-world' scenario, e.g. that our sample mean is significantly far away from a value at which someone needs to take. Rather we are claiming significance within the realms of statistical testing. We need to set $\alpha$ and $\beta$ levels appropriate to our application. 
+
+# Additional examples
+* [Hypothesis tests examples using infer](https://moderndive.com/B-appendixB.html)
+

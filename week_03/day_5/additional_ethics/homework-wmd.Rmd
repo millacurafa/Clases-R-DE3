@@ -1,0 +1,55 @@
+---
+title: "Weapons of Math Destruction"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+# Learning Objectives<br>
+
+* Understand some real-world examples of bias
+
+**Duration - 55 minutes**<br>
+
+```{r, echo=FALSE, fig.cap="Weapons of Math Destruction", out.width = '50%'}
+knitr::include_graphics("images/wmd.jpg")
+```
+
+# Brief
+
+In her thought-provoking book Weapons of Math Destruction Cathy O'Neil argues that societal biases are perpetuated by algorithms.
+
+In this interview she summarises her views on the power of opaque algorithms and gives some real-world examples of where this has happened. She also offers some views on how this might be improved in the future.
+
+Listen to the Dataframed interview with Cathy O'Neil, or if you prefer you can read the transcript:
+[Dataframed Interview with Cathy O'Neil](https://www.datacamp.com/community/podcast/weapons-math-destruction)
+
+## MVP
+
+Whilst you are listening to the podcast, ask yourself these questions:
+
+- What is a weapon of maths destruction?
+- What kind of decisions could it be used for?
+- How are they making negative feedback loops?
+
+## Extension
+
+Also ask yourself these questions:
+
+- What do we mean by one variable being a proxy for another?
+- What level of understanding should a decision-maker have about a weapon of maths destruction before deciding to implement it?
+- What sort of regulation could be put in place to increase "fairness"?
+
+# Additional Resources
+
+* [Cathy's opinion column](https://www.bloomberg.com/authors/ATFPV0aLyJM/catherine-h-oneil) 
+* [Cathy's blog](https://mathbabe.org)
+
+
+
+

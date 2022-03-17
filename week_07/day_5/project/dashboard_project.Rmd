@@ -1,0 +1,152 @@
+---
+title: "Group Dashboard Project Introduction"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+  #  css: ../../../styles.css
+  pdf_document: default
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Today's Learning Objectives<br>
+
+* Understand what is required for the group dashboard project
+* Give an introduction to the requirements
+* Give an introduction to the expectations and delivery approach
+
+**Duration - 1 hour**<br>
+
+# The Dashboard Project
+
+## Project aims and learning objectives
+
+Over the next week you will work in a group to build a dashboard to consolidate and expand everything you have learned (or are about to learn):
+
+* Data cleaning, wrangling and manipulation  
+* Data visualisation  
+* Dashboard design  
+* R Shiny  
+* APIs/Keys   
+* Synthetic data  
+
+There are additional learning objectives to this project:
+
+* Gain experience working in a data team  
+* Understand some of the challenges this creates and ways to overcome them
+* Gain experience using Git/GitHub for a multi-person project with branches and merging  
+* Capture business requirements and translate these into a plan and deliverables  
+* Ensure best practice data security  
+
+## Expectations
+
+* All members of the group to contribute equally. You can decide amongst yourself on how you want to split this up. Make sure you make a plan so there isn't too many people working on the same thing. Areas to include are planning, development and presentation.  
+* Members support each other to make sure everyone gets the most out of the experience  
+* Having morning stand ups to update on progress/blockers
+* Regular Git commits and use of branches with merging  
+* API data will be synthesised and so will be ready to have a copy on your personal Github
+* Your results have been checked for reasonableness and against Google Analytics figures where possible. 
+
+## Rules
+
+* The dashboard should be built in R Shiny
+* The dashboard should follow best practice design
+* The dashboard meets the business requirements and **answers the business question**  
+* All code remains in a private CodeClan GitHub repository (we will provide this)  
+
+
+## Presentation
+
+In the presentation session you will have up to 15 minutes as a group, plus time for questions to unveil your dashboard. We'd like you to:
+
+* Talk through the functionality and components  
+* Discuss the approach taken and how it was planned within the group  
+* Discuss your design challenges and justify your final design decisions  
+* Identify any insights that you have captured from the data in the process of preparing the dashboard and any recommended actions  
+* Discuss any enhancements you would pick up if you'd had more time  
+* Any lessons for the future  
+
+You might find slides useful to support your presentation.
+
+
+
+***
+
+
+# Top tips
+
+## Team learning goals
+
+At the start of the project, have a discussion to establish what everyone wants to get out of it. Some people may be more focused on practising what they've already learned, some may be keen to try out something new. Find a way of enabling team members to reach their learning goals while ensuring the project is completed.
+
+## MVP
+
+Plan thoroughly so you're clear about the aim for the end result. Set out an MVP that doesn't contain any features that are not crucial to delivering against the requirements. Split the project up into small deliverables that can be tackled one at a time.
+
+## Approach
+
+A recommended approach is to first think through the business brief and decide what is being asked. You will be presenting your plans to the instructors so they can see if you've captured the essence of the business question. 
+Once you've decided what key info needs to go in, a good next step would then be to design the dashboard visually first with pens and paper. Then identify and document the data requirements. Extract the required data, carry out the manipulation, create individual components as functions and then bring it all together into the final app.
+
+## Minimising the API calls
+
+As part of the project you will be synthesising the data from the API. Keep this in mind when doing the set up of your project. It would be adivsable to minimise the number of API calls and have large calls (e.g. a whole year date range) that you then use manipulation on based on the user inputs after the call. This would be good practice as each call takes time, is more streamlined and also makes synthesising the data is much easier. 
+
+## Set up before branching 
+
+Before you start branching and splitting up the work it would be advisable to have your project to include the API calls, probably within a global.R file. This ensures everyone is starting from the same base. 
+
+## Checks!
+
+It's easy to get so caught up in whether your code runs or not it can be easy to think your analysis 'works' if your code runs ... but have you taken a moment to think about whether your numbers are reasonable and make sense?
+
+Make sure you are checking your output/results - where possible check against Google Analytics to see if your numbers match up. More important to have correct figures than an additional functionality! Also check if breakdowns are working as expecting and producing reasonable figures (this will check as to whether your code is doing what you think!). 
+
+A 'pretty' dashboard with lots of additional features showing incorrect numbers is so much worse than a less advanced dashboard with correct figures! 
+
+## Additional points
+
+* Sort out your data access early  
+* Identify and investigate any unknowns early (gives plenty time to investigate or for you to speak to business to owners to clarify)  
+* Put a time limit on aspects of the project to ensure that you have something to demonstrate at the end of the week  
+* Consider investigating features in a separate test project or branch to check you can implement your plan, before integrating it into your main project.  
+* Split your shiny app into ui.R and server.R files so that they can be worked on separately.
+* As priority focus on the data provided as part of the brief, but if have time may wish to explore adding open data which may be relevant to your brief.   
+* Think about how structure code for API calls - both in terms of number of calls but also for when replace it with synthesised data. 
+
+
+
+# Timeline
+
+| Date | Activity |
+|-----------------|-------------------------------------|
+| Thursday | Emails added to CodeClan Google Analytics |
+| Friday | Project briefs delivered and groups assigned |
+| Weekend | GoogleAnalytics lesson review and begin planning |
+| Monday/Tuesday | Instructors - present plan & reasonings |
+| Tuesday | Killian - 30 minute business requirement surgery  |
+| Friday | Project presentations |
+
+
+# .gitignore file 
+
+Before adding any scripts to your repo we want to make sure the .gitignore file contains all the correct file names to ignore. It should include:
+```{r, eval = FALSE}
+.Rproj.user
+.Rhistory
+.RData
+.DStore
+```
+
+When you create a new RStudio Project that is also a Git repo it creates a .gitignore file with all these included. 
+
+The instuctors will be able to help with .gitignores before you get started. If ever face an issue where haven't included '.Rproj.user' and want to add it after the fact [here](https://github.com/STAT545-UBC/Discussion/issues/122) is a useful link to how to fix it. 
+
+
+

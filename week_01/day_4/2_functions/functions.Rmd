@@ -1,0 +1,951 @@
+---
+title: "Functions"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Learning Objectives
+
+* Know the mathematical functions in R
+* Be able to write your own functions
+* Understand the scope of variables and the super-assignment operator for global variables
+* Know best practice for writing R functions
+
+**Duration - 2 hours**
+
+In this lesson we're going to learn all about functions in R. You've actually seen lots of examples of functions already, but we're going to go into more detail and also show you how to write your own functions.
+
+# What is a function?
+
+<br>
+<div class="emphasis">
+A function is an isolated block of code that that accepts an input (or inputs) and returns an output. This of it as being like a machine on a production line: unprocessed items go into the machine, processed items come out! 
+</div>
+<br>
+
+Functions generally **transform** a piece of data in some way. The easiest way of understanding functions is to see some examples of them.
+
+# Examples of functions
+
+Here's some examples of functions we've seen before and their inputs and outputs.
+
+| Function | Input | Output | What it does |
+|---|---|---|---|
+| `sum()`       | A `numeric` vector | A single number | Sums the elements of a vector |
+| `rev()`       | A vector         | A vector        | Reverses the elements of a vector |
+| `seq()`       | Several numbers  | A vector        | Generates a sequence of numbers |
+| `as.factor()` | A vector         | A vector        | Encodes a vector as `factor` type |
+
+For example for `sum()`, if our input is
+
+```{r}
+c(3, 6, 2)
+```
+
+Our output will be the number 11.
+
+```{r}
+sum(c(3, 6, 2))
+```
+
+
+## Some more functions
+
+This is a good chance to learn about some functions we haven't covered yet. If you want to know more about any of these functions, you can look up their help files.
+
+**`abs()`**
+
+Finds the absolute value of a number, i.e. find the distance of a number from zero (makes negative numbers positive)
+
+```{r}
+abs(-5)
+abs(3.1)
+```
+
+**`round()`**
+
+Rounds to the nearest whole number by default (the behaviour of this function when rounding off a 5 is a subtle, see the docs). If the `digits` parameter is a positive number, it will round to that number of decimal places; set to a negative number to round to powers of 10.
+
+```{r}
+round(5.233)
+round(5.233, digits = 2)
+round(3423.23, digits = -2)
+# subtle behaviour rounding a 5 - goes to even number
+round(3.5, digits = 0)
+round(2.5, digits = 0)
+```
+
+**`floor()`**
+
+Rounds, but always goes to the lowest number.
+
+```{r}
+floor(4.87)
+```
+
+**`ceiling()`**
+
+Similar to `floor()` but always goes to the highest number.
+
+```{r}
+ceiling(3.23)
+```
+
+**`paste()`**
+
+Joins character strings together, using whatever character separator (`sep`) you specify. Joins with a space by default.
+
+```{r}
+paste("Hello", "Goodbye")
+```
+
+```{r}
+paste("Hello", "Goodbye", sep = "")
+```
+
+If you have a vector of character strings, you can join them together by specifying the `collapse` argument.
+
+```{r}
+letters = c("h", "e", "l", "l", "o")
+paste(letters, collapse = "-")
+```
+
+A shortcut if you want to joining with no separator, i.e. `sep = ""`, is to use `paste0()`:
+
+```{r}
+paste0("Hello", "Goodbye")
+```
+
+**`sort()`**
+
+Returns elements of your vector in order. This is ascending order for numbers and alphabetical order for characters, although we can change this behaviour via the `decreasing` parameter
+ 
+```{r}
+sort(c(4, 2, 5, 1))
+```
+
+```{r}
+sort(c("banana", "apple", "carrot"))
+```
+
+**`nchar()`**
+
+Finds the number of characters in a string.
+
+```{r}
+nchar("hello")
+```
+
+# Function arguments
+
+Some of this was covered in day 2, but we're going to go over it more explicitly and in more detail.
+
+## Passing arguments by position
+
+All arguments to a function come in a specified order. We can put arguments into our function by giving them in the same order as they appear in the help file. For example, this call is fine
+
+```{r}
+nchar("hello", "chars", TRUE, NA)
+```
+
+whereas this won't work 
+
+```{r, error=TRUE}
+nchar(NA, "chars", "hello", TRUE)
+```
+
+R is good, but it can't read a user's mind! The only reason the first call above worked is because **we respected the order in which `nchar()` expects arguments**.
+
+## Passing arguments by name
+
+Alternatively we can specify the arguments in any order we want if we use their names:
+
+```{r}
+nchar(type = "chars", keepNA = NA, allowNA = TRUE, x = "hello")
+```
+
+This code is longer to type and read, but it has the advantage that is it completely clear what it tries to achieve. This will help others who read your code (and even yourself, when you revisit the code some time after you wrote it).
+
+## Default values
+
+In the help file, some arguments have a **default value** after them. If we don't specify any value for those arguments, then R will substitute in the default values.
+
+```{r}
+nchar("hello")
+```
+
+If you want to use the default value for one argument, but specify an argument after that, then you will need to specify the argument by name, not position. For example, this call will work
+
+```{r}
+nchar("hello", allowNA = TRUE)
+```
+
+whereas this call will not
+
+```{r, error=TRUE}
+nchar("hello", TRUE)
+```
+
+## `...`
+
+Often in help files you'll see some arguments listed as `...`. This means that we can put **as many arguments as we like** in this position. For example:
+
+```{r}
+paste("hello", "good", "bye", "hi")
+```
+
+Any arguments occurring after the `...` need to be specified by name.
+
+```{r}
+paste("hello", "good", "bye", "hi", sep = ', ')
+```
+
+## Reminder - most R functions are vectorised
+
+Almost every function you've seen so far is **vectorised**, i.e. it works on a vector of values exactly as it works on a single value, without any change of syntax:
+
+```{r}
+nchar(c("yes", "hey", "apple"))
+```
+
+This is another key reason why you don't need to use loops in R. 
+
+# Writing your own functions
+
+So far every function we've seen has been built into R or is part of a package. What do you do if you need to write your own functions? 
+
+Every function in R follows this pattern.
+
+```{r, eval = FALSE}
+function_name <- function(argument_1, argument_2 = value){
+  
+  Do something with arguments
+  
+  return(output)
+}
+```
+
+* We name the function, just like we name any other object, using the assignment `<-` operator.
+* The special keyword `function` tells R that we are defining a function.
+* We then write all the arguments of our functions. If we want any arguments to have default values, we specify the default with an equals sign.
+* We then do something with the arguments. This is called the body of the function. 
+* Once we've calculated everything we need, we return the output of the function using the special `return()` statement.<br><br>If you are returning the final line of the body, then the return statement is optional: R returns the last line of the body by default. Our style guide recommends **not** using the `return()` statement unless it's needed, but we will occasionally use it in this lesson to make the structure of our functions more clear. 
+* Some functions you write may use `if` statements to return different values or objects in different situations. In these cases you might want the function to return something before the final line of the body, and so you may need to use the `return()` statement.
+
+Let's see an example. Here's a function that multiplies any input number by 5.
+
+```{r}
+multiply_by_5 <- function(x){
+  return(x*5)
+}
+```
+
+We can also write it without the `return` statement.
+
+```{r}
+multiply_by_5 <- function(x){
+  x * 5
+}
+```
+
+Now we will use the function that we've made. It's used just like any other function that we've seen so far.
+
+```{r}
+multiply_by_5(10)
+```
+
+Here's a function with two arguments.
+
+```{r}
+multiply_by <- function(x, y){
+  return(x * y)
+}
+```
+
+And here's how we use it.
+
+```{r}
+multiply_by(10, 3)
+# or with named arguments
+multiply_by(x = 10, y = 3)
+```
+
+Here's an example of a function with a default value.
+
+```{r}
+multiply_by_5_default <- function(x, y = 5){
+  return(x * y)
+}
+```
+
+If we specify the second parameter, it works just like `multiply_by()` above.
+
+```{r}
+multiply_by_5_default(10, 3)
+```
+
+However, if we don't specify the second parameter, it works just like `multiply_by_5`.
+
+```{r}
+multiply_by_5_default(10)
+```
+
+<blockquote class = 'task'>
+
+**Task - 5 minutes**
+
+Write a function `make_price()` that takes as input any whole number, and returns it written as a price (i.e. with a '£' in front of the number). For example 5 would become £5, and 123 would become £123. Try out your function a few times to test that it works.
+
+<details>
+<summary>**Hint**</summary>
+Use the `paste()` function
+</details>
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+make_price <- function(x){
+  paste("£", x, sep = '')
+}
+
+make_price(5)
+make_price(123)
+```
+</details>
+</blockquote>
+<br>
+
+<blockquote class = 'task'>
+
+**Task - 5 minutes**
+
+Write a function that takes as input a whole number $n$, and returns the $n$-th triangle number. Try out your function a few times to test that it works.
+
+We discussed triangle numbers in the last lab. You can calculate the the $n$-th triangle number with the formula
+
+$$
+T_n = \frac{n(n + 1)}{2}
+$$
+
+So the 5th triangle number is
+
+$$
+\frac{5 \times (5 + 1)}{2} = 15
+$$
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+get_triangle_number <- function(n){
+  n * (n + 1) / 2
+}
+```
+
+```{r}
+# Testing it works
+get_triangle_number(5)
+get_triangle_number(6)
+```
+
+</details>
+</blockquote>
+
+# Function scope
+
+When you are inside a function, you can make use of **any object that's been defined globally**, not just the objects that are passed in to the function as arguments.
+
+<br>
+<div class="emphasis">
+**Scope in programming**<br><br>
+
+Suddenly we are using this term 'scope'. What does it mean? Well, the 'scope' of a variable is basically all the places in our code that we can use that variable name without causing an error (the error being that R will complain that it can't find the variable we are trying to use). 
+
+</div>
+<br>
+
+
+```{r}
+# this variable n is in global scope
+n <- 8
+
+multiply_by_n <- function(x){
+    # this uses n in global scope
+    x * n
+}
+
+multiply_by_n(5)
+```
+
+### Best practices
+
+Is using objects not explicitly passed in to a function a good idea? Generally no! It's better to be clear about what objects each function is using, because this makes reasoning about your code much easier. It also reduces the likelihood of creating subtle and difficult to track bugs (where say we *thought* we were using the variable `n` defined at one point in our code, but we're *actually* using `n` defined somewhere else). 
+
+This function below is much better, it is *clear* that we are using the variable `n` passed in as an argument.
+
+```{r}
+multiply_by_n <- function(x, n){
+  x * n
+}
+
+multiply_by_n(5, 8)
+```
+
+## Global assignment
+
+So functions can 'see' variables defined in global scope. Does this work in reverse?
+
+When you create an object inside a function, that object can't be accessed outside of the function. For example if we write the following function.
+
+```{r}
+multiply_by_3_add_2 <- function(x){
+  
+  times_3 <- x*3
+  add_2 <- times_3 + 2
+  
+  return(add_2)
+}
+```
+
+After we call the function, we can't use the variables `times_3` or `add_2` outside the function.
+
+```{r}
+multiply_by_3_add_2(5)
+```
+
+```{r, error = TRUE}
+times_3
+```
+
+```{r, error = TRUE}
+add_2
+```
+
+We say that variables defined inside a function in R are **scoped to that function**. 
+
+However, if you want to be able to use these variables outside the function, you can use the **global assignment operator**, `<<-` to assign these globally, i.e. outside the function. 
+
+```{r}
+multiply_by_3_add_2 <- function(x){
+  
+  times_3 <<- x*3
+  add_2 <<- times_3 + 2
+  
+  return(add_2)
+}
+```
+
+```{r}
+multiply_by_3_add_2(5)
+```
+
+```{r, error = TRUE}
+times_3
+```
+
+```{r, error = TRUE}
+add_2
+```
+
+### Best practices
+
+Is using global assignment inside a function a good idea? Again, generally no. Most of the time you want to limit the number of objects in the global scope, so you don't get confused about what each of them mean. It's generally a really good idea to try to keep what happens **inside** a function separate from what happens outside it, for the reasons we mentioned above
+
+If you need multiple outputs from a function, you can `return()` them as a `list`.
+
+```{r}
+multiply_by_3_add_2 <- function(x){
+  
+  times_3 <- x*3
+  add_2 <- times_3 + 2
+  
+  return(list(times_3 = times_3, add_2 = add_2))
+}
+```
+```{r}
+whats_returned <- multiply_by_3_add_2(5)
+whats_returned$times_3
+whats_returned$add_2
+```
+
+# The environment
+
+## Three parts to a function
+
+When you print out a function, two or three parts are shown.
+
+```{r}
+multiply_by_3_add_2
+```
+
+First we can see the body of the function; the actual code inside the function. We can also extract this using the `body()` function.
+
+```{r}
+body(multiply_by_3_add_2)
+```
+
+The arguments of the function are also displayed (in the brackets after `function`). These are also known as the 'formals', and can be extracted separately using the `formals()` function. For `multiply_by_3_add_2()` the only argument is `x`.
+
+```{r}
+formals(multiply_by_3_add_2)
+```
+
+The last thing that may or may not be shown is the environment that the function lives in. This can be obtained separately using the `environment()` function.
+
+```{r}
+environment(multiply_by_3_add_2)
+```
+
+If a function is in the global environment then the environment won't be shown when printing the function (which is why we said that two or three parts may be shown).
+
+## What is the environment?
+
+For our purposes, environments are created by functions. The function `outer_function()` creates a function inside it called `inner_function()`. We can check the environment for the inner function by returning it. 
+
+```{r}
+outer_function <- function(){
+  
+ inner_function <- function(){
+ }
+ 
+ print(environment(inner_function))
+}
+
+outer_function()
+```
+
+The `environment()` of `inner_function()` is a hexadecimal number that points to `outer_function()` (this hexadecimal number is actually a memory address, but you can think of it as being the label of an environment). So the outer function is the *environment* of the inner function, and the environment of the outer function is just the global environment:
+
+```{r}
+environment(outer_function)
+```
+
+Environments are **always** nested like this; apart from the global environment (which is special) all environments exist inside another environment. The environment that contains an environment is called the **parent environment**. So, in the case above
+
+* the parent environment of `inner_function()` is `outer_function()`
+* the parent of `outer_functio()` is `R_GlobalEnv`
+
+It's possible to create environments explicitly using the `new.env()`. However, this will not be needed in the R code you'll be writing in this course. 
+
+## How does R find an object?
+
+This may just seem torturous or abstract! Why is it important to know about environments? Well, they explain **how R finds the function you want** when you write a name. R always looks in the current environment first for a function of the correct name. If it doesn't find the function there, it moves up to the parent environment, and so on moving up environments one-by-one until it gets to the global environment. If it doesn't find the function there, R will throw an error. 
+
+So if you have a two functions named the same thing, R will use the one in the 'deepest' environment relative to the one you are currently in.
+
+What do you think the output of this will be?
+
+```{r}
+add <- function(x){
+  x + 2
+}
+
+outer_function <- function(){
+  
+  add <- function(x){
+    x + 3
+  }
+  
+  return(add(1))
+}
+
+outer_function()
+```
+
+The output is 4, because inside `outer_function()` R looks for a function called`add()` and finds it in the same environment. We can also say that `add()` inside the function **masks** `add()` outside the function.
+
+But if we call `add()` outside the function then R will find the `add()` function defined **outside** `outer_function()`.
+
+```{r}
+add(1)
+```
+
+The rules for how a function is found given its name are called **lexical scoping**, and they vary from programming language to programming language. Here, we have told you how lexical scoping works in R, but if (when) you start to use other languages, you may have to learn a new set of rules. Don't worry though, you quickly get used to the behaviour of a language in this regard. 
+
+You can mask functions inside the same environment. If you define the same function twice then R will use the most recently run definition.
+
+```{r}
+add <- function(x){
+  x + 2
+}
+
+add <- function(x){
+  x + 3
+}
+
+add(1)
+```
+
+Again, though, do not rely on this behaviour when writing code, as it can make it difficult to understand intent. A better solution above would have been to call the functions say `add_2()` and `add_3`.
+
+<blockquote class = 'task'>
+
+**Task - 5 minutes**
+
+What will be the results of running the following code blocks?
+
+1.
+```{r, eval=FALSE}
+multiply <- function(x){
+  x * 2
+}
+
+wrapper_function <- function(num){
+  
+  multiply <- function(x){
+    x * 3
+  }
+  
+  return(multiply(num))
+}
+
+wrapper_function(5)
+```
+
+2.
+```{r, eval=FALSE}
+multiply <- function(x){
+  x * 2
+}
+
+wrapper_function <- function(num){
+  
+  multiply <- function(x){
+    x * 3
+  }
+  
+  return(multiply(num))
+}
+
+multiply(5)
+```
+
+3.
+```{r, eval = FALSE}
+multiply <- function(x){
+  x * 2
+}
+
+
+multiply <- function(x){
+  x * 3
+}
+
+multiply(5)
+```
+
+<details>
+<summary> **Solution** </summary>
+
+1.
+```{r, echo=FALSE}
+multiply <- function(x){
+  x * 2
+}
+
+wrapper_function <- function(num){
+  
+  multiply <- function(x){
+    x * 3
+  }
+  
+  return(multiply(num))
+}
+
+wrapper_function(5)
+```
+
+2.
+```{r, echo = FALSE}
+multiply <- function(x){
+  x * 2
+}
+
+wrapper_function <- function(num){
+  
+  multiply <- function(x){
+    x * 3
+  }
+  
+  return(multiply(num))
+}
+
+multiply(5)
+```
+
+3.
+```{r, echo = FALSE}
+multiply <- function(x){
+  x * 2
+}
+
+
+multiply <- function(x){
+  x * 3
+}
+
+multiply(5)
+```
+
+</details>
+</blockquote>
+
+# Best practices for writing functions
+
+When writing functions you want to follow our style guide. Try to make function names verbs as far as possible, because functions typically *do* something.
+
+**Good**
+
+```{r, eval = FALSE}
+add_3() 
+format_number()
+read_data()
+```
+
+**Bad**
+
+```{r, eval = FALSE}
+adder()
+number_formatter()
+data_reader()
+```
+
+Functions should be written with the same brackets `{}` layouts we saw with `if` statements and loops: all the code inside the brackets should be indented.
+
+**Good**
+
+```{r}
+add_3 <- function(x){
+  x + 3
+}
+```
+
+**Bad**
+
+```{r}
+add_3 <- function(x)
+{
+  x + 3}
+```
+
+## Why write functions?
+
+The main reason to write functions is to avoid repeating yourself when writing code. As discussed earlier: less code is better, because it's easier to understand and maintain. Repetitive code can be particularly difficult to maintain. Say you want to change one number, but you've used it 17 times in your code. You need to go through all your code and change that number, making sure you are not changing any other constants that might have the same value.
+
+For example, if we have three vectors that we want to sort, join together and pre-append with the title 'Ordered list':
+
+```{r}
+animals <- c("Cat", "Dog", "Monkey", "Elephant", "Frog")
+hats <- c("Bowler", "Sun Hat", "Baseball Cap", "Fez")
+trees <- c("Ash", "Elm", "Oak", "Willow", "Fir")
+```
+
+We could do it this way:
+
+```{r}
+animals_sorted <- sort(animals)
+animals_joined <- paste(animals_sorted, collapse = ', ')
+paste("Ordered List:", animals_joined)
+
+hats_sorted <- sort(hats)
+hats_joined <- paste(hats_sorted, collapse = ', ')
+paste("Ordered List:", hats_joined)
+
+trees_sorted <- sort(trees)
+trees_joined <- paste(trees_sorted, collapse = ', ')
+paste("Ordered List:", trees_joined)
+```
+
+Or we could do it with the help of a function
+
+```{r}
+make_ordered_list <- function(my_list){
+  
+  my_list_sorted <- sort(my_list)
+  my_list_joined <- paste(my_list_sorted, collapse = ', ')
+  paste("Ordered List:", my_list_joined)
+
+}
+
+make_ordered_list(animals)
+make_ordered_list(hats)
+make_ordered_list(trees)
+```
+
+Notice how much more efficient the second way is, we've cut out nearly two-thirds of the code! It's also easier to work with: if we need to change the details, say, of the sorting or joining, we only need to do it in one place.
+
+The programming principle of avoiding repeating code is known as **DRY: Don't Repeat Yourself**, and you'll hear software designers saying they are going to 'DRY' out their code, or complaining about wet code (the opposite of DRY). 
+
+However, like most elements of writing good code, DRY is more art than science. If you end up writing functions that take in lots of parameters, since each time you call the function you are doing something quite different, then this part of the code probably doesn't need to be enclosed in a function. In that case, there is no well-defined repetitive process to DRY out, there is just a series of separate, distinct tasks.
+
+## Debugging
+
+Writing code as functions can make it harder to understand what's happening and in turn harder to debug your code. 
+
+Luckily R has lots of inbuilt debugging tools which make working with functions easier. If you want to debug a function, use `debug(function_name)`, to stop debugging it use `undebug(function_name)`. Often it's easier to use `debugonce(function_name)`, which automatically undebugs your function after you've debugged it once.
+
+When you go into debug mode you will run through a function line by line, and you can use the environment pane and the console the understand the values of your variables inside the function at each point. 
+
+Let's go though an example with our `make_ordered_list` function.
+
+First we go into debug mode:
+
+```{r, eval = FALSE}
+debug(make_ordered_list)
+```
+
+Then we use the function with some parameters.
+
+```{r, eval = FALSE}
+make_ordered_list(animals)
+```
+
+This puts us in the function in debug mode. This is a very useful environment to interrogate your code. You can step through code using the `Next` button that appears in the RStudio `Console`, run particular lines of code of interest directly in the `Console` at the `Browse` prompt, and see variable definitions in the `Environment` pane. Taken together, this should be enough to help you fix many bugs!
+
+If you want to quit debugging before the function call naturally ends, hit the `Stop` button
+
+After you finish, remember to 'undebug' your function.
+
+```{r, eval = FALSE}
+undebug(make_ordered_list)
+```
+
+<blockquote class = 'task'>
+
+**Task - 20 minutes**
+
+Write a function `make_fancy_price()` that takes any decimal number and returns it as a 'written out' price in the form "# pounds # pence". If the input number corresponds only to whole pounds or whole pence, then return only that part of the price (e.g. "# pounds" or "# pence"). You'll also need to round to the nearest number of pence.
+
+Here's some examples of inputs and expected outputs. 
+
+| Input  | Output            |
+|--------|-------------------|
+| 3.23   | 3 pounds 23 pence |
+| 4.5    | 4 pounds 50 pence |
+| 8      | 8 pounds          |
+| 50.012 | 50 pounds 1 pence |
+| 0.546  | 55 pence          |
+
+* You may need to think about the DRY principal. 
+* Perhaps think about separate functions to format pounds and pence correctly.
+* Remember you can call one function from insides another.
+
+<details>
+<summary> **Solution** </summary>
+
+This is an example of an answer - others are acceptable.
+
+```{r}
+format_pence <- function(x){
+  
+  rounded <- round(x, 2)
+  as_pence <- rounded * 100
+  
+  formatted_as_pence <- paste(as_pence, "pence")
+  return(formatted_as_pence)
+
+}
+
+format_pounds <- function(x){
+  
+  formatted_as_pounds <- paste(x, "pounds")
+  return(formatted_as_pounds)
+  
+}
+
+make_fancy_price <- function(x){
+  
+  pounds <- floor(x)
+  pence <- x - floor(x)
+  
+  if (pounds == 0){
+    return(format_pence(pence)) 
+  }
+  
+  if (pence == 0){
+    return(format_pounds(pounds))
+  }
+  
+  paste(format_pounds(pounds), format_pence(pence))
+  
+}
+```
+
+
+```{r}
+# Testing the solution works
+make_fancy_price(3.23)
+make_fancy_price(4.5)
+make_fancy_price(8)
+make_fancy_price(50.012)
+make_fancy_price(0.546)
+```
+</details>
+</blockquote>
+
+
+# Summary 
+
+1.
+
+What is the definition of a function?
+
+<details>
+<summary> **Solution** </summary>
+Anything that takes an input and gives an output.
+</details>
+
+2. What is the general form for a function in R?
+
+<details>
+<summary> **Solution** </summary>
+```{r, eval = FALSE}
+function_name <- function(argument_1, argument_2 = value){
+  
+  Do something with arguments
+  
+  return(output)
+}
+```
+</details>
+
+3. Can you use variables from outside a function inside a function?
+
+<details>
+<summary> **Solution** </summary>
+Yes
+</details>
+
+4. Can you use variables from inside a function outside a function?
+
+<details>
+<summary> **Solution** </summary>
+No
+</details>
+
+5. How do you debug a function?
+
+<details>
+<summary> **Solution** </summary>
+Using `debug`, `undebug` and `debugonce`
+</details>
+
+## Additional Resources
+
+A chapter in R for Data Science about functions:
+https://r4ds.had.co.nz/functions.html
+
+A chapter in Advanced R about functions:
+http://adv-r.had.co.nz/Functions.html
+
+More about debugging:
+https://adv-r.hadley.nz/debugging.html

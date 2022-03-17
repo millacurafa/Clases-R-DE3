@@ -1,0 +1,182 @@
+---
+title: "Borders Cancer Analysis"
+output:
+  pdf_document: default
+  html_notebook: default
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(ggpubr)
+
+theme_mhairi <-
+  theme_minimal(base_size = 8) +
+  theme(
+    plot.title = element_text(size = 8),
+    plot.subtitle = element_text(size = 8),
+    complete = TRUE,
+    legend.position = "bottom"
+  )
+
+cancer_all <- read_csv("opendata_inc9317_hb2018.csv")
+
+cancer_all <- clean_names(cancer_all)
+
+cancer <- 
+cancer_all %>%
+  filter(hbr2014 == "S08000016")
+```
+
+### Male and Female cancer rates through time
+
+```{r, fig.height=2}
+plot_left <- 
+cancer %>%
+  filter(cancer_site == "All cancer types") %>%
+  filter(sex != "All") %>%
+ ggplot +
+  aes(x = year, y = incidences_all_ages, colour = sex) +
+  geom_line() +
+  labs(
+    x = "Year",
+    title = "Raw count of all cancer cases in Borders",
+    subtitle =  "1993 to 2017",
+    y = ""
+  ) +
+  theme_mhairi
+
+plot_right <-
+  cancer %>%
+  filter(cancer_site == "All cancer types") %>%
+  filter(sex != "All") %>%
+ ggplot +
+  aes(x = year, y = standardised_incidence_ratio, colour = sex) +
+  geom_line() +
+  labs(
+    x = "Year",
+    title = "Standardised incidence ratio for cancer cases in Borders",
+    subtitle =  "1993 to 2017",
+    y = "",
+    colour = ""
+  ) + 
+  theme_mhairi
+
+
+ggarrange(plot_left, plot_right, ncol = 2, common.legend = TRUE, legend = "right")
+```
+
+The raw number of cancer cases has been increasing through time. However, the standardised incidence ratio has remained largely flat. This indicates that the rise in cases is due to ageing demographics in the area. 
+
+### Most common cancer types
+
+```{r, fig.height = 3, fig.width = 5}
+most_common <-
+cancer %>%
+  filter(cancer_site != "All cancer types") %>%
+  filter(sex == "All") %>% 
+  filter(year >= 2012) %>%
+  group_by(cancer_site) %>%
+  summarise(
+    cases = sum(incidences_all_ages)
+  ) %>%
+  top_n(10) %>%
+  pull(cancer_site)
+
+cancer %>%
+  filter(sex != "All") %>%
+  filter(year >= 2012) %>%
+  filter(cancer_site %in% most_common) %>%
+  group_by(cancer_site, sex) %>%
+  summarise(
+    cases = sum(incidences_all_ages)
+  ) %>%
+  ungroup %>%
+  mutate(
+    cancer_site = fct_reorder(cancer_site, cases)
+  ) %>%
+ggplot +
+  aes(x = cancer_site, y = cases, fill = sex) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    title = "Cases of most common cancers in Borders",
+    subtitle = "2012 to 2017",
+    y = "Cases",
+    x = "",
+    fill = ""
+  ) +
+  theme_mhairi 
+```
+
+The plot above shows the number of cases in the last five years for the ten most common types of cancer, along with the ratio between men and women. You can see that most cancers are about equally common in men and women, except breast cancer which affects far more women then men. 
+
+### Comparing the Borders to other Local Authority areas
+
+```{r, fig.height = 5}
+la_code_convert <- 
+  read_csv("geography_codes_and_labels_hb2014_01042019.csv") %>%
+  select(
+     local_authority = HB2014Name,
+     la_code = HB2014
+  ) %>%
+  mutate(
+    local_authority = str_remove(local_authority, "NHS ")
+  )
+
+plot_data <- 
+cancer_all %>%
+  filter(cancer_site %in% most_common[1:6]) %>%
+  filter(year == 2017) %>%
+  filter(sex == "All") %>%
+  select(
+    cancer_site,
+    la_code = hbr2014, 
+    ratio = standardised_incidence_ratio,
+    upper = sir_upper95pc_confidence_interval,
+    lower = sir_lower95pc_confidence_interval
+  ) %>%
+  left_join(la_code_convert) %>%
+  arrange(cancer_site, desc(ratio)) %>%
+  mutate(
+    row_number = row_number(),
+    row_number = factor(row_number, levels = row_number)
+  )
+
+ggplot(plot_data) +
+  aes(
+    x = row_number,
+    y = ratio,
+    ymin = lower,
+    ymax = upper,
+    colour = local_authority == "Borders"
+  ) +
+  geom_errorbar() +
+  geom_point() +
+  scale_x_discrete(
+    breaks = plot_data$row_number,
+    labels = plot_data$local_authority
+  ) +
+  scale_colour_manual(
+    values = c("TRUE" = "Red", "FALSE" = "Black"),
+    guide = FALSE
+  ) +
+  labs(
+    title = "Standardised incidence ratios (with confidence intervals) of common cancers across Scotland",
+    subtitle = "2017",
+    y = "Standardised Incidence Ratio",
+    x = ""
+  ) +
+  coord_flip() +
+  facet_wrap(~cancer_site, scales = "free", ncol = 2) +
+  theme_mhairi
+```
+
+These plots show the adjusted incidence rates for the most common cancers across the Local Authority areas in Scotland. The Borders has an average rate of Basel cell carcinoma and relatively high rates in the five other cancers. However, the confidence intervals show considerable uncertainty in these estimates, particularly for Borders - which has a reasonably low population.
+

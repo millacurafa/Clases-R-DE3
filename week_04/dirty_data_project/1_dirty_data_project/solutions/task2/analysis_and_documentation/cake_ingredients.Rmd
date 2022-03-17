@@ -1,0 +1,70 @@
+---
+title: "Task 2: Cake Ingredients - analysis"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r}
+library(tidyverse)
+library(here) 
+
+# Using the 'here' function so that path directories work in notebooks the same way the work in scripts
+cake <- read_csv(here("clean_data/cake_clean.csv"))
+```
+
+# Question 1
+Which cake has the most cocoa in it?
+
+```{r}
+cake %>%
+  filter(ingredient == "Cocoa") %>%
+  arrange(desc(amount)) %>% 
+  head(1)
+```
+
+# Question 2
+For sponge cake, how many cups of ingredients are used in total?
+
+```{r}
+cake %>%
+  filter(cake == "Sponge") %>%
+  filter(measure == "cup") %>%
+  summarise(total_cups = sum(amount))
+```
+
+
+# Question 3
+
+How many ingredients are measured in teaspoons?
+
+```{r}
+cake %>%
+  filter(measure == "teaspoon") %>%
+  summarise(teaspoon_ingreds = n_distinct(ingredient))
+```
+
+
+# Quesion 4
+Which cake has the most unique ingredients?
+
+```{r}
+cake %>%
+  group_by(cake) %>%
+  summarise(n_ingredients = n()) %>%
+  arrange(desc(n_ingredients))
+```
+Babas au Rhum and One Bowl Chocolate are equal top.
+
+# Question 5
+
+Which ingredients are used only once?
+
+```{r}
+cake %>%
+  group_by(ingredient) %>%
+  summarise(n_cakes = n()) %>% 
+  filter(n_cakes == 1)
+```
+

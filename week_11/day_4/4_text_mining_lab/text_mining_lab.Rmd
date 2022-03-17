@@ -1,0 +1,224 @@
+---
+title: "Text Mining Lab"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+
+**Duration: 3 hours**
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, output = FALSE, eval = FALSE, fig.align = "center", message = FALSE, warning = FALSE)
+```
+
+For this lab you will need the following libraries.
+
+```{r, echo = TRUE, eval = TRUE}
+library(dplyr)
+library(tidyr)
+library(tidytext)
+library(ggwordcloud)
+library(hcandersenr)
+library(harrypotter)
+library(janeaustenr)
+```
+
+In this lab we'll be working with Harry Potter data, Jane Austen data and data from the package `hcandersenr`, this has the text of Hans Christian Anderson fairy tales. We'll also be using a dataset of movie reviews from inside the the `text2vec` package. You'll need to install and load these packages.
+
+```{r, eval = FALSE, echo = TRUE}
+install.packages("hcandersenr")
+install.packages("text2vec")
+```
+
+Once you have installed and loaded the package the `hcandersenr` package, you will have access to the data frame `hcandersen_en`. 
+
+```{r, echo = TRUE, eval = TRUE}
+library(hcandersenr)
+hcandersen_en
+```
+
+The data inside `text2vec` that we want is `movie_review`.
+
+```{r, echo = TRUE, eval = TRUE}
+library(text2vec)
+glimpse(movie_review)
+```
+
+# Word clouds in ggplot
+
+Create a word cloud of the top words that appear in the book "The Little Mermaid". You will need to
+
+1. Select only "The little mermaid" from the `hcandersen_en` data frame.
+2. Unnest the tokens and count the frequency of words
+3. Remove stop words
+4. Plot this using `ggwordcloud`, from the package `ggwordcloud`.
+
+
+```{r}
+little_mermaid_words <- 
+hcandersen_en %>%
+  filter(book == "The little mermaid") %>%
+  unnest_tokens(word, text) %>%
+  count(word, sort = TRUE) %>%
+  anti_join(stop_words)
+```
+```{r}
+ggwordcloud(
+  little_mermaid_words$word,
+  little_mermaid_words$n,
+  min.freq = 10
+)
+```
+
+# Bar chart of top words
+
+Make a bar chart of the top 10 sentiment words in The Little Mermaid. Make the length of the bars depend on how often the words are said, and make the colour of the bars depend on the sentiment of the word.
+
+```{r}
+little_mermaid_words %>%
+  inner_join(get_sentiments("afinn")) %>%
+  slice(1:10) %>%
+  mutate(word = factor(word, levels = word)) %>%
+ggplot +
+  aes(x = word, y = n, fill = value) +
+  geom_col()
+```
+
+
+## Find combinations
+
+Find the most common bigrams in Chamber of Secrets that start with "very" followed by a sentiment word from the "Bing" sentiment list.
+
+```{r}
+book_1_bigrams <-
+tibble(
+  chapter = 1:17,
+  text = philosophers_stone
+) %>%
+unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
+separate(bigram, c("word_1", "word_2"), sep = " ")
+```
+
+```{r}
+book_1_bigrams %>%
+  inner_join(get_sentiments("bing"), by = c("word_2" = "word")) %>%
+  filter(word_1 == "very") %>%
+  count(word_1, word_2, sentiment, sort = TRUE)
+```
+
+# Compare Authors - Harder
+
+Use TF-IDF scores to find the 5 words most associated with the three sets of books we've looked at so far (the Harry Potter novels, Hans Christian Anderson stories and Jane Austen's novels).
+
+Hint: The hard part here is creating a data frame with all the authors. In particular the Harry Potter books require a bit of work to join them all together. Look back at the notes to see how we created a character vector with each book as an element.
+
+```{r}
+hp_books <- list(philosophers_stone, chamber_of_secrets, prisoner_of_azkaban,
+              goblet_of_fire, order_of_the_phoenix, half_blood_prince,
+              deathly_hallows)
+all_harry_potter <- purrr::map_chr(hp_books, paste, collapse = " ")
+all_harry_potter <- paste(all_harry_potter, collapse = " ")
+
+all_jane_austen <- paste(janeaustenr::austen_books()$text, collapse = " ")
+
+all_hca         <- paste(hcandersen_en$text, collapse = " ")
+```
+```{r}
+compare <- tibble(
+  book = c("Harry Potter", "Jane Austen", "Hans Christian Anderson"),
+  text = c(all_harry_potter, all_jane_austen, all_hca)
+)
+```
+```{r}
+compare %>%
+  unnest_tokens(word, text) %>%
+  count(book, word) %>%
+  bind_tf_idf(word, book, n) %>%
+  arrange(book, desc(tf_idf)) %>%
+  group_by(book) %>%
+  slice(1:5)
+```
+
+# A linear model with text data - Harder
+
+1. Use `unnest_tokens` to find all the words in the movie review dataset.
+2. Create another data frame with the 50 most common words in this dataset
+3. Now use `inner_join`, so that your origional data frame only contains the top 50 words.
+4. Create dummy variables for each word
+5. Now create linear model where you predict sentiment using the word dummies. What words are important for predicting sentiment?
+
+```{r}
+reviews  <-
+movie_review %>%
+  unnest_tokens(word, review) %>%
+  as_tibble()
+```
+```{r}
+top_50 <- 
+reviews %>%
+  count(word, sort = TRUE) %>%
+  top_n(50)
+```
+```{r}
+reviews <- 
+reviews %>%
+  inner_join(top_50) 
+
+reviews <-
+  reviews %>%
+  distinct(id, word, .keep_all = TRUE) %>%
+  mutate(present = 1) %>%
+  spread(word, present, fill = 0) %>%
+  select(-id, -n)
+```
+
+```{r}
+model <- lm(sentiment ~ ., data = reviews)
+```
+
+```{r}
+anova(model)
+```
+
+
+# Sentiment arcs - Harder
+
+Create a graph showing smoothed lines that show how the sentiment changes though the following Hans Christian Anderson stories. 
+
+The little mermaid
+Thumbelina
+The snow queen
+The ugly duckling
+The princess and the pea
+
+Hints:
+
+1. You will need to join with `get_sentiments("afinn")`
+2. You may need to create a new column which shows the position of each sentence in the story. 
+
+```{r}
+hcandersen_en %>%
+  filter(book %in% c("The little mermaid", "Thumbelina", "The snow queen", "The ugly duckling",	"The princess and the pea")) %>%
+  unnest_tokens(word, text) %>%
+  inner_join(get_sentiments("afinn")) %>%
+  group_by(book) %>%
+  mutate(
+    word_n = row_number()
+  ) %>%
+  mutate(
+    story_position = word_n/max(word_n)
+  ) %>% 
+ggplot +
+  aes(x = story_position, y = value, colour = book) +
+  geom_smooth(se = FALSE) +
+  guides(colour = FALSE) +
+  facet_wrap(~book, nrow = 5)
+```
+
+

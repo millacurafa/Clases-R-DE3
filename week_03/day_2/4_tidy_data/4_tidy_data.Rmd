@@ -1,0 +1,323 @@
+---
+title: "What is Tidy Data"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+library(tidyverse)
+library(CodeClanData)
+```
+
+
+# Learning Objectives<br>
+1. Understand the concept of tidy data
+2. Be able to describe why datasets are not tidy
+3. Know why tidy data is important for analytics
+
+
+# What is Tidy Data?
+
+<center>
+<br>
+<div class='emphasis'>
+“Tidy datasets are all alike, but every messy dataset is messy in its own way.” –– Hadley Wickham
+</div>
+</center>
+<br>
+
+Up until now, the data you've worked with has more or less been in a reasonable format: rows and columns have been organised in a sensible way, and variables have been separated out. However, more often than not, the data you work with will not be formatted in the most efficient way possible. You'll have columns representing the same thing, oddly named rows and column headers, and sometimes more than one data entry per cell. This type of data is known (in the tidyverse world) as messy data. What we need is the opposite - tidy data!
+
+<br>
+
+```{r, fig.width = 0.3, fig.height= 0.3, echo = FALSE}
+library(knitr)
+# Small fig.width
+include_graphics("images/real_world_data.jpg")
+```
+
+<br>
+
+
+### Tidy data has structure 
+
+There are three fundamental rules defining Tidy Data:
+
+1. Each variable must have its own column. 
+2. Each observation must have its own row.
+3. Each value must have its own cell (i.e. no grouping two variables together, e.g. a person's name and age should not be in one cell 'Joe Blogs, 28' ).
+
+This figure from [statseducation.com](http://statseducation.com/Introduction-to-R/img/tidy-1.png) shows this a bit more clearly: 
+<br><center>
+![](http://statseducation.com/Introduction-to-R/img/tidy-1.png)  
+</center>
+<br>
+
+Arranging your data in this way makes it easier to work with because you have a consistent way of referring to variables (as column names) and observations (as row indices). When use tidy data and tidy tools, you spend less time worrying about how to feed the output from one function into the input of another, and more time answering your questions about the data. 
+
+
+### Tidy data contains relationships 
+
+Tidy data also works on a premise that data contains values which have relationships between one another, and it displays these in the dataset as consistently as it does the values. For example, in a tidy dataset you might have relationships such as:  
+
+1. A name associated with a bank account number 
+2. A date associated with a time
+3. A patient ID associated with a test result
+
+
+Basially, tidy datasets provide a standardized way to link the structure of a dataset (its physical layout) with its semantics (its meaning).  
+
+<br>
+
+### Long vs. Wide 
+
+Finally, tidy data can be structured in long format or wide format.
+
+Long format is where every row represents an observation belonging to a particular category.
+
+
+| Product | Attribute | Value     | 
+|---------|-----------|-----------| 
+| A       | Height    | 10        | 
+| A       | Width     | 5         | 
+| A       | Weight    | 2         | 
+| B       | Height    | 20        | 
+| B       | Width     | 10        | 
+
+<br>
+
+| country     | year    | avg_temp |
+|-------------|---------|----------|
+| Sweden      | 1994    |   11     |
+| Denmark     | 1994    |    5     |
+| Norway      | 1994    |    9     |
+| Sweden      | 1995    |    8     |
+| Denmark     | 1995    |    7     |
+| Norway      | 1995    |    8     |
+| Sweden      | 1996    |    9     |
+| Denmark     | 1996    |   10     |
+| Norway      | 1996    |   11     |
+
+
+<br>
+
+Wide format is here each observation is spread across multiple columns.
+
+| Product | Height | Width | Weight   | 
+|---------|--------|-------|----------|   
+| A       | 10     | 5     | 2        | 
+| B       | 20     | 10    | NA       | 
+
+<br>
+
+| country     | avg_temp_1994 | avg_temp_1995 | avg_temp_1996 |
+|-------------|---------------|---------------|---------------|
+| Sweden      |       11      |       8       |       9       |
+| Denmark     |       5       |       7       |      10       |
+| Norway      |       9       |       8       |      11       |
+
+<br>
+
+
+
+# Which is the better format?
+
+Out of the two formats above, which do you prefer? 
+
+Tidy is a mix of both of these approachs, but in general long format works best for data-wrangling for three main reasons: 
+
+1. If you have a lot of variables, wide format can be tricky. Imagine if we had 50 years worth of average temperatures, for each month. In wide format, you'd end up with 600 columns (50*12 months). In the long dataset, you might only have 12 variable columns - one for each month.   
+
+2. Long format structures the data in key-value pairs and therefore aids clarity. For example, it is relatively quick to see that in the long dataset above, the temperature belongs to a country-year pair.  
+
+3. Certain packages (such as ggplot) and many in built R statistics functions require data to be in long format. Therefore, it's easier to organise your data in this format to start with. 
+
+
+
+<br>
+Take a look at the image below: 
+
+![](https://d33wubrfki0l68.cloudfront.net/f6fca537e77896868fedcd85d9d01031930d76c9/637d9/images/tidy-17.png)  
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+On the left, you have data that isn't classed as 'tidy'. Why is this?
+
+
+<details>
+<summary>**Answer**</summary>
+This data isn't tidy because you have more than one observation per cell. On the right, this dataset has been 'tidied', and the cases and population have been separated, making it easier to analyse. 
+</details>
+</blockquote>
+
+<br>
+
+<blockquote class='task'>
+**Task - 5 mins** 
+Now let's look at a slightly harder example. Pretend you're working at a drug testing unit, and you've got some data from three subjects, and you've recorded their heart rate twice a day. 
+
+
+```{r}
+# create subject info tibble
+subject_hr <- tibble( name = c("SUBJ01","SUBJ02","SUBJ03"), 
+  hr_am = c(68,72,68), 
+  hr_pm = c(58,89,52))
+
+```
+
+The data above isn't tidy. Why?
+
+<details>
+<summary>**Answers**</summary>
+
+* There are 2 heart rate columns, when we really, should only have one (rule 1: a variable must have its own column). 
+* Because drug type is spread out into two columns, it means that rows don't contain one unique observation (rule 2). If you look, row one contains two different HR options for one particular subject. 
+
+What we really need is for our data to look like this: 
+
+
+| SUBJID  | TIME    | HEART RATE  | 
+|---------|---------|-------------| 
+| SUBJ01  | hr_am   | 68          | 
+| SUBJ01  | hr_pm   | 58          | 
+| SUBJ02  | hr_am   | 72          |  
+| SUBJ02  | hr_pm   | 89          | 
+| SUBJ03  | hr_am   | 68          | 
+| SUBJ03  | hr_pm   | 52          | 
+
+In this, each observation has its own row, and each variable is only repeated once. 
+
+</details>
+</blockquote>
+<br>
+
+<blockquote class='task'>
+**Task - 5 minutes**
+
+Load in the `messy_orders` data from the codeclan data package. 
+```{r}
+# print out the data
+CodeClanData::messy_orders
+
+```
+
+
+* What makes the table untidy?
+* How could you tidy it? (You don't need to know how to write the code, you just need to have an idea of you would tidy them up)
+
+
+<details>
+<summary>**Answers**</summary>
+What makes this table untidy?
+
+* The `order_info` column contains both order information and order dates. 
+
+To tidy the data we would:
+
+* Split these columns into two. 
+
+</details>
+<br>
+</blockquote>
+<br>
+
+
+<blockquote class='task'>
+**Task - 5 minutes**
+
+Load in the `income` data from the codeclan data package. 
+```{r}
+# print out the data 
+CodeClanData::income
+
+```
+
+
+* What makes the table untidy?
+* How could you tidy it? (You don't need to know how to write the code, you just need to have an idea of you would tidy them up)
+
+
+<details>
+<summary>**Answers**</summary>
+What makes this table untidy?
+This one is a bit harder. 
+
+* First, variables (religion and income amount) form both the column and row headings. 
+* Second, the column headings are values, not variable names. 
+
+</details>
+</blockquote>
+
+<br>
+
+
+# Why is tidy data important?
+
+<br>
+<center>
+<div class='emphasis'>
+"The development of tidy data has been driven by my experience working with real-world datasets. With few, if any, constraints on their organisation, such datasets are often constructed in bizarre ways. I have spent countless hours struggling to get such datasets organised in a way that makes data analysis possible, let alone easy."
+- Hadley Wickham
+</div>
+</center>
+<br>
+
+
+Right now, you might be sitting thinking that tidy data is such a good (and almost, obvious) idea, that most datasets you come into contact with in the wild will be in this format? Wrong. In practice, raw data you're given is rarely perfectly tidy. Once you receive 
+
+The main reason tidy data is important is because it makes it easy for a data analyst or scientist to extract the necessary data, because it has a standardised way of structuring the data. Messy data requires different strategies and often times unique programming solutions in order to extract data in the same way. This slows analysis, invites errors, and makes the analysis pipeline less robust and reproducible. 
+
+Secondly, good ordering and structure of the data makes it easier to scan and eyeball the raw data. As we've already learned in the first section of today, this is an important and very necessary part to understanding and working with your data. 
+
+Third, it's important to have tidy data in R is because of the type of programming language R is. R is a vectorized programming language, meaning that all data structures, functions and operations are designed to work with vectors. Data frames (or tibbles) in R are just lists of vectors, arranged to look like tables. 
+
+Finally, tidy data arranges all values so that the relationships parallel the structure of data frames/tibbles in R. As a result, tidy datasets can easily use R's different functions (all of which are written to deal with vectors). This means you'll have an easier user experience: you can analyse data using functions that someone has already written for you! 
+
+
+
+# Recap
+
+What are the three main rules of tidy data?
+
+<details>
+<summary>**Answer**</summary>
+1. Each variable must have its own column. 
+2. Each observation must have its own row.
+3. Each value must have its own cell. 
+</details>
+
+What are the main benefits of tidy data?
+
+<details>
+<summary>**Answer**</summary>
+* Consistent structure, makes it easy to analyse <br>
+* No need for complex or unique programming solutions <br>
+* Works with vector tables, therefore can use all of R's inbuilt functions and syntax. <br>
+</details>
+
+
+
+# More Resources: tidy data   
+
+To see more examples of data tidying, read the vignette, `vignette("tidy-data")`
+
+[Journal of Statistical Software - Tidy Data (Hadley Wickham)](http://vita.had.co.nz/papers/tidy-data.html)
+
+Check out the demos: `demo(package = "tidyr")`
+
+
+
+[Chapter on Tidy Data, R for Data Science](https://r4ds.had.co.nz/tidy-data.html) 
+
+[Cran project: tidying data](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html)
+
+[Tidyr Cheat Sheet](https://raw.githubusercontent.com/rstudio/cheatsheets/master/pngs/thumbnails/data-import-cheatsheet-thumbs.png)
+

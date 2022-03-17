@@ -1,0 +1,121 @@
+---
+title: "Accessing Google Analytics through R"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+  #  css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Jo Watts"<br>
+date: "9/8/19"
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# Learning Objectives
+
+* Know what Google Analytics is and what type of data it contains
+* Understand how to connect to Google Analytics using GoogleAnalyticsR
+* Be able to set up a project to authorise data collection
+* Be able to download Google Analytics data to a data frame in R
+
+# What is Google Analytics
+
+[Google Analytics](https://analytics.google.com/analytics/web/)
+
+To understand what Google Analytics is, watch one of these videos:
+
+* [What is Google Analytics?](https://youtu.be/ny2rBxwvxBY) 
+* [Welcome to Google Analytics for Beginners](https://youtu.be/GG5xBwbje1E)
+
+We recommend you log on to Google Analytics and spend a bit of time getting familiar with the features of the product, the types of data and reports available. The easiest way to do this is by undertaking Google's own [Google Analytics for Beginners Course](https://analytics.google.com/analytics/academy/course/6). The course will give you access to demo data and guide you through each area of the tool.
+
+# How to connect to Google Analytics using GoogleAnalyticsR
+
+However we want to download Google Analytics data into R and fortunately there is an R-package for this `googleAnalyticsR`. The package was created by Mark Edmondson and he has a [webpage](http://code.markedmondson.me/googleAnalyticsR/) with lots of details around usage and also examples. Another good website with examples is the [Dartistics website](http://www.dartistics.com/index.html)
+
+The basic usage is very simple:
+```{r eval=FALSE, include=TRUE}
+#Access the googleAnalyticsR library
+library(googleAnalyticsR)
+
+#Authenticate your account
+ga_auth()
+
+#Get a list of accounts you have access to
+account_list <- ga_account_list()
+
+#ViewID is the way to access the account you want
+account_list$viewId
+
+#Select the one you want to work with
+my_ga_id <- 123456
+
+#Call the API to access the data you require
+google_analytics(my_ga_id, 
+                 date_range = c("2019-01-01", "2019-03-01"), 
+                 metrics = "sessions", 
+                 dimensions = "date")
+```
+
+## Create a project
+
+Let's launch the library:
+```{r}
+library(googleAnalyticsR)
+```
+
+You'll see there is a warning message that says that you should set up your own project if you are making a lot of API calls, since the developer Mark Edmondson has set it up with his own credentials.
+
+It is recommended to follow the instructions in the following video: [Set up your own Google Analytics Project](https://youtu.be/4B88dRbwNfc). We don't believe its mandatory to enter billing information. Please note that the video to set up the project is for a slightly older version of the form so some of it looks a little different to the current version but on the whole it's roughly the same! Any problems just let us know. 
+
+You will now have your own `client_id` and `client_secret`.
+Store these in your keychain using the `keyring` package (it is important that everyone calls the keyring the same name because of everyone in the group working from a single script in the project - therefore we have set in the code below the keyring should be named `googleanalytics`). 
+
+Once you've set this up, you just need to change the default package used with googleAnalyticsR by running the following command, with the correct values for `ga_client_id`, `ga_client_secret` and `keyring` that you have set up:
+
+```{r eval=FALSE, include=TRUE}
+#set up credentials for googleAnalyticsR
+
+library(keyring)
+library(googleAnalyticsR)
+
+options(googleAuthR.client_id = keyring::key_get(service = "ga_client_id", keyring = "googleanalytics"))
+options(googleAuthR.client_secret = keyring::key_get(service = "ga_client_secret", keyring = "googleanalytics"))
+
+devtools::reload(pkg = devtools::inst("googleAnalyticsR"))
+
+```
+
+The first time you run getting access to the API you will get a warning but then rerun it after a couple of minutes and it should work without error. 
+
+The `ga_auth()` command should now be using your own project.
+
+
+
+# Accessing Google Analytics data
+
+Google Analytics data is now accessed using the API call. You will need to know your viewID, the date range you want to cover and the *metrics* and *dimensions* you want to extract.
+
+Metrics are quantitative and cover the columns in the Google Analytics tables, such as "sessions", "users", "pageviews". You can return multiple by requesting them in a vector.
+
+Dimensions are the attributes of visitors to the website and cover the rows in Google Analytics tables, such as "gender", "age", "browser". Again multiple can be requested by using a vector.
+
+Different dimensions will have different available metrics.
+
+Once you understand how Google Analytics works, you should be able to work out which dimensions and metrics you would like to be returned. By default the maximum number of rows returned will be 1000. Use max = -1 to return all the available rows.
+
+# Resources
+
+* [Google Analytics](https://analytics.google.com/analytics/web/)
+* [Google Analytics Academy](https://analytics.google.com/analytics/academy/)
+* [Google Developer Console](https://console.developers.google.com)
+* [googleanalyticsR](https://code.markedmondson.me/googleAnalyticsR/)

@@ -1,0 +1,23 @@
+---
+title: "Weekend Homework - Model Building"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# MVP
+
+We've looked at a few different ways in which we can build models this week, including how to prepare them properly. This weekend we'll build a multiple linear regression model on a dataset which will need some preparation. The data has come from [Kaggle](https://www.kaggle.com/neuromusic/avocado-prices) and can be found in the data folder.
+
+We want to investigate the avocado dataset. We want to model the `AveragePrice` of the avocados. Use the tools we've worked with this week in order to prepare your dataset and find appropriate predictors. Once you've built your model use the validation techniques discussed on Wednesday to evaluate it.
+
+As part of the MVP we want you not to just run the code but also have a go at **intepreting the results** and write your thinking in comments in your script - don't worry if you aren't sure, it's OK to get it wrong, but give it a go.

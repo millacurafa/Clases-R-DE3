@@ -1,0 +1,719 @@
+---
+title: "Advanced Git - Shiny branching and conflict example"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+  md_document:
+    variant: markdown_github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# Learning Objectives
+
+* See an example of Git branching and conflict when developing a Shiny app
+* See how to resolve conflicts and tools to help
+* Understand how to merge branches
+
+**Lesson Duration - 90 mins**
+
+# Introduction
+
+Now that you've seen the theory and practice of branching, merging and conflict resolution in a toy example,
+let's look at something slightly more realistic: a Shiny app dashboarding the `R` `faithful` data on eruptions at
+the Old Faithful geyser in Yellowstone National Park. 
+
+We're going to imagine that you are working on this app together with another data analyst Amara, and that you
+are separately working on developing new features at the same time on your own branches, merging them into the `develop` branch as you complete them.
+
+# Working together to build the minimal app
+
+To begin with, you and your fellow developers (Amara in the present case) should work together (ideally sitting together around one computer) to build the bare minimum app. This gives you a common ground to get started from when developing features and lets you set up a GitHub repo with initial code that everyone can clone down to their computers to start developing features.
+
+We're going to pretend that you and Amara are working on different computers, and we'll mimic this by creating two directories on your computer called `my_computer` and `amara_computer`. So, in your work directory for this lesson:
+
+```bash
+mkdir my_computer
+mkdir amara_computer
+```
+
+1. Imagine you and Amara are sitting together to create the minimal app. We'll do all of this on your computer:
+
+```bash
+cd my_computer
+mkdir old_faithful_app
+cd old_faithful_app
+```
+
+2. Next, we want to set this directory up as an R project. To start with, get an R `.gitignore` file from the [gitignore.io](www.gitignore.io) site (type ‘R’ in the search box, and then also add 'macOS', 'Linux' and 'Windows' to ignore junk files on those platforms), hit `Create`, copy all the output (`CMD + c`) and paste it (`CMD + v`) into a file called `.gitignore` in your `old_faithful_app` directory (you can use any text editor for this - `Atom` or `TextEdit` should both work):
+
+```bash
+touch .gitignore
+atom .gitignore
+```
+
+3. Now we intialise a Git repo in your `old_faithful_app` directory:
+
+```bash
+git init
+```
+
+4. Open `RStudio` and create a project in your `old_faithful_app` directory (check that `RStudio` reports your project as `old_faithful_app` (perhaps followed by something) in the top right corner. Create a new R Script to contain the Shiny app code and save it as `app.R`. Paste the start code below into this file. Save it, and then try to run the app. Make sure it works correctly.
+
+<br>
+<details>
+<summary>**Start code**</summary>
+```{r, eval=FALSE}
+library(shiny)
+library(tidyverse)
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+
+    # Application title
+    titlePanel("Old Faithful Geyser Data"),
+
+    # Sidebar with a slider input for number of bins 
+    sidebarLayout(
+        sidebarPanel(
+            sliderInput(inputId = "bins",
+                        label = "Number of bins:",
+                        min = 1,
+                        max = 50,
+                        value = 30)
+        ),
+
+        # Show a plot of the generated distribution
+        mainPanel(
+           plotOutput(outputId = "distPlot")
+        )
+    )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+    
+    output$distPlot <- renderPlot({
+        # draw the histogram with the specified number of bins
+        faithful %>% ggplot(aes(x = waiting)) +
+            geom_histogram(bins = input$bins, col = "white", fill = "darkred") +
+            xlab("Waiting time (mins)") +
+            ylab("Number of eruptions") +
+            ggtitle("Histogram of eruption waiting times")
+    })
+    
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+```
+</details>
+<br>
+
+5. Great, everything looks good. Let's create our first commit, so back in your Terminal in `my_computer/old_faithful_app` directory:
+
+```bash
+git add .
+git commit -m “init commit - basic app working”
+```
+
+6. Now let's create a remote repo on GitHub. So, in your GitHub account, create a new public repo called `old_faithful_app`, copy the commands that GitHub provides to let you **‘push an existing repository from the command line’** and paste those commands in the Terminal on your laptop in the `my_computer/old_faithful_app` directory. Check the Git status
+
+```bash
+<paste commands> return
+git status
+# shortcut is 'gst'
+```
+
+and you should see **'Your branch is up to date with 'origin/master'.'**
+
+7. Close `RStudio`
+
+<br>
+<div class="emphasis">
+**Starting your projects**
+
+When you start work on your Shiny group projects you should work in a similar way. Work together on a single computer to build the 'framework' of your app, setup a `.gitignore` file, add, commit and push the basic app up to a GitHub repo on one of your accounts (or the project repo we provide for you). Afterwards, you can each split off to work on separate features and `git clone` down from the GitHub repo, so you will each have your own local copy of the project on your computers.
+</div>
+<br>
+
+# Amara starts to develop a new feature
+
+Now Amara heads off to work on her own feature: she's been asked to code a range selector for eruption length, so she's going to clone the repo and then create a `feature/eruption_length_range_selector` branch in which to do her work. 
+
+8. We'll pretend that we are Amara for now, and go into the directory we are pretending is her computer:
+
+```bash
+cd ../../amara_computer
+```
+
+9. Go back to your `old_faithful_app` repo on GitHub, choose `Clone or download` and copy the code it gives you. Paste this code into a `git clone` command as follows:
+
+```bash
+git clone <paste code>
+```
+
+Amara will now her her own local copy of the `old_faithful_app` project.
+
+10. Go into the project directory and open the `old_faithful_app.Rproj` file.
+
+```bash
+cd old_faithful_app
+open old_faithful_app.Rproj
+```
+11. Back in Terminal, let's create a new branch for Amara to develop her feature in. First, we `git pull` master to make sure it is up to date. Note that the following command creates the new branch and then changes into it (you should see your command prompt is `git:(feature/eruption_length_range_selector)` afterwards).
+
+```bash
+git pull
+git checkout -b feature/eruption_length_range_selector
+```
+
+12. Back in `RStudio` open `app.R` for editing (click on `app.R` in the `Files` pane on the right). Make the changes to the code as shown below to add the eruption length range selector.
+
+<br>
+<details>
+<summary>**Code for Amara's feature**</summary>
+```{r, eval=FALSE}
+library(shiny)
+library(tidyverse)
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+
+    # Application title
+    titlePanel("Old Faithful Geyser Data"),
+
+    # Sidebar with a slider input for number of bins 
+    sidebarLayout(
+        sidebarPanel(
+            sliderInput(inputId = "bins",
+                        label = "Number of bins:",
+                        min = 1,
+                        max = 50,
+                        value = 30),
+            # ----
+            # ADD THIS - double ended range selector
+            # ----
+            sliderInput(inputId = "eruptionLength",
+                        label = "Eruption length (mins):",
+                        min = 0,
+                        max = 10,
+                        value = c(1, 5),
+                        step = 0.25),
+        ),
+
+        # Show a plot of the generated distribution
+        mainPanel(
+           plotOutput(outputId = "distPlot")
+        )
+    )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+    # ----
+    # ADD THIS
+    # ----
+    data <- reactive(
+                faithful %>%
+                filter(
+                  between(eruptions, input$eruptionLength[1], input$eruptionLength[2])
+                )
+            )
+    
+    output$distPlot <- renderPlot({
+        # draw the histogram with the specified number of bins
+        # ----
+        # CHANGE THIS TO data()
+        # ----
+        data() %>% ggplot(aes(x = waiting)) +
+            geom_histogram(bins = input$bins, col = "white", fill = "darkred") +
+            xlab("Waiting time (mins)") +
+            ylab("Number of eruptions") +
+            ggtitle("Histogram of eruption waiting times")
+    })
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+```
+</details>
+<br>
+
+13. Run the app and check it is working. If so, Amara is good to commit her work! So back in Terminal:
+
+```bash
+git add .
+git commit -m "adds eruption length range selector - app checked working"
+git push
+```
+The last command will fail - `fatal: The current branch feature/eruption_length_range_selector has no upstream branch`, but Git suggests the fix itself:
+
+```bash
+git push --set-upstream origin feature/eruption_length_range_selector
+```
+
+14. Amara has finished coding her feature for now. Close `RStudio`.
+ 
+# While Amara is working on her feature, you start your own
+
+Neat, so what we imagine is that after Amara has created a new branch for her feature and started working on it, you also do the same - branching off master and developing a feature to count the number of eruptions in the histogram. You do this at roughly the same time as Amara starts her feature, so you're both working on your feature essentially in parallel.
+
+15. We pretend again that we are working on our own computer (not much pretending needed):
+
+```bash
+cd ../../my_computer/old_faithful_app
+open old_faithful_app.Rproj
+```
+
+16. Notice again that in this repo (on 'your computer'), you are on the master branch, as reported by the command prompt `git:(master)`. We first want to `git pull` master to make sure it is up to date, and then create a new branch for our feature:
+
+```bash
+git pull
+git checkout -b feature/eruption_counter
+```
+
+Your command prompt should change to `git:(feature/eruption_counter)`
+
+17. Back in `RStudio`, open `app.R`. You will see only the code corresponding to the basic app, as we branched off master, and master hasn't changed since we created the basic app. In particular, there is no sign of Amara's code, as even though she pushed her changes up to GitHub, **they are on a different branch which hasn't yet been merged into master**. Make the following changes to the code to implement your eruption counter feature:
+
+<br>
+<details>
+<summary>**Code for your feature**</summary>
+```{r, eval=FALSE}
+library(shiny)
+library(tidyverse)
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+  
+  # Application title
+  titlePanel("Old Faithful Geyser Data"),
+  
+  # Sidebar with a slider input for number of bins 
+  sidebarLayout(
+    sidebarPanel(
+      sliderInput(inputId = "bins",
+                  label = "Number of bins:",
+                  min = 1,
+                  max = 50,
+                  value = 30)
+    ),
+    
+    # Show a plot of the generated distribution
+    mainPanel(
+      plotOutput(outputId = "distPlot"),
+      # ----
+      # ADD THIS
+      # ----
+      textOutput(outputId = "eruptionCounter")
+    )
+  )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+  
+  # ----
+  # ADD THIS
+  # This isn't particularly good code, we probably wouldn't call this data.
+  # We're just doing it to make sure a git conflict happens later!
+  # ----
+  data <- faithful %>%
+    summarise(num_eruptions = n())
+  
+  output$distPlot <- renderPlot({
+    # draw the histogram with the specified number of bins
+    faithful %>% ggplot(aes(x = waiting)) +
+      geom_histogram(bins = input$bins, col = "white", fill = "darkred") +
+      xlab("Waiting time (mins)") +
+      ylab("Number of eruptions") +
+      ggtitle("Histogram of eruption waiting times")
+  })
+  
+  # ----
+  # ADD THIS
+  # ----
+  output$eruptionCounter <- renderText({
+    paste("Number of eruptions in histogram: ", data$num_eruptions)
+  })
+  
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+```
+</details>
+<br>
+
+18. Run the app and check it's working, and you see the eruption counter below the histogram. If so, you're ready to commit! So back in Terminal:
+
+```bash
+git add .
+git commit -m "adds eruption counter - app checked working"
+git push # this will error and suggest...
+git push --set-upstream origin feature/eruption_counter
+git status # gst is the shortcut
+```
+
+`git status` should show you're all up to date!
+
+19. You've finished coding your feature for now. Close `RStudio`
+
+# While you're working on your feature, Amara merges her branch back in to master...
+
+Amara has completed and tested her feature, and decides to merge this code back in to the **master** branch.
+
+<br>
+<div class='emphasis'>
+**Merging a branch into master or develop**<br><br>
+
+Once you have finished developing a feature, you will usually want to merge your **feature** branch back into **master** (or **develop**, if you are using a **develop** branch, which is a good idea). Here's how to do it:
+
+i. Check out **master** branch on your computer and `git pull` to make sure **master** is up to date with what's on GitHub
+
+ii. Check out your **feature** branch and merge **master** into it (i.e. bring any more recent commits to **master** into your **feature** branch). The idea here is to fix any conflicts or bugs caused by the merge in the **feature** branch, as this makes sure the code on **master** remains clean and working.
+
+iii. Once you've fixed any conflicts, checked that your app is working (your own feature and others added previously), and fixed any bugs you've found, you're ready to merge your **feature** branch into **master**.
+
+iv. Check out **master** branch and merge your **feature** branch into **master** (i.e. bring all the commits on **feature** into **master**). This should go without a hitch if **master** hasn't changed since step i. But, if it took you a while to fix any conflicts/bugs, you might want to check if there have been any further commits to **master** while you were working and merge them into your **feature** branch too before you do this step.  
+
+v. Finally, once you've checked again in **master** that everything's working, delete your **feature** branch.
+
+Here's what the Terminal commands would look like
+
+```bash
+# if you are currently on another branch
+git checkout master # shortcut gco master
+git pull # make sure master is up to date
+git checkout feature/great_feature # shortcut gco feature/great_feature
+git merge master # bring the recent commits from master into feature/great_feature
+# fix any conflicts and bugs, check your app os working properly
+git checkout master # go back to master, shortcut gco master
+git merge feature/great_feature # this merges your working feature branch back into master
+```
+</div>
+<br>
+
+20. We'll pretend we're Amara working again on her computer:
+
+```bash
+cd ../../amara_computer/old_faithful_app
+```
+
+21. You should still be on **feature/eruption_length_range_selector** branch. Now Amara will merge **master** into her branch
+
+```bash
+git checkout master
+git pull # Already up to date - there have been no more recent commits to master
+git checkout feature/eruption_length_range_selector
+git merge master # Already up to date - again, master hasn't changed since Amara branched off it, so nothing to merge in
+```
+
+22. In this case **master** hasn't changed since Amara created her **feature/eruption_length_range_selector** branch, so in this case Amara doesn't even need to check that the app is still working in the **feature/eruption_length_range_selector** branch, as **the merge in of master added no new code**. In active projects with many collaborating developers this will rarely be the case, **master** (or **develop**) will be changing quite quickly. Nevertheless, now Amara can merge **feature/eruption_length_range_selector** back into **master** with no further worries.
+
+```bash
+git checkout master
+git merge feature/eruption_length_range_selector
+```
+
+You'll see the merge results in a **Fast-forward** - again, there have been no new commits on **master** since Amara branched off, so Git just 'fast-forwards' **master** to include the commit from **feature/eruption_length_range_selector**. Amara now pushes her changes to **master** up to GitHub:
+
+```bash
+git status # Your branch is ahead of 'origin/master' by 1 commit. - this is the commit from 
+git log # you should see the commit from feature/eruption_length_range_selector is at the top (most recent)
+git push # push this commit up to GitHub
+```
+
+23. Later, once Amara's happy that everything is working, she might want to remove her **feature/eruption_length_range_selector** branch:
+
+```bash
+# delete the branch locally (on your computer) -d deletes only if the branch has already been merged. -D forces delete (be careful)
+git branch -d feature/eruption_length_range_selector
+# delete branch remotely (on GitHub)
+git push origin --delete feature/eruption_length_range_selector
+```
+
+# Now you merge your own branch back into master...
+
+24. Pretend you are once again yourself, so go back to your local project:
+
+```bash
+cd ../../my_computer/old_faithful_app
+```
+
+25. Now we'll merge your branch back into master
+
+```bash
+git checkout master
+git pull # we should get the commit to master that Amara pushed up
+git checkout feature/eruption_counter
+git merge master
+```
+
+Argh! We get a conflict! Horror...
+
+```
+Auto-merging app.R
+CONFLICT (content): Merge conflict in app.R
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+Haha, no worries, you have to understand that **conflicts are a natural part of working collaboratively with Git**, they don't mean you've done something wrong or made a mistake! Conflicts arise when Git can't figure out which lines of code in a file are correct: the lines merging in from another branch, the lines in the current branch, or some 'hybrid' of the two. Very often you need to hybridise the conflicting code, as the end result is that you want all features to work: the ones already pushed to **master**, and the feature you have added in your feature branch.
+
+The message above tells us we have a conflict in `app.R`, but it's possible to have conflicts in more than one file. What Git needs you to do now is fix any conflicts, i.e. tell it what you want the code to be. Git needs human intervention at this point - it doesn't understand code itself, it just tracks content, so it can't fix the code for you alas. 
+
+Helpfully, Git adds **conflict markers** into any file containing a conflict. These tell you exactly where it is uncertain what to do, they will look something like
+
+```{r, eval=FALSE}
+<<<<<<< HEAD
+  
+  # ----
+  # ADD THIS
+  # This isn't particularly good code, we probably wouldn't call this data.
+  # We're just doing it to make sure a git conflict happens later!
+  # ----
+  data <- faithful %>%
+    summarise(num_eruptions = n())
+  
+  output$distPlot <- renderPlot({
+    # draw the histogram with the specified number of bins
+    faithful %>% ggplot(aes(x = waiting)) +
+      geom_histogram(bins = input$bins, col = "white", fill = "darkred") +
+      xlab("Waiting time (mins)") +
+      ylab("Number of eruptions") +
+      ggtitle("Histogram of eruption waiting times")
+  })
+  
+  # ----
+  # ADD THIS
+  # ----
+  output$eruptionCounter <- renderText({
+    paste("Number of eruptions in histogram: ", data$num_eruptions)
+  })
+  
+=======
+    # ----
+    # ADD THIS
+    # ----
+    data <- reactive(
+                faithful %>%
+                filter(
+                  between(eruptions, input$eruptionLength[1], input$eruptionLength[2])
+                )
+            )
+    
+    output$distPlot <- renderPlot({
+        # draw the histogram with the specified number of bins
+        # ----
+        # CHANGE THIS TO data()
+        # ----
+        data() %>% ggplot(aes(x = waiting)) +
+            geom_histogram(bins = input$bins, col = "white", fill = "darkred") +
+            xlab("Waiting time (mins)") +
+            ylab("Number of eruptions") +
+            ggtitle("Histogram of eruption waiting times")
+    })
+>>>>>>> master
+```
+
+The code between `<<<<<<< HEAD` and `=======` is what exists on the **current** branch, and the code between `=======` and `>>>>>>> master` is what exists on the branch being **merged in** (**master** in this case).
+
+<br>
+<div class='emphasis'>
+**How to fix Git conflicts**<br><br>
+
+The easiest way to do this is to work together with the other developers who have written code involved in the conflicts to determine what the code should be to make all of your features work. How do you know who has committed this code though? You can use the `git blame` command in the Terminal for this (nice name):
+
+```bash
+git blame app.R
+```
+
+You'll see that this annotates the lines of code with commit codes e.g. `a33cd5a8`, contributor names and dates of the commit. The example below says 'Del Middlemiss' for both (because we've only been pretending to be Amara), but you can imagine if this was a real situation, the lines in the upper part of the conflict would say 'Del Middlemiss', and those in the lower part of the conflict would say 'Amara' or something like that.
+
+```
+00000000 (Not Committed Yet 2020-04-07 15:30:40 +0100  62) <<<<<<< HEAD
+^39306b6 (Del Middlemiss    2020-04-06 15:42:09 +0100  63)   
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  64)   # ----
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  65)   # ADD THIS
+dd97b8e8 (Del Middlemiss    2020-04-07 15:22:19 +0100  66)   # This isn't particularly good code, we probably wouldn't call this data.
+dd97b8e8 (Del Middlemiss    2020-04-07 15:22:19 +0100  67)   # We're just doing it to make sure a git conflict happens later!
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  68)   # ----
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  69)   data <- faithful %>%
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  70)     summarise(num_eruptions = n())
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  71)   
+^39306b6 (Del Middlemiss    2020-04-06 15:42:09 +0100  72)   output$distPlot <- renderPlot({
+^39306b6 (Del Middlemiss    2020-04-06 15:42:09 +0100  73)     # draw the histogram with the specified number of bins
+^39306b6 (Del Middlemiss    2020-04-06 15:42:09 +0100  74)     faithful %>% ggplot(aes(x = waiting)) +
+^39306b6 (Del Middlemiss    2020-04-06 15:42:09 +0100  75)       geom_histogram(bins = input$bins, col = "white", fill = "darkred") +
+^39306b6 (Del Middlemiss    2020-04-06 15:42:09 +0100  76)       xlab("Waiting time (mins)") +
+^39306b6 (Del Middlemiss    2020-04-06 15:42:09 +0100  77)       ylab("Number of eruptions") +
+^39306b6 (Del Middlemiss    2020-04-06 15:42:09 +0100  78)       ggtitle("Histogram of eruption waiting times")
+^39306b6 (Del Middlemiss    2020-04-06 15:42:09 +0100  79)   })
+^39306b6 (Del Middlemiss    2020-04-06 15:42:09 +0100  80)   
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  81)   # ----
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  82)   # ADD THIS
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  83)   # ----
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  84)   output$eruptionCounter <- renderText({
+dd97b8e8 (Del Middlemiss    2020-04-07 15:22:19 +0100  85)     paste("Number of eruptions in histogram: ", data$num_eruptions)
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  86)   })
+a33cd5a8 (Del Middlemiss    2020-04-07 13:38:57 +0100  87)   
+00000000 (Not Committed Yet 2020-04-07 15:30:40 +0100  88) =======
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100  89)     # ----
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100  90)     # ADD THIS
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100  91)     # ----
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100  92)     data <- reactive(
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100  93)                 faithful %>%
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100  94)                 filter(
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100  95)                   between(eruptions, input$eruptionLength[1], input$eruptionLength[2])
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100  96)                 )
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100  97)             )
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100  98)     
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100  99)     output$distPlot <- renderPlot({
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100 100)         # draw the histogram with the specified number of bins
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100 101)         # ----
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100 102)         # CHANGE THIS TO data()
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100 103)         # ----
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100 104)         data() %>% ggplot(aes(x = waiting)) +
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100 105)             geom_histogram(bins = input$bins, col = "white", fill = "darkred") +
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100 106)             xlab("Waiting time (mins)") +
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100 107)             ylab("Number of eruptions") +
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100 108)             ggtitle("Histogram of eruption waiting times")
+95b4e183 (Del Middlemiss    2020-04-07 15:21:04 +0100 109)     })
+00000000 (Not Committed Yet 2020-04-07 15:30:40 +0100 110) >>>>>>> master
+```
+
+You can do this for all the conflicts in all of the files with conflicts, looking for who contribute the code at either side of conflict markers and working to fix the files together
+
+It's important afterwards to check that all of the features of your app work. It's possible for merges to change code in a way that doesn't result in a conflict, but still might mean your features don't work. 
+
+</div>
+<br>
+
+26. Now you fix the conflict. You would work with Amara to make sure her eruption length range selector and your eruption counter features both work. Often you end up keeping bits of code from both sides of conflict markers and 'hybridising' them to make everything work. Here's the code for `app.R` that fixes the conflict 
+
+<br>
+<details>
+<summary>**Code to fix conflict**</summary>
+```{r, eval=FALSE}
+library(shiny)
+library(tidyverse)
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+    # Application title
+    titlePanel("Old Faithful Geyser Data"),
+
+    # Sidebar with a slider input for number of bins 
+    sidebarLayout(
+        sidebarPanel(
+            sliderInput(inputId = "bins",
+                        label = "Number of bins:",
+                        min = 1,
+                        max = 50,
+                        value = 30),
+            # ----
+            # ADD THIS - double ended range selector
+            # ----
+            sliderInput(inputId = "eruptionLength",
+                        label = "Eruption length (mins):",
+                        min = 0,
+                        max = 10,
+                        value = c(1, 5),
+                        step = 0.25),
+        ),
+
+        # Show a plot of the generated distribution
+        mainPanel(
+           plotOutput(outputId = "distPlot"),
+           # ----
+           # ADD THIS
+           # ----
+           textOutput(outputId = "eruptionCounter")
+        )
+    )
+)
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+    # ----
+    # ADD THIS
+    # ----
+    data <- reactive(
+                faithful %>%
+                filter(
+                  between(eruptions, input$eruptionLength[1], input$eruptionLength[2])
+                )
+            )
+    
+    output$distPlot <- renderPlot({
+        # draw the histogram with the specified number of bins
+        # ----
+        # CHANGE THIS TO data()
+        # ----
+        data() %>% ggplot(aes(x = waiting)) +
+            geom_histogram(bins = input$bins, col = "white", fill = "darkred") +
+            xlab("Waiting time (mins)") +
+            ylab("Number of eruptions") +
+            ggtitle("Histogram of eruption waiting times")
+    })
+
+    # ----
+    # ADD THIS
+    # ----
+    output$eruptionCounter <- renderText({
+      paste("Number of eruptions in histogram: ", nrow(data()))
+    })
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+
+
+```
+</details>
+<br>
+
+You need to keep both outputs in the UI, leave the `data` as `reactive()` in the server (you need this to make the filtering work), so that forces you to change the `renderText()` for the eruption counter to use `nrow(data())`. 
+
+**Test the app thoroughly** to make sure it works. Yay, it looks like you're ready to mark the conflict as resolved! So back in Terminal:
+
+```bash
+git add app.R # this marks the conflict as resolved
+git commit -m "fixes conflict eruption counter - eruption length range selector - app checked working"
+git push
+```
+
+And finally you can check out **master** and merge your feature into it!
+
+```bash
+git checkout master
+git merge feature/eruption_counter 
+git push
+```
+
+27. After checking the app works in **master** for a while, you may be comfortable removing your feature branch:
+
+```bash
+git branch -d feature/eruption_counter
+git push origin --delete feature/eruption_counter
+```
+
+<br>
+<div class='emphasis'>
+**Minimising conflicts**<br><br>
+
+Conflicts are a natural part of using Git in a collaborative project, but that doesn't mean we need to go out of our way to encourage them. An easy way to minimise conflicts is to separate the code for each feature into it's **own file** and then **source** these into the `app.R` or UI and server files as needed. Most of the feature code will then exist in a separate file that can be added into the repo without any fear of conflict. Conflicts may still happen when you 'plumb' your feature code into the main app, but they are likely to be more limited and easy to fix.
+</div>
+<br>
+
+28. All done. You and Amara have developed two features separately on your own branches, merged them into **master**, and fixed conflicts along the way. Phew!
+
+

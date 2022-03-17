@@ -1,0 +1,165 @@
+Control flow missed tasks:
+
+*------------------------------*
+if-else statements section
+*------------------------------*
+
+Task - 5 minutes
+
+Edit your code from the first exercise so that it prints ‘Yes that divides’ when x is divisible by 2, and prints ‘No that does not divide’ otherwise.
+
+*-------------------------------------------------
+Task - 10 minutes
+
+Here’s an example of a nested if-else statement. Predict what it’s going to print out for the following conditions:.
+
+When x is 5 and y is 10
+When x is 6 and y is 12
+When x is 6 and y is 13
+x <- 5
+y <- 10
+
+if (x %in% c(3, 4, 5)){
+
+  print("x is in our list")
+
+  if (x == 5){
+
+    print("x is exactly 5")
+
+  }
+
+} else {
+
+  print("Start of else statement")
+
+  if (y %% x == 0){
+
+    print("x divides y")
+
+  } else(
+
+    print("x does not divide Y")
+  )
+
+  print ("End of else statement")
+
+}
+
+*---------------------------------------
+
+
+
+
+*------------------------------*
+case_when section
+*------------------------------*
+
+
+Task - 10 minutes
+
+FizzBuzz is a very famous coding interview question. It goes like this:
+
+Write a program that prints the numbers from 1 to 100. But for multiples of three print “Fizz” instead of the number, and for multiples of five print “Buzz”. For numbers which are multiples of both three and five print “FizzBuzz”.
+
+Use case_when() to code a solution to the FizzBuzz problem.
+
+
+*-------------------------------------------------
+
+Task - 10 minutes - Harder!
+
+Use case_when() to find all the primes less than 100. (Hint: you might want to Google ‘Sieve of Eratosthenes’, for more information on how to do this.)
+*---------------------------------------
+
+
+
+
+
+*------------------------------------*
+recode section
+*-------------------------------------*
+
+Task - 10 minutes
+
+Using the data below, do the following:
+
+Recode the subject numbers to be: 001, 002, 003 and 004
+Recode the sex column to be “Male” and “Female”
+Recode the compl column to be T = “True”, F = “False”, and NA otherwise
+data <- read.table(header=T, text='
+ subject sex control cond1 cond2 compl
+       1   M     7.9  12.3  10.7  T
+       2   F     6.3  10.6  11.1  T
+       3   F     9.5  13.1  13.8  N
+       4   M    11.5  13.4  12.9  F
+')
+
+
+*------------------------------------*
+Nested loops section
+*-------------------------------------*
+
+
+Run the code below to create an empty 5×5 matrix:
+
+product_matrix <- matrix(nrow = 5, ncol = 5)
+product_matrix
+##      [,1] [,2] [,3] [,4] [,5]
+## [1,]   NA   NA   NA   NA   NA
+## [2,]   NA   NA   NA   NA   NA
+## [3,]   NA   NA   NA   NA   NA
+## [4,]   NA   NA   NA   NA   NA
+## [5,]   NA   NA   NA   NA   NA
+Check that the matrix is empty.
+
+Now we’re going to fill product_matrix in the following way: each entry should be the product of the row index and position index at which the entry occurs. For example, the entry on the third row, fourth column, should be 3×4=12.
+
+Get the matrix dimensions programatically (so that we could in the future apply this code to any size of matrix with minimal changes).
+
+Hint: you can use the code above as a guide, although we won’t be printing out the matrix entries as we go. Instead, check your code by printing out the whole matrix at the end: just run the single statement product_matrix to do this.
+
+
+
+*-----------------------------------------------
+
+Task - 10 mins
+
+Here is the matrix we will use in this task
+
+example_matrix = matrix(1:25, nrow = 5, ncol = 5)
+example_matrix
+##      [,1] [,2] [,3] [,4] [,5]
+## [1,]    1    6   11   16   21
+## [2,]    2    7   12   17   22
+## [3,]    3    8   13   18   23
+## [4,]    4    9   14   19   24
+## [5,]    5   10   15   20   25
+Taking your knowledge about for loops and if statements, and without running the code below, write what you expect to be printed out by the following code.
+
+for (row_index in 1:5){
+  for (col_index in 1:5){
+    if (row_index == col_index){
+      print(example_matrix[row_index, col_index])
+    }
+   }
+}
+
+*-----------------------------------
+
+Task - 5 mins
+
+Create a nested for loop and if statement combination which loops through the weekdays and prints out the phrase ‘Last weekday!’ once it gets to Friday.
+
+# create your weekdays vector
+weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+Solution
+
+*---------------------------------
+Task - 15 minutes
+
+Using the starwars list from the CodeClanData package, do the following:
+
+Print the name for every character in the list
+Print out the hair_color of every female in the list.
+(Harder) Print out all the URLs for the films of every character that is under 170cm tall.

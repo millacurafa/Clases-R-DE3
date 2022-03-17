@@ -1,0 +1,391 @@
+---
+title: "Dealing with outliers"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+library(tidyverse)
+```
+
+
+# Learning objectives
+
+* Understand the implications of outliers in a dataset
+* Be able to identify outliers in a dataset and decide relevant way forward
+* Understand the options available deal with outliers
+
+
+# Outliers
+
+
+## What is an outlier? 
+
+An outlier is an observation (or set of observations) which appear to be inconsistent with that set of data. For example, any data that is either very high, very low, or just unusual (within the context of your project), is an outlier. They may be indications of data quality issues. As part of data cleansing, a data scientist/analyst would typically identify and then address the outliers. 
+
+What do outliers mean? It's hard to say. Some culprits:
+
+1. An outlier may be due to variability in the measurement 
+2. Maybe indicate experimental error - the data might have been collected wrongly or there is equipment error
+3. Maybe the data itself is wrong : this happens a lot when you collect data from people. They miss out responses, or give wrong responses and it can affect the data. 
+4. Might just be a genuine extreme data point - it happens!
+
+
+But it's important to identify them and deal with them, as an outlier can cause serious problems in statistical analyses.
+
+
+## How do we identify an outlier?
+
+Often the easiest and quickest way to identify an outlier is to plot your data. Usually outliers are shown on boxplots (or sometimes histograms and scatterplots depending on what data you have). 
+
+A boxplot is a standardized way of displaying the distribution of data based on a five number summary (“minimum”, first quartile (Q1), median, third quartile (Q3), and “maximum”). It can tell you about your outliers and what their values are. It can also tell you if your data is symmetrical, how tightly your data is grouped, and if and how your data is skewed.
+
+<br>
+<center>
+![](https://miro.medium.com/max/18000/1*2c21SkzJMf3frPXPAR_gZA.png)
+</center>
+<br>
+
+
+Let's have a look now. We can use the built in dataset `iris` for this. Let's do a boxplot first:
+
+```{r}
+# create a boxplot of all variables in iris
+boxplot(iris)
+```
+
+Looks like we have outliers in the `Sepal.Width` variable. Let's plot this more
+
+```{r}
+
+# just make a single boxplot of sepal.width
+boxplot(iris$Sepal.Width)
+
+```
+
+So, what does this tell us? In our boxplot we can see we have some outlier values: some flowers have really low and high sepal widths, compared to the others. 
+
+Aside from just having a look visually, outliers can be defined mathematically. In mathematical sense, an outlier is usually defined as an observation more than three standard deviations from the mean (although sometimes you'll see 2.5 or 2 as well). It's not the only mathematical definition, but since it's the one that's used the most often that's what we'll use here as well.
+
+Z-score: The number of standard deviations away from the mean that a particular observation is. (You can see the mathematical definition here, if you're curious.) A negative Z-score means an observation is below the mean, while a positive one means it above it. The further away from 0 the Z-Score is, the further away from the mean your observation is.
+
+
+## What do we do with them once we've identified them? 
+
+Generally accepted methods of dealing with outliers are: 
+
+**Delete the outlier values or even the actual variable where the outliers exist** : This is probably the easiest option for dealing with outliers, but is also quite dangerous as it is only a valid options if the outliers aren't **real** data values.
+
+**Transform the values or the variable itself** : in some cases, you may be justified in imputing the outlier values with some other value. For example, maybe someone accidently shifted a decimal place when entering the data. If you know this is the case, then you could reasonably replace this value with say - the median value of the data. The end result is the same: the outliers are artificial, as is the value you've replaced it with. 
+
+**Split the outliers into their own dataset** : this can be a good approach when you're interested in WHY there are outliers. Are there patterns in the data? Is there something in it that can explain the presence of the values? For example, perhaps you have length data recorded for a variable. Maybe the outlier values are all those measured in cm, and the rest have been put in in inches by acccident? Splitting the data could help uncover this. 
+
+Overall, there are many different ways of dealing with outliers, and it's up to you to make the right call on which to use (or which combination of methods to use). The important point is to record and justify your decision around which method you have chosen to use.
+
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+What would the pitfalls of each approach mentioned above be?
+
+<details>
+<summary>**Answer**</summary>
+
+* Deleting outliers: you could be deleting real data that might be there for a valid reason!
+
+* Transforming data: It can be difficult to find out whether an outlier is there by genuine mistake, and again, you need to be careful that you're not replacing real data.  
+* Splitting and investigating: this can be time consuming, and often you're not overly interested in what causes outliers so it's not worth the time spent investigating. Of course, there might only be a couple of outliers to deal with and so making a whole new dataset is a bit redundant. 
+
+</details>
+</blockquote>
+
+
+# Dealing with outliers in a dataset: Brazil's House of Deputies Expenditures
+
+To pratice identifying outliers we will use a dataset showing the expense accounts from members of Brazil's House of Deputies. The data is open source, and [free to download from the official government site](http://www2.camara.leg.br/transparencia/cota-para-exercicio-da-atividade-parlamentar/dados-abertos-cota-parlamentar). However, we will use [the version from kaggle](https://www.kaggle.com/epattaro/brazils-house-of-deputies-reimbursements/downloads/brazils-house-of-deputies-reimbursements.zip/4) which has been converted to csv files and the titles converted to English for us. 
+
+This dataset is a good one because (a) it contains a lot of outliers, and (b) the outliers are actually data points you should be interested in. If a government official is getting a lot of reimbursements, it means they are spending a huge amount of public funds, and that's probably something we want to pay attention to.
+
+The `refunds_info` dataset contains expenses data and amounts for deputies from 2009 to 2017, and info about who is claiming the expenses.
+
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Load in the data and take a look at it. Save the `refunds_info.csv` file in a tibble called `refunds`. 
+
+<details>
+<summary>**Answer**</summary>
+```{r, message=FALSE, warning=FALSE}
+
+# load in the data 
+refunds  <- read_csv("data/refunds_info_sample.csv")
+dim(refunds)
+```
+</details>
+</blockquote>
+
+
+
+## Identifying outliers
+
+One of the easiest ways to see if your dataset has outliers is to plot your data. The type of plot you pick will depend on how many and what kind of variable you're interesting in looking at. Today, we're going to look at three different plots.
+
+### Using a boxplot 
+In statistics, a boxplot is a simple way to gain information regarding the shape, variability, and centre (or median) of a statistical dataset, so we'll use the boxplot with our data to see if we can identify both the median vand if there are any outliers. 
+
+Let's first use a boxplot to see if we have any outliers in the refunds that politicians are getting. 
+
+
+```{r}
+# use a box plot to see if we have outliers in the refund_value column
+boxplot(refunds$refund_value)
+
+# ggplot version of a boxplot 
+ggplot(refunds, aes(x = "refunds", y = refund_value)) +
+    geom_boxplot()
+```
+
+WOW! We have a lot of high values. That line is actually the boxplot : everything above that line are a bunch of points showing outliers that are overlapping with each other. What might be better to help us understand where these outliers are in the data is for us to break this up by a category. 
+
+```{r}
+# look for outliers for each different refund description
+ggplot(refunds, aes(refund_description, refund_value)) +
+    geom_boxplot() +  coord_flip()
+```
+
+This tells us more! Mainly, that there appears to be a lot of outliers in the dissemination of parlimentary activity and mail categories, but not so many in fuel and phone costs.   
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Make a boxplot which shows whether certain political parties have more refund outliers. 
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+# look for outliers for each different refund description
+ggplot(refunds, aes(political_party, refund_value)) +
+    geom_boxplot() +  coord_flip()
+```
+
+They all look pretty bad... more investigation needed!
+
+</details>
+</blockquote>
+
+<br>
+
+So far we've covered looking at outliers in a one variable (univariate outliers), and when we consider a categorical and numerical variable together (multivariate).   
+Another way to look at outliers is to consider two numerical variables together (again, multivariate outliers). Sometimes this can help us understand outliers a bit better. In this case, it's better to use a scatterplot to check for outliers.   
+
+For example, perhaps refunds are just higher for parties that have more members? Let's check this out. 
+
+```{r}
+# use a scatterplot to check if larger parties have higher refunds
+ggplot(refunds, aes(party_nmembers, refund_value)) +
+    geom_point()
+
+```
+
+Here we can see there is a really strong relationship between number of party members and `refund_value`: in this case, all the politicians expenses are associated with a specific number of party members (hence the straight line). You can also see that there are outliers across parties of all size.
+
+
+
+## Identifying outliers 
+
+Alright, now we know some techniques for visualising our outliers, let's learn how to identify which rows in our dataframe contain outliers. As you may remember from above, one way to identify outliers is to determine which points have a z-score that's far from 0. 
+
+We can use the `scores()` function from [Lukasz Komsta' s outliers package](https://cran.r-project.org/web/packages/outliers/outliers.pdf) to quickly calculate the z-score for every value in a specific column in our table. 
+
+
+```{r}
+# load the outliers package
+library(outliers)
+
+# get the z-scores for each value in refund_value
+refund_zscores <- scores(refunds$refund_value)
+
+```
+
+Now we just need to look and see which of those values are outside of our threshold. As we said before, mathematically an outlier is usually defined as an observation three standard deviations above or below the mean. So, let's try this. 
+
+
+```{r}
+# create a logical vector the same length as outlier_scores
+# that is "TRUE" if outlier_scores is greater than 3 or
+# less than negative 3
+is_outlier <- refund_zscores > 3 | refund_zscores < -3
+
+# add a column with info whether the refund_value is an outlier
+refunds <- refunds %>%
+  mutate(is_outlier = is_outlier)
+
+```
+
+
+Here, what we have done is create a new vector that's "TRUE" if a value is an outlier (i.e. if it has a zscore of 3 or -3 in our outliers vector) and "FALSE" if it's not. Then we add it into the `refunds` data as a new logical vector column called `is_outlier`. Now we can use that new `is_outlier` column to plot the outlier and non-outlier values separately, and to separate and clean up the data. 
+
+
+```{r}
+# look at the same plot as above, with outliers in a separate facet
+ggplot(refunds, aes(refund_description, refund_value)) +
+    geom_boxplot() +
+    coord_flip() +
+    facet_wrap(~is_outlier)
+
+# create a table with only outliers
+refund_outliers <- refunds %>%
+  filter(is_outlier == TRUE)
+
+# base R version
+# refunds_no_outliers <- refunds[refunds$is_outlier == T, ]
+
+# take a peek
+ggplot(refund_outliers, aes(refund_description, refund_value)) +
+    geom_boxplot() +  coord_flip()
+```
+
+You can see the outliers are so numerous, that they actually almost form their own datasets. This is a sign that these outliers aren't random - there is a pattern and there is potentially a reason for it. In this case, it's probably dirty politicians, so it's interesting to separate them out.   
+
+
+## What to do once you've found them 
+
+
+Ok, now that we know which specific values are outliers... what do we do with them? There are a lot of different strategies for what to do with outliers, and which one you should use for your specific project depends on what your goals are, and why you think you have outliers. Let's look at them all. 
+
+
+**Option 1 : Removing them***   
+The easiest option for handling outliers is just to drop the rows that have outliers in them.
+
+
+```{r}
+# only get rows where the is_outlier column we made is equal to "FALSE"
+refunds_no_outliers <- refunds %>%
+  filter(is_outlier == FALSE)
+
+# base R version
+# refunds_no_outliers <- refunds[refunds$is_outlier == F, ]
+
+
+```
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Create a boxplot to visualise your new, non-outlier data. Does it look better?  
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+# create a plot to visualise your new, no outlier data
+ggplot(refunds_no_outliers, aes(refund_description, refund_value)) +
+    geom_boxplot() +
+    coord_flip()
+```
+
+Looking better! Although now we've got rid of the main outliers in one, you can see that the other columns before, which looked alright, now seem to have a lot of outliers as well. Sigh... This is usually a long process. You do one category, then look at another. And do one variable, and then look at another. 
+
+</details>
+</blockquote>
+
+
+**Option 2 : Consider outliers separately**  
+
+This option is the most lengthy, and is the one we've already covered - setting the outliers into a separate table and plotting them separately. As we've already discussed, in this particular case, this is probably the best option, given that it is interesting and there is a clear non-random reason for the data.   
+
+
+**Option 3: Replace the outliers with imputations**   
+
+As discussed in the intro, this option is good when you know for sure you have data entry errors. It can also be good if there is a clear pattern of outliers - e.g. all NA's are -9999. So, what is imputation?
+
+<center>Imputation: The fancy math term for guessing what the value of a missing cell in your dataset should actually be. </center>
+
+So, for example, we can replace all the outliers with NA's. 
+
+```{r}
+# replace outliers with NA
+outliers_na <- refunds %>%
+  mutate(refund_value = na_if(is_outlier, "TRUE"))   
+
+# # base R
+# refunds[refund_zscores > 3| refund_zscores < -3, "refund_value"] <- NA
+
+# check to make sure we actually did that
+outliers_na %>% 
+  select(refund_value, is_outlier) %>% 
+  filter(is_outlier == TRUE)
+
+```
+
+Yep, lots of NA's in there, so we can see it worked. In some cases, it might be a good idea to replace the outlier values with a value such as the median. However, in this case, it's probably not a good idea to replace the outlier values with another value, as the outlier values themselves are of interest to us. 
+
+<blockquote class='task'>
+**Task - 5 mins**
+
+Instead of replacing all the outlier values with NA's, replace them with the median. Check if you did it by calculating a summary stat. 
+
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+
+# replace outliers with median score (calculated above)
+median_outliers <- refunds %>% 
+        mutate(refund_value = ifelse(is_outlier == TRUE, median(refund_value), refund_value))
+
+# check it's ok
+median_outliers %>% 
+  filter(is_outlier == TRUE) %>% 
+  select(refund_value, is_outlier)
+
+# # do the same in base R
+# refunds[refund_zscores > 3| refund_zscores < -3, "refund_value"] <- median(refunds$refund_value)
+# 
+# # check to make sure we actually did that
+# summary(refunds$refund_value)
+
+```
+</details>
+</blockquote>
+
+Great. Now you've managed to work with some outliers from one column of the dataset. As you can see, outlier identification and removal is a long and laborious process, that - depending on the dataset you are working with - consumes a lot of your time. 
+
+
+# Recap
+
+* What is the mathematical definition of an outlier?
+<details>
+<summary>**Answer**</summary>
+A value that is more than 3 standard deviations outside the mean.
+</details>
+
+* What are two ways of identifying outliers?
+<details>
+<summary>**Answer**</summary>
+Visualise them or calculate a zscore. 
+</details>
+
+* What are three methods of dealing with outliers once you find them?
+<details>
+<summary>**Answer**</summary>
+Delete them, impute them, separate them out into a new dataset.   
+</details>
+<hr>
+
+
+# Additional Resources
+
+[Imputing missing values and outliers](https://www.kaggle.com/rtatman/data-cleaning-challenge-imputing-missing-values/)  
+
+[Identifying and removing outliers](https://www.r-bloggers.com/identify-describe-plot-and-remove-the-outliers-from-the-dataset/)  
+
+

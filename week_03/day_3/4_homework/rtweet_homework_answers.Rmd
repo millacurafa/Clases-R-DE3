@@ -1,0 +1,178 @@
+---
+title: "Tidyverse consolidation homework - answers"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Learning Objectives 
+
+Be able to explore and wrangle an unseen dataset so as to answer specific questions
+
+# Introduction
+
+Social media is everywhere, and the ability to analyse data from it is invaluable. If you want to scrape data from Twitter yourself, you can use the `rtweet` package. All that is needed is a Twitter account, and you are good to go. 
+<center>
+![](http://www.storybench.org/wp-content/uploads/2018/11/rtweet-730x461.png)
+</center>
+
+In this case, we have used the `rtweet` package to download 500 tweets from the [@CodeClanScot twitter page](https://twitter.com/CodeClanScot). 
+  
+In this homework, you will be working with data downloaded from the CodeClan Twitter page, to do some analysis of overall tweet metrics (likes and retweets), as well as some analysis of the tweet and hashtag content. You'll also be working with the strings contained within variables. 
+<br>
+The overall goal of the homework is to practice everything you've learnt this week on an entirely new dataset. 
+<br>
+
+<br>
+
+# MVP 
+
+1. Load the `code_clan_tweets.csv` data. Find the number of rows, columns, and list all the variable names. 
+
+2. First, we're going to summarise the number of likes (`favorite_count`) CodeClan tweets have. Create a boxplot to check for outliers.   
+
+3. Find the total number of favourited tweets (stored in `favorite_count`) that CodeClan tweets have got. Don't add a tweet's `favorite_count` to the total when the tweet was quoted (see the `is_quote` variable).   
+
+4. Summarise the mean number of retweets (`retweet_count`), split by the type of platform that was used to tweet (`source`). Again, omit quoted tweets from the mean.
+
+5. Count the total number of likes (i.e. total of `favorite_count`), split by `media` type, and arrange them from most likes to least. Assume that any tweets without a listed `media` type are of type "text".  
+
+6. Find the mean number of characters that a CodeClan tweet contains.  
+
+7. The `code_clan_info.csv` data file contains `status_url` along with other info. Load this in, and join it to the `code_clan_tweets` tibble, so that you have a `status_url` for each tweet. Decide which variable to join the tibbles on.  
+
+8. From your new joined data, create a new tibble `codeclan_hashtags` containing only the `tweet_id` and hashtags in lowercase for analysis. Keep only those tweets with hashtags.
+
+# Extensions
+
+9. Some tweets have more than one hashtag, denoted by the `c(` symbols at the start of the string. Use the `str_sub()` and `str_detect()` functions and your `codeclan_hashtags` tibble from above to find all the cases in which the hashtag string begins with characters`c(`.
+<details>
+<summary>**Hint**</summary>
+Try a regex pattern `"c\\("`. The double backslash is necessary in R to mark a backslash as itself being escaped. 
+</details>
+
+10. Use the `str_detect()` function to find all tweets with `text` that mentions "Edinburgh", and count how many such tweets there are. 
+<details>
+<summary>**Hint**</summary>
+You may need to make sure your tweets are all the same case before searching.
+</details>
+
+11. Use `str_extract_all()` with a regular expression to find out which Twitter users CodeClan have been tweeting. 
+<details>
+<summary>**Hint**</summary>
+Think about all the different characters which could be in a Twitter username, do a bit of online research
+</details>
+
+# Solutions
+
+## MVP
+
+```{r}
+library(tidyverse)
+
+# 1 : do some initial data exploration
+codeclan_tweets <- read_csv("data/code_clan_tweets.csv")
+view(codeclan_tweets)
+dim(codeclan_tweets)
+names(codeclan_tweets)
+```
+
+
+```{r}
+# 2 : use a box plot to see if we have outliers in the favourite_count column
+ggplot(codeclan_tweets, aes(x = "favorite_count", favorite_count)) + 
+  geom_boxplot()
+```
+
+```{r}
+# 3 : count total number of favourites
+codeclan_tweets %>%
+  filter(is_quote == FALSE) %>%
+  summarise(total = sum(favorite_count))
+```
+
+
+```{r}
+# 4 : summarise mean number of retweets by source platform
+codeclan_tweets %>%
+  filter(is_quote == FALSE) %>%
+  group_by(source) %>%
+  summarise(average_retweet = mean(retweet_count))
+```
+
+
+```{r}
+# 5 : count the number of likes by media type, and arrange them from most likes to least 
+codeclan_tweets %>%
+  mutate(media_type2 = replace_na(media_type, "text")) %>%
+  group_by(media_type2) %>%
+  summarise(favourite_count_total = sum(favorite_count)) %>%
+  arrange(desc(favourite_count_total))
+```
+
+
+```{r}
+# 6 : find the mean number of characters a tweet contains
+codeclan_tweets %>%
+  summarise(avg_tweet_length = mean(display_text_width))
+```
+
+
+```{r}
+# 7 : join where there is a tweet 
+codeclan_info <- read_csv("data/code_clan_info.csv")
+names(codeclan_info)
+codeclan_all <- left_join(codeclan_tweets,codeclan_info, by = "tweet_id")
+```
+
+
+```{r}
+# 8 : create a variable which has all the hashtags in lowercase for analysis
+codeclan_hashtags <- codeclan_all%>% 
+  select(tweet_id, hashtags) %>%
+  mutate(lowcase_hashtag = str_to_lower(hashtags)) %>%
+  select(-hashtags) %>%
+  drop_na(lowcase_hashtag)
+
+codeclan_hashtags
+```
+
+## Extensions - answers
+
+```{r}
+# 9 : use the str_sub function to get the first 2 letters of each tweet
+hashtags_multiple <- codeclan_hashtags %>% 
+  mutate(first_letters = str_sub(lowcase_hashtag, 1, 2)) %>%
+  filter(str_detect(first_letters, "c\\("))
+
+hashtags_multiple
+```
+
+
+```{r}
+# question 10: Use the str_detect() function to find all cases where a tweet text mentions edinburgh, and count in how many tweets it appears
+codeclan_tweets %>%
+  mutate(lowcase_tweets = str_to_lower(text)) %>%
+  filter(str_detect(lowcase_tweets, "edinburgh")) %>%
+  summarise(count = n())
+```
+
+
+```{r}
+# question 11: use str_extract_all and regex to find usernames
+user_pattern <- "@[a-zA-Z0-9_]+"
+tweets <- codeclan_tweets %>% 
+  select(text)
+head(str_extract_all(tweets$text, user_pattern))
+```

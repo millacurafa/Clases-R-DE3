@@ -1,0 +1,47 @@
+---
+title: "Start Point"
+author: "XXXXXXXXXX"
+date: "08/07/2019"
+output: 
+  html_document:
+    css: styles.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+```
+
+Abstract
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Amet purus gravida quis blandit turpis cursus. Mauris nunc congue nisi vitae. Est ullamcorper eget nulla facilisi etiam. Velit euismod in pellentesque massa placerat duis ultricies. Ut tortor pretium viverra suspendisse potenti nullam ac. Quam id leo in vitae turpis massa sed elementum tempus. Placerat orci nulla pellentesque dignissim enim. Felis eget nunc lobortis mattis aliquam faucibus. Mi proin sed libero enim. Leo vel orci porta non pulvinar neque laoreet suspendisse. Morbi non arcu risus quis varius. Senectus et netus et malesuada fames ac turpis egestas integer. Velit egestas dui id ornare arcu odio ut sem nulla. Libero justo laoreet sit amet cursus sit amet dictum sit. Lectus proin nibh nisl condimentum id venenatis. Maecenas volutpat blandit aliquam etiam erat.
+
+Introduction
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Mi quis hendrerit dolor magna eget est lorem ipsum. Arcu non sodales neque sodales ut etiam sit amet nisl. Orci eu lobortis elementum nibh tellus molestie nunc non blandit. Eget magna fermentum iaculis eu non diam phasellus vestibulum lorem. Mauris augue neque gravida in fermentum. Risus nullam eget felis eget nunc lobortis mattis aliquam faucibus. Imperdiet proin fermentum leo vel orci porta non. Ultrices dui sapien eget mi proin sed libero. Eu turpis egestas pretium aenean pharetra magna ac placerat. Posuere lorem ipsum dolor sit amet consectetur adipiscing. Neque sodales ut etiam sit amet nisl. Mattis aliquam faucibus purus in massa tempor nec. Elit scelerisque mauris pellentesque pulvinar pellentesque habitant. Aliquam ultrices sagittis orci a scelerisque purus semper eget. Facilisis mauris sit amet massa vitae tortor. Lectus arcu bibendum at varius vel pharetra vel turpis.
+
+Aim
+
+I want to find out about some things
+
+Data
+
+Link to the CodeClanData repo
+
+Results
+
+Put some tables here!
+
+Conclusions
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Montes nascetur ridiculus mus mauris vitae. Nunc vel risus commodo viverra. A arcu cursus vitae congue mauris rhoncus. Ut etiam sit amet nisl purus in. At varius vel pharetra vel turpis nunc eget lorem. Diam maecenas sed enim ut sem. Elementum integer enim neque volutpat ac tincidunt vitae. Consequat mauris nunc congue nisi vitae suscipit tellus mauris. Sit amet nisl purus in mollis nunc sed. Sed risus pretium quam vulputate dignissim suspendisse in. Egestas congue quisque egestas diam in arcu cursus euismod. Egestas congue quisque egestas diam in arcu cursus euismod. A pellentesque sit amet porttitor. Nunc consequat interdum varius sit amet mattis. Et netus et malesuada fames ac turpis egestas.
+
+Imperdiet nulla malesuada pellentesque elit eget gravida. Erat nam at lectus urna. Pellentesque elit ullamcorper dignissim cras tincidunt lobortis feugiat vivamus at. Massa massa ultricies mi quis hendrerit. Habitasse platea dictumst quisque sagittis purus. Dui nunc mattis enim ut. Bibendum ut tristique et egestas quis ipsum. Phasellus vestibulum lorem sed risus ultricies. Phasellus faucibus scelerisque eleifend donec pretium. Turpis massa sed elementum tempus egestas sed.
+
+Ut consequat semper viverra nam libero justo laoreet. Scelerisque mauris pellentesque pulvinar pellentesque habitant morbi tristique. Mauris a diam maecenas sed enim ut sem. Quisque non tellus orci ac auctor augue mauris. Id cursus metus aliquam eleifend mi in nulla. Tellus orci ac auctor augue mauris augue neque. Diam maecenas sed enim ut sem viverra. Turpis egestas sed tempus urna. Pharetra vel turpis nunc eget lorem dolor sed viverra. Et pharetra pharetra massa massa ultricies mi. At quis risus sed vulputate odio ut enim blandit volutpat. Phasellus faucibus scelerisque eleifend donec. Lacus luctus accumsan tortor posuere ac ut consequat. Quis auctor elit sed vulputate mi sit amet mauris. Tortor vitae purus faucibus ornare suspendisse sed nisi lacus.
+
+References
+
+Link to reference 1
+Link to reference 2
+Link to reference 3
+Link to reference 4

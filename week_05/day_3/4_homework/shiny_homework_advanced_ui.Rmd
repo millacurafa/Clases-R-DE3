@@ -1,0 +1,19 @@
+---
+title: "Shiny - Advanced UI Homework"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+    pdf_document: default
+---
+
+# MVP 
+
+Take a copy of the app from the mini-lab today and use some of the tools learnt in the 'Advanced UI' lesson to make some changes, for example:
+
+* Using HTML to change some of the font
+* Use a different layout (such as grid)
+* Adding more than 1 tab. 

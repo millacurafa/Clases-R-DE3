@@ -1,0 +1,415 @@
+---
+title: "Tidyr package"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+library(tidyverse)
+library(CodeClanData)
+```
+
+# Learning Objectives  
+
+* Understand the concept of wide and long data
+* Be able to use the `pivot_longer()`, `pivot_wider()`, `separate()` and `unite()` functions
+
+
+# Tidyr package
+
+<br>
+<center>
+![](https://tidyr.tidyverse.org/logo.png){ width=20% }
+</center>
+<br>
+
+The R package `tidyr`, provides functions to help you organize (or reshape) your data set into tidy format. `tidyr` provides four main functions for tidying messy data: `pivot_longer()`, `pivot_wider()`, `separate()` and `unite()`.
+
+
+* `pivot_longer()`: gathers columns into rows
+* `pivot_wider()`: spreads rows into columns
+* `separate()` : separates one column into two 
+* `unite()` : unites several columns into one 
+
+
+## `pivot_longer()`
+
+This function takes in the following arguments:   
+
+* `data` : the data you want to pivot  
+* `cols` : the columns you want to pivot
+* `names_to` : the name of your new column where your old column names (the ones you are pivoting) will go.
+* `values_to` : the name of your new column where your data will go (that was in your old columns)
+<br>
+
+
+
+## `pivot_wider()`
+
+Takes in the following arguments:   
+
+* `data` : the data you want to pivot  
+* `id_cols` : your columns you want to pivot
+* `names_from`: the column where you will get your new column names from   
+* `values_from` : the data you're going to move into your new columns 
+<br>
+
+
+In general, the `pivot` functions work by allowing you to change the columns and rows around so you can switch between wide and long format data. 
+<br>
+<center>
+![](https://www.fromthebottomoftheheap.net/assets/img/posts/tidyr-longer-wider.gif)
+</center>
+<br>
+
+
+<div class='emphasis'>
+<center>
+**Note: the `pivot_longer()` function has replaced the `gather()` function, and `pivot_wider()` has replaced the `spread()` function. The cheatsheets online haven't been updated yet though!** 
+
+<br>
+<center>
+![](http://ohi-science.org/data-science-training/img/rstudio-cheatsheet-spread-gather-sep-unite.png)
+</center>
+<br>
+
+
+## `separate()`
+
+The `separate` function takes in the following arguments:   
+
+* `data` : the data you want to reshape    
+* `col`: the column you want to split  
+* `into` : the new variables you're going to create
+* `sep` : the separator you're looking for to define your split. Can either be a number i.e. the position in the string that will seperate at or a sequence that looking to match (which is written in 'regular expression', which we will learn more about tomorrow). 
+<br>
+
+
+## `unite()`
+* `data` : the data you want to reshape    
+* `col`: the columns you want to unite
+* `sep` : the separator you're looking for to define your split. 
+
+
+</div>
+</center></i>
+<br>
+
+
+# Using tidyr on example data
+
+Let's use our example data the previous session, and use the `tidyr` package to tidy it up. Let's take our heart rate example. 
+
+
+```{r, message = FALSE, warning = FALSE}
+library(tidyverse)
+
+# create subject info tibble
+subject_hr <- tibble( name = c("SUBJ01","SUBJ02","SUBJ03"), 
+  hr_am = c(68,72,68), 
+  hr_pm = c(58,89,52))
+
+
+# gather the data into tidy format 
+hr_wideformat <- subject_hr %>%
+  pivot_longer(cols = c("hr_am", "hr_pm"), 
+               names_to = "measurement_time", 
+               values_to = "heartrate") 
+
+```
+
+You can see how a simple manipulation of the data structure now makes it easier to see and analyse the data. 
+
+Let's look at our `messy_orders` data, and clean that up. 
+
+
+```{r}
+messy_orders
+
+# split columns
+tidy_orders <- messy_orders %>% 
+  separate(order_info, c("order_number","date"), sep ="/")
+
+```
+
+Finally, let's look at our `income` data.
+
+To tidy the data we would change the non-variable columns into a two-column key-value pair, so we have an income column (currently, these are the headings) and a frequency column (currently, these values are the values within the table rather than in the headings). These would be paired with a particular religion. 
+
+```{r}
+income
+
+# tidy the income data
+tidy_income <- income %>%
+  pivot_longer(-religion, names_to = "income", values_to = "count")
+ 
+```
+
+As you can see, we have used the `pivot_longer` function to go into the dataset `income`, and create two new columns called `income` and `count`. In this case, we have defined the columns to gather by excluding the `religion` column by using the `-` operator. We don;t want this one to change,only the income and the count ones.
+
+This dataset is now tidy because each column represents a variable, and each row represents an observation. 
+
+
+# Tidyr on real data 
+
+Now, let's look at using them on a real, messy dataset. 
+
+Read in the `hospitals93to98.csv` file. This particular dataset stores the reasons people were admitted to hospital between 1993 and 1998.   
+<br>
+
+```{r, message = FALSE}
+# load in the hospital stays data 
+hospital_visits <- read_csv("data/hospitals93to98.csv")
+
+head(hospital_visits)
+```
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Take a look at the data. What about it isn't tidy? What could be done to tidy it?
+
+<details>
+<summary>**Hint**</summary>
+
+* Take a look at the column headings - do they all represent the same type of measurement? e.g. are they all measuring a year value?  
+* Are there unique values in all the rows?  
+
+</details>
+<details>
+<summary>**Answer**</summary>
+
+* The columns all represent years, which could be merged into one column, with rows representing different years. 
+* The bed days and separations are all merged within one variable (`Field`)
+
+</details>
+
+</blockquote>
+
+
+
+## `pivot_longer()` : move columns into rows
+
+In the above task, you identified that one reason the data wasn't tidy because we had many columns representing the years. Ideally, we want all the years to be in one column, with their values within another. In order to do this, we need to use the `pivot_longer()` function, which changes columns into rows. 
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Before we use the function, get in groups and discuss what you think the data needs to look like. Draw a schematic of how you think the tidy table will look. 
+
+</blockquote>
+
+
+Now you have your schematic, let's use `pivot_longer()` function to check if you were right.   
+
+```{r}
+# tidy the hospital data
+hospital_visits_long <- hospital_visits %>%
+  pivot_longer(cols = starts_with("FY"), 
+               names_to = "year", 
+               values_to = "visit_numbers")
+
+# view the data 
+head(hospital_visits_long)
+
+```
+<br>
+The code above gathers the data from all the different years in `hospital_visits`, creates a new naming variable column called `year`, a new result column called `visit_numbers` and within that puts all the data. 
+
+<br>
+
+
+# `pivot_wider()` : move rows into columns 
+
+In the above task, you identified that another reason the data wasn't tidy because we had both `Separations` and `PatientDays` within the same column, and these are different variables. To make the data tidy, these ideally need to be changed into two different ones. 
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Before we use the `pivot_wider()` function, get in groups and discuss what you think the data needs to look like. Draw a schematic of how you think the tidy table will look. 
+
+</blockquote>
+
+Now you have your schematic, let's check if you were right.   
+
+
+```{r}
+# use the pivot_wider() function
+hospital_visits_wide <- hospital_visits_long %>%
+  pivot_wider(names_from = Field, 
+              values_from = visit_numbers)
+
+# view the data
+head(hospital_visits_wide)
+```
+<br>
+
+The code above uses our new long format data `hospital_visits_long`, spreads the `Field` into new columns (it will create new columns to match however many unique values in the Field column), and into these new columns it puts whatever is in the `visit_numbers` column. 
+  
+Finally, our data is starting to look better!   
+
+<br>
+
+# `separate()`: splitting a single variable into two 
+
+Sometimes, you might have values within a column that you want to split out. For example, in the `IcdChapter` column, we have a coding variable (e.g. 0), and a description of that value (e.g. 0 = Not Reported). If we want to separate characters within a variable string, we can use the `separate()` function which turns a single character column into multiple columns.
+
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Before we use the `separate` function, discuss what you think the data will look like after we do it. Draw a schematic of how you think the tidy table will look. 
+
+</blockquote>
+
+
+Let's check if you were right:
+
+```{r}
+# split the codes and descriptions column 
+hospital_visits_coded <- hospital_visits_wide %>%
+  separate(IcdChapter, c("code", "description"), sep = "\\." )
+
+head(hospital_visits_coded)
+```
+
+<br>
+The code above separates the data in the `IcdChapter` variable into two new columns called `code` and `description`. Within these, it puts whatever is before the separating value we have defined (in this case, a full stop) in the first, and whatever is after the separating value in the second.   
+
+You may notice something a bit unusual about our `sep` argument. We know we want to split by a full stop '.' but in regular expression '.' has special behavious and actually means *any character*. But that's not what we want! We want it to match a literal full stop ('.'). So to do this you need to use an 'escape' to tell the regular expression you want to match it exactly - we do this by using the string '\\.'. We will go into regular expression properly tomorrow (this is all you need to know for now!) 
+
+<br> 
+
+# `unite()`: merging two variables into one 
+
+Finally, there may be a time where you want to combine two variables into one. For the sake of demonstration, let's unite the variables we just split above. This time, let's change the separator to a colon instead of a period. 
+
+```{r}
+# unite the codes and descriptions back together 
+hospital_visits_unite <- hospital_visits_coded %>%
+  unite(disease, c("code", "description"), sep =":")
+
+head(hospital_visits_unite)
+```
+<br>
+The code above unites the data in the `code` and `description` variables into a new column called `disease`. Within this, it separates the two columns by a colon operator. 
+
+And voila! We have a nice tidy, reshaped dataset. 
+
+
+<blockquote class='task'>
+**Task - 15 mins** 
+
+Now it's your turn to practice the verbs on a new dataset. Complete the following task:
+
+1. Load in the `country_data.csv` file and take a look at it. What needs changed in this to make it tidy? Which columns need made into long format, and which need spread to rows?
+2. Do the appropriate pivoting of your columns using R  
+3. Separate the `country` variable so you have the name in one column and the number in another.   
+4. Unite the `code_letter` and `code_numb` variables so that they are both in one column, with no spaces separating them.   
+
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+# read in the data 
+country_data <- read_csv("data/country_data.csv")
+
+# gather the year columns into a new one called year
+country_long <- country_data %>%
+  pivot_longer(cols =  starts_with("Y"), 
+               names_to = "year", 
+               values_to = "visitors")
+
+# spread the case type into two columns
+country_wide <- country_long %>%
+  pivot_wider(names_from = type, 
+             values_from = visitors)
+
+
+# separate the country variable so you only have the name 
+country_separated <- country_wide %>%
+  separate(country, c("country_n", "country_name"), sep = "\\. " )
+
+# unite the code_letter and code_numb variables into a new one called country_code
+country_united <- country_separated %>%
+  unite(country_code, c(code_letter, code_numb), sep = "")
+
+```
+
+</details>
+
+
+</blockquote>
+
+<br>
+
+
+
+# Recap 
+
+Is the data below in wide or long format?
+
+| product | measure | value |
+|---------|---------|-------|
+|   A     | Height  | 10    |
+|   A     | Width   |  5    |
+|   A     | Weight  |  2    |
+|   B     | Height  | 20    |
+|   B     | Width   | 10    | 
+
+<details>
+<summary>**Answer**</summary>
+Long format. Think of it in terms of vertical/horizontal. Long format is more vertical, wide format is more horizontal. 
+</details>
+<br>
+
+What function would you use to change the long data above to wide data?
+<details>
+<summary>**Answer**</summary>
+The `spread` function spreads rows into columns. In this case, the info in the rows would be changed to columns.  
+
+
+</details>
+<br>
+
+What would the data look like once it is changed to wide format?
+<details>
+<summary>**Answer**</summary>
+
+| Product | Height  | Width | Weight  |
+|---------|---------|-------|---------| 
+| A       | 10      | 5     | 2       |
+| B       | 20      | 10    | NA      |
+ 
+</details>
+<br>
+
+What function would I use if I wanted to combine the Height and Weight columns into one?
+<details>
+<summary>**Answer**</summary>
+The `unite` function would achieve this. 
+</details>
+ 
+ 
+ 
+
+# More Resources : reshaping
+
+[Wide & Long data](https://sejdemyr.github.io/r-tutorials/basics/wide-and-long/)  
+
+[Data wrangling cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf)  
+
+[More details about wide/long format](http://vita.had.co.nz/papers/tidy-data.html)  
+
+[Spreading and gathering](https://r4ds.had.co.nz/tidy-data.html#spreading-and-gathering)  
+
+[Pivot : an update to the gather and spread functions](http://www.storybench.org/pivoting-data-from-columns-to-rows-and-back-in-the-tidyverse/)

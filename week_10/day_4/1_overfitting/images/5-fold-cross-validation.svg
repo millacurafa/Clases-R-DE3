@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="5-fold-cross-validation.svg">
+  <defs
+     id="defs4">
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Mend"
+       style="overflow:visible;">
+      <path
+         id="path3932"
+         style="fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.6) rotate(180) translate(0,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Send"
+       style="overflow:visible;">
+      <path
+         id="path3938"
+         style="fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(0.3) rotate(180) translate(-2.3,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Send"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Send"
+       style="overflow:visible;">
+      <path
+         id="path3920"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;"
+         transform="scale(0.2) rotate(180) translate(6,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;">
+      <path
+         id="path3908"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1.0pt;"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Lend"
+       style="overflow:visible;">
+      <path
+         id="path3926"
+         style="fill-rule:evenodd;stroke-width:0.62500000;stroke-linejoin:round;"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(1.1) rotate(180) translate(1,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="782.01157"
+     inkscape:cy="532.9644"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1005"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g5526">
+      <rect
+         y="32.362183"
+         x="97.14286"
+         height="442.85715"
+         width="532.85712"
+         id="rect5522"
+         style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.99999994000000003;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <g
+         id="g5419">
+        <rect
+           style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+           id="rect2985"
+           width="449"
+           height="149"
+           x="140.5"
+           y="48.576469"
+           ry="4"
+           rx="4" />
+        <text
+           xml:space="preserve"
+           style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+           x="363.64429"
+           y="134.6145"
+           id="text2987"
+           sodipodi:linespacing="125%"
+           transform="scale(1.0022346,0.99777036)"><tspan
+             sodipodi:role="line"
+             x="363.64429"
+             y="134.6145"
+             id="tspan2991">Data</tspan></text>
+        <g
+           id="g3104"
+           transform="translate(-7.142848,-17.857143)">
+          <g
+             transform="translate(-14.285714,0)"
+             id="g3054">
+            <rect
+               style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+               id="rect3022"
+               width="89"
+               height="149"
+               x="140.5"
+               y="324.29074"
+               ry="4"
+               rx="4" />
+            <text
+               xml:space="preserve"
+               style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+               x="184.47815"
+               y="391.47876"
+               id="text3024"
+               sodipodi:linespacing="125%"
+               transform="scale(1.0022346,0.99777038)"><tspan
+                 sodipodi:role="line"
+                 x="184.47815"
+                 y="391.47876"
+                 id="tspan3026">Fold</tspan><tspan
+                 id="tspan3028"
+                 sodipodi:role="line"
+                 x="184.47815"
+                 y="431.47876">1</tspan></text>
+          </g>
+          <g
+             transform="translate(86.42855,0)"
+             id="g3070">
+            <rect
+               style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+               id="rect3072"
+               width="89"
+               height="149"
+               x="140.5"
+               y="324.29074"
+               ry="4"
+               rx="4" />
+            <text
+               xml:space="preserve"
+               style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+               x="184.47815"
+               y="391.47876"
+               id="text3074"
+               sodipodi:linespacing="125%"
+               transform="scale(1.0022346,0.99777038)"><tspan
+                 sodipodi:role="line"
+                 x="184.47815"
+                 y="391.47876"
+                 id="tspan3076">Fold</tspan><tspan
+                 id="tspan3078"
+                 sodipodi:role="line"
+                 x="184.47815"
+                 y="431.47876">2</tspan></text>
+          </g>
+          <g
+             transform="translate(187.14284,0)"
+             id="g3080">
+            <rect
+               style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+               id="rect3082"
+               width="89"
+               height="149"
+               x="140.5"
+               y="324.29074"
+               ry="4"
+               rx="4" />
+            <text
+               xml:space="preserve"
+               style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+               x="184.47815"
+               y="391.47876"
+               id="text3084"
+               sodipodi:linespacing="125%"
+               transform="scale(1.0022346,0.99777038)"><tspan
+                 sodipodi:role="line"
+                 x="184.47815"
+                 y="391.47876"
+                 id="tspan3086">Fold</tspan><tspan
+                 id="tspan3088"
+                 sodipodi:role="line"
+                 x="184.47815"
+                 y="431.47876">3</tspan></text>
+          </g>
+          <g
+             transform="translate(287.85711,0)"
+             id="g3090">
+            <rect
+               style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+               id="rect3092"
+               width="89"
+               height="149"
+               x="140.5"
+               y="324.29074"
+               ry="4"
+               rx="4" />
+            <text
+               xml:space="preserve"
+               style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+               x="184.47815"
+               y="391.47876"
+               id="text3094"
+               sodipodi:linespacing="125%"
+               transform="scale(1.0022346,0.99777038)"><tspan
+                 sodipodi:role="line"
+                 x="184.47815"
+                 y="391.47876"
+                 id="tspan3096">Fold</tspan><tspan
+                 id="tspan3098"
+                 sodipodi:role="line"
+                 x="184.47815"
+                 y="431.47876">4</tspan></text>
+          </g>
+          <g
+             transform="translate(388.57141,0)"
+             id="g3060">
+            <rect
+               rx="4"
+               ry="4"
+               y="324.29074"
+               x="140.5"
+               height="149"
+               width="89"
+               id="rect3062"
+               style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+            <text
+               transform="scale(1.0022346,0.99777038)"
+               sodipodi:linespacing="125%"
+               id="text3064"
+               y="391.47876"
+               x="184.47815"
+               style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+               xml:space="preserve"><tspan
+                 id="tspan3066"
+                 y="391.47876"
+                 x="184.47815"
+                 sodipodi:role="line">Fold</tspan><tspan
+                 id="tspan3100"
+                 y="431.47876"
+                 x="184.47815"
+                 sodipodi:role="line">5</tspan></text>
+          </g>
+        </g>
+        <path
+           style="color:#000000;fill:none;stroke:#000000;stroke-width:4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;marker-end:url(#Arrow2Mend);visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+           d="m 364.96157,218.07647 0,59.28571"
+           id="path3131"
+           inkscape:connector-curvature="0" />
+      </g>
+    </g>
+    <g
+       id="g5560">
+      <rect
+         style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+         id="rect5524"
+         width="532.85712"
+         height="518.57141"
+         x="97.14286"
+         y="490.93362" />
+      <g
+         id="g5451">
+        <g
+           id="g5348">
+          <g
+             id="g5116"
+             transform="translate(-7.142848,190.71429)">
+            <g
+               transform="translate(-14.285714,0)"
+               id="g5118">
+              <rect
+                 style="color:#000000;fill:#cbb9da;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994000000003;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+                 id="rect5120"
+                 width="89"
+                 height="149"
+                 x="140.5"
+                 y="324.29074"
+                 ry="4"
+                 rx="4" />
+              <text
+                 xml:space="preserve"
+                 style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+                 x="184.47815"
+                 y="391.47876"
+                 id="text5122"
+                 sodipodi:linespacing="125%"
+                 transform="scale(1.0022346,0.99777038)"><tspan
+                   sodipodi:role="line"
+                   x="184.47815"
+                   y="391.47876"
+                   id="tspan5124">Fold</tspan><tspan
+                   id="tspan5126"
+                   sodipodi:role="line"
+                   x="184.47815"
+                   y="431.47876">1</tspan></text>
+            </g>
+            <g
+               transform="translate(86.42855,0)"
+               id="g5128">
+              <rect
+                 style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+                 id="rect5130"
+                 width="89"
+                 height="149"
+                 x="140.5"
+                 y="324.29074"
+                 ry="4"
+                 rx="4" />
+              <text
+                 xml:space="preserve"
+                 style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+                 x="184.47815"
+                 y="391.47876"
+                 id="text5132"
+                 sodipodi:linespacing="125%"
+                 transform="scale(1.0022346,0.99777038)"><tspan
+                   sodipodi:role="line"
+                   x="184.47815"
+                   y="391.47876"
+                   id="tspan5134">Fold</tspan><tspan
+                   id="tspan5136"
+                   sodipodi:role="line"
+                   x="184.47815"
+                   y="431.47876">2</tspan></text>
+            </g>
+            <g
+               transform="translate(187.14284,0)"
+               id="g5138">
+              <rect
+                 style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+                 id="rect5140"
+                 width="89"
+                 height="149"
+                 x="140.5"
+                 y="324.29074"
+                 ry="4"
+                 rx="4" />
+              <text
+                 xml:space="preserve"
+                 style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+                 x="184.47815"
+                 y="391.47876"
+                 id="text5142"
+                 sodipodi:linespacing="125%"
+                 transform="scale(1.0022346,0.99777038)"><tspan
+                   sodipodi:role="line"
+                   x="184.47815"
+                   y="391.47876"
+                   id="tspan5144">Fold</tspan><tspan
+                   id="tspan5146"
+                   sodipodi:role="line"
+                   x="184.47815"
+                   y="431.47876">3</tspan></text>
+            </g>
+            <g
+               transform="translate(287.85711,0)"
+               id="g5148">
+              <rect
+                 style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+                 id="rect5150"
+                 width="89"
+                 height="149"
+                 x="140.5"
+                 y="324.29074"
+                 ry="4"
+                 rx="4" />
+              <text
+                 xml:space="preserve"
+                 style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+                 x="184.47815"
+                 y="391.47876"
+                 id="text5152"
+                 sodipodi:linespacing="125%"
+                 transform="scale(1.0022346,0.99777038)"><tspan
+                   sodipodi:role="line"
+                   x="184.47815"
+                   y="391.47876"
+                   id="tspan5154">Fold</tspan><tspan
+                   id="tspan5156"
+                   sodipodi:role="line"
+                   x="184.47815"
+                   y="431.47876">4</tspan></text>
+            </g>
+            <g
+               transform="translate(388.57141,0)"
+               id="g5158">
+              <rect
+                 rx="4"
+                 ry="4"
+                 y="324.29074"
+                 x="140.5"
+                 height="149"
+                 width="89"
+                 id="rect5160"
+                 style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+              <text
+                 transform="scale(1.0022346,0.99777038)"
+                 sodipodi:linespacing="125%"
+                 id="text5162"
+                 y="391.47876"
+                 x="184.47815"
+                 style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+                 xml:space="preserve"><tspan
+                   id="tspan5164"
+                   y="391.47876"
+                   x="184.47815"
+                   sodipodi:role="line">Fold</tspan><tspan
+                   id="tspan5166"
+                   y="431.47876"
+                   x="184.47815"
+                   sodipodi:role="line">5</tspan></text>
+            </g>
+          </g>
+          <path
+             id="path5168"
+             style="color:#000000;fill:none;stroke:#000000;stroke-width:3.00000024;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+             d="m 205.31685,673.07647 c 0,13.51631 -5.52044,14.61969 -23.34359,14.61969 -17.82313,0 -19.6281,3.77604 -19.67198,9.19786 -0.0438,-5.42182 -1.84884,-9.19786 -19.67198,-9.19786 -17.82315,0 -23.34358,-1.10338 -23.34358,-14.61969"
+             inkscape:connector-curvature="0"
+             sodipodi:nodetypes="cscsc" />
+          <path
+             sodipodi:nodetypes="cscsc"
+             inkscape:connector-curvature="0"
+             d="m 606.74543,672.97672 c 0,13.62954 -24.63332,14.74216 -104.16381,14.74216 -79.53041,0 -87.58455,3.80767 -87.78035,9.27491 -0.19544,-5.46724 -8.2499,-9.27491 -87.78035,-9.27491 -79.5305,0 -104.16377,-1.11262 -104.16377,-14.74216"
+             style="color:#000000;fill:none;stroke:#000000;stroke-width:3.00000024;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+             id="path5170" />
+          <text
+             xml:space="preserve"
+             style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+             x="162.53566"
+             y="730.13336"
+             id="text5172"
+             sodipodi:linespacing="125%"><tspan
+               sodipodi:role="line"
+               id="tspan5174"
+               x="162.53566"
+               y="730.13336">Test</tspan></text>
+          <text
+             xml:space="preserve"
+             style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+             x="415.72318"
+             y="730.2193"
+             id="text5176"
+             sodipodi:linespacing="125%"><tspan
+               sodipodi:role="line"
+               id="tspan5178"
+               x="415.72318"
+               y="730.2193">Train</tspan></text>
+        </g>
+        <g
+           id="g5382">
+          <g
+             transform="translate(-7.142848,437.85715)"
+             id="g5180">
+            <g
+               id="g5182"
+               transform="translate(-14.285714,0)">
+              <rect
+                 rx="4"
+                 ry="4"
+                 y="324.29074"
+                 x="140.5"
+                 height="149"
+                 width="89"
+                 id="rect5184"
+                 style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994000000003;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+              <text
+                 transform="scale(1.0022346,0.99777038)"
+                 sodipodi:linespacing="125%"
+                 id="text5186"
+                 y="391.47876"
+                 x="184.47815"
+                 style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+                 xml:space="preserve"><tspan
+                   id="tspan5188"
+                   y="391.47876"
+                   x="184.47815"
+                   sodipodi:role="line">Fold</tspan><tspan
+                   y="431.47876"
+                   x="184.47815"
+                   sodipodi:role="line"
+                   id="tspan5190">1</tspan></text>
+            </g>
+            <g
+               id="g5192"
+               transform="translate(86.42855,0)">
+              <rect
+                 rx="4"
+                 ry="4"
+                 y="324.29074"
+                 x="140.5"
+                 height="149"
+                 width="89"
+                 id="rect5194"
+                 style="color:#000000;fill:#cbb9da;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994000000003;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0" />
+              <text
+                 transform="scale(1.0022346,0.99777038)"
+                 sodipodi:linespacing="125%"
+                 id="text5196"
+                 y="391.47876"
+                 x="184.47815"
+                 style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+                 xml:space="preserve"><tspan
+                   id="tspan5198"
+                   y="391.47876"
+                   x="184.47815"
+                   sodipodi:role="line">Fold</tspan><tspan
+                   y="431.47876"
+                   x="184.47815"
+                   sodipodi:role="line"
+                   id="tspan5200">2</tspan></text>
+            </g>
+            <g
+               id="g5202"
+               transform="translate(187.14284,0)">
+              <rect
+                 rx="4"
+                 ry="4"
+                 y="324.29074"
+                 x="140.5"
+                 height="149"
+                 width="89"
+                 id="rect5204"
+                 style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+              <text
+                 transform="scale(1.0022346,0.99777038)"
+                 sodipodi:linespacing="125%"
+                 id="text5206"
+                 y="391.47876"
+                 x="184.47815"
+                 style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+                 xml:space="preserve"><tspan
+                   id="tspan5208"
+                   y="391.47876"
+                   x="184.47815"
+                   sodipodi:role="line">Fold</tspan><tspan
+                   y="431.47876"
+                   x="184.47815"
+                   sodipodi:role="line"
+                   id="tspan5210">3</tspan></text>
+            </g>
+            <g
+               id="g5212"
+               transform="translate(287.85711,0)">
+              <rect
+                 rx="4"
+                 ry="4"
+                 y="324.29074"
+                 x="140.5"
+                 height="149"
+                 width="89"
+                 id="rect5214"
+                 style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+              <text
+                 transform="scale(1.0022346,0.99777038)"
+                 sodipodi:linespacing="125%"
+                 id="text5216"
+                 y="391.47876"
+                 x="184.47815"
+                 style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+                 xml:space="preserve"><tspan
+                   id="tspan5218"
+                   y="391.47876"
+                   x="184.47815"
+                   sodipodi:role="line">Fold</tspan><tspan
+                   y="431.47876"
+                   x="184.47815"
+                   sodipodi:role="line"
+                   id="tspan5220">4</tspan></text>
+            </g>
+            <g
+               id="g5222"
+               transform="translate(388.57141,0)">
+              <rect
+                 style="color:#000000;fill:#cee1e5;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.99999994;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+                 id="rect5224"
+                 width="89"
+                 height="149"
+                 x="140.5"
+                 y="324.29074"
+                 ry="4"
+                 rx="4" />
+              <text
+                 xml:space="preserve"
+                 style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+                 x="184.47815"
+                 y="391.47876"
+                 id="text5226"
+                 sodipodi:linespacing="125%"
+                 transform="scale(1.0022346,0.99777038)"><tspan
+                   sodipodi:role="line"
+                   x="184.47815"
+                   y="391.47876"
+                   id="tspan5228">Fold</tspan><tspan
+                   sodipodi:role="line"
+                   x="184.47815"
+                   y="431.47876"
+                   id="tspan5230">5</tspan></text>
+            </g>
+          </g>
+          <path
+             sodipodi:nodetypes="cscsc"
+             inkscape:connector-curvature="0"
+             d="m 205.31685,920.21933 c 0,13.51631 -5.52044,14.61969 -23.34359,14.61969 -17.82313,0 -19.6281,3.77604 -19.67198,9.19786 -0.0438,-5.42182 -1.84884,-9.19786 -19.67198,-9.19786 -17.82315,0 -23.34358,-1.10338 -23.34358,-14.61969"
+             style="color:#000000;fill:none;stroke:#000000;stroke-width:3.00000024;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+             id="path5232" />
+          <path
+             id="path5234"
+             style="color:#000000;fill:none;stroke:#000000;stroke-width:3.00000048;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+             d="m 606.74545,920.11958 c 0,13.62954 -18.21652,14.74216 -77.02992,14.74216 -58.81334,0 -64.76944,3.80767 -64.91425,9.27491 -0.14452,-5.46724 -6.10086,-9.27491 -64.91423,-9.27491 -58.8134,0 -77.02989,-1.11262 -77.02989,-14.74216"
+             inkscape:connector-curvature="0"
+             sodipodi:nodetypes="cscsc" />
+          <text
+             sodipodi:linespacing="125%"
+             id="text5236"
+             y="976.56195"
+             x="163.22316"
+             style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+             xml:space="preserve"><tspan
+               y="976.56195"
+               x="163.22316"
+               id="tspan5238"
+               sodipodi:role="line">Train</tspan></text>
+          <text
+             sodipodi:linespacing="125%"
+             id="text5240"
+             y="977.36218"
+             x="465.72318"
+             style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+             xml:space="preserve"><tspan
+               y="977.36218"
+               x="465.72318"
+               id="tspan5242"
+               sodipodi:role="line">Train</tspan></text>
+          <path
+             id="path5244"
+             style="color:#000000;fill:none;stroke:#000000;stroke-width:3.00000024;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+             d="m 307.10257,920.21933 c 0,13.51631 -5.52044,14.61969 -23.34359,14.61969 -17.82313,0 -19.6281,3.77604 -19.67198,9.19786 -0.0438,-5.42182 -1.84884,-9.19786 -19.67198,-9.19786 -17.82315,0 -23.34358,-1.10338 -23.34358,-14.61969"
+             inkscape:connector-curvature="0"
+             sodipodi:nodetypes="cscsc" />
+          <text
+             xml:space="preserve"
+             style="font-size:32px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Trebuchet MS;-inkscape-font-specification:Trebuchet MS"
+             x="264.32138"
+             y="976.56195"
+             id="text5246"
+             sodipodi:linespacing="125%"><tspan
+               sodipodi:role="line"
+               id="tspan5248"
+               x="264.32138"
+               y="976.56195">Test</tspan></text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,362 @@
+---
+title: "Simple linear regression"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "2nd May 2019 - rev. 23rd July 2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives
+
+* Understand the concept of regression
+* Understand how the least squares best fit line is calculated
+* Be able to calculate a regression line from raw data
+* Understand how formulas are written in `R`
+* Know how to use the `lm()` function and formula notation in R
+* Know what predicted values and residuals are, and how to obtain them from a model object
+
+**Duration - 60 minutes**
+
+<hr>
+
+# Regression
+
+We have been building up to the concept of **regression** over the lessons today, looking first at correlation and then at the various forms of functions we might use to fit bivariate data. 
+
+<br>
+<div class='emphasis'>
+Now we're going to look at how to actually do the fitting that provides details of the relationship (if any) between **explanatory** variables (AKA 'independent' variables) and a **single outcome** variable (AKA the 'dependent' or 'response' variable). This is the process of **regression**.  
+
+To begin with, we're going to discuss **simple linear regression**, which is limited to a *single* explanatory variable. Later in the course, we'll look at **multiple regression**, which allows us to use multiple predictor variables.
+
+Let's think about a specific example. Imagine we have two variables for individuals in a population: `weight` and `height`. 
+
+1. We sample the population, and then perform simple linear regression taking:
+    * `weight` as the explanatory variable, and 
+    * `height` as the outcome variable. 
+2. The regression serves two purposes:
+    * it **describes** the data, telling us whether there is a significant association of `height` and `weight`.
+    * if there is a significant association, it lets us **predict** an individual's `height` from their `weight`.
+</div>
+<br>
+  
+<hr>
+
+# Simple linear regression 
+
+## What model do we fit?
+
+In simple linear regression we typically model our data with a **line**, i.e. we fit a line to the data. We write the equation of the line as
+
+$$\widehat{y} = b_0 + b_1 \times x$$
+
+where, by convention
+
+* $\widehat{y}$ is used to indicate a **fitted** $y$-value (outcome)
+* we label the **intercept** $b_0$
+* we label the **slope** $b_1$. Sometimes we might label the slope as $b_\textrm{<name>}$ where $\textrm{<name>}$ is the explanatory variable, e.g. $b_{\textrm{weight}}$
+
+So in our case, we would fit an equation of the form
+
+$$\widehat{height} = b_0 + b_{\textrm{weight}} \times \textrm{weight} $$
+
+Let's see some sample data that we might want to fit
+
+```{r, message=FALSE}
+library(tidyverse)
+```
+
+```{r}
+height <- c(176, 164, 181, 168, 195, 185, 166, 180, 188, 174)
+weight <- c(82, 65, 85, 76, 90, 92, 68, 83, 94, 74 )
+sample <- tibble(
+  weight,
+  height
+)
+
+sample %>%
+  ggplot(aes(x = weight, y = height)) +
+  geom_point()
+```
+
+where `height` is in cm and `weight` in kg.
+
+## Fitted outcome values and residuals
+
+Let's see what a reasonable line might look like. First, let's write our own function for a line
+
+```{r}
+line <- function(x, b0, b1){
+  return(b0 + x * b1)
+}
+```
+
+Now let's set the slope to be $1$ and the intercept to $95$, and use the `line()` function to get **fitted heights** for our data
+
+```{r}
+sample <- sample %>%
+  mutate(fit_height = line(weight, b0 = 95, b1 = 1))
+```
+
+and let's plot these fitted heights, along with the fitted line, and the sampled data
+
+```{r}
+plot <- sample %>%
+  ggplot(aes(x = weight, y = height)) +
+  geom_point() +
+  geom_point(aes(y = fit_height), shape = 1) +
+  geom_abline(slope = 1, intercept = 95, col = "red") +
+  geom_segment(aes(xend = weight, yend = fit_height), alpha = 0.5)
+plot
+```
+
+On this graph, the solid circles are the sample data, the open circles are the fitted heights, and the fitted line is shown in red.
+
+We also show the **residuals** as vertical line segments.
+
+<br>
+<div class='emphasis'>
+A **residual** is the difference between a fitted outcome value and an actual outcome value. These are also sometimes called **errors**, but 'residuals' is better, as the term 'error' gets used everywhere in statistics!
+</div>
+<br>
+
+## Least squares method
+
+Let's add a `residual` column to our data
+
+```{r}
+sample <- sample %>%
+  mutate(residual = height - fit_height)
+sample
+```
+
+<br>
+<div class='emphasis'>
+Now, when we **fit** the linear model to the data, we vary $b_0$ and $b_{\textrm{weight}}$ to make the residuals **as small as possible**. Don't worry too much about how we do this in practice: R essentially does it for us using some fancy matrix algebra! It's more important to understand the concept than the technical detail.
+</div>
+<br>
+
+We might think to use the `sum()` of the residuals column as a measure of how well our line fits the data. Let's get this `sum()`
+
+```{r}
+sample %>%
+  summarise(sum_residuals = sum(residual))
+```
+
+But there's a problem with this!
+
+<br>
+<blockquote class='task'>
+**Task - 2 mins**  
+
+Have a look again at the values in the `residual` column. Can you see a problem with using the `sum()` of these values as a measure of the 'goodness of fit' of the line?  
+
+<details>
+<summary>**Solution**</summary>
+Some of the residuals are positive and some are negative. So, when we add them together in the `sum()`, we will get **cancellation**. It would be possible to get a `sum()` of zero while having large residuals!
+</details>
+</blockquote>
+<br>
+
+For this reason, we tend to **square the residuals** before we sum them. This makes sure that there is no cancellation!
+
+```{r}
+sample <- sample %>%
+  mutate(sq_residual = residual^2)
+sample
+
+sample %>%
+  summarise(sum_sq_residuals = sum(sq_residual))
+```
+
+Our fitting algorithms try to **minimise** this sum, and so the method is called **least squares**. 
+
+# Simple linear regression using `lm()`
+
+So those are the concepts of what R is doing 'behind the scenes' when we fit a model to data. Again, don't worry about the technical details of **how** R is doing the fit, it's more important that you understand that the algorithm always seeks to **minimise the sum of squared residuals**.
+
+Without further ado, here's how we fit a simple linear regression model in R
+
+```{r}
+model <- lm(formula = height ~ weight, data = sample)
+model
+```
+
+The function `lm()` tells R to fit a **linear model**. Let's describe the arguments:
+
+* We first pass in a `formula` object. 
+  - For a simple linear regression, this takes the form of `y ~ x`, where `y` is the outcome variable, and `x` the single explanatory variable. 
+  - The 'tilde' operator `~` can be read as **'varies with'**, or **'is a function of'**. So, in our case, 'height varies with weight', or 'height is a function of weight' 
+  - You've already seen this syntax at various points in the course. The formula language is called `Patsy`, and is also used in Python. 
+* Next we tell it the data frame that we want to take the data from. This is a convenient shorthand, particularly for multiple regression (where we have multiple explanatory variables), but we could run the function instead as
+
+```{r}
+new_model <- lm(formula = sample$height ~ sample$weight)
+new_model
+```
+
+The function returns a 'simple' output that just echoes the fit formula and the **best-fit coefficients**. In other words, R has found that these particular coefficient values lead to the **smallest** sum of squared residuals! When the model output reports `weight` here, it means this is the coefficient multiplying the `weight` variable in the model.
+
+In other words, the best-fit line found by R is
+
+$$\widehat{\textrm{height}} = 102.1758 + 0.9336 \times \textrm{weight}$$
+
+* Running `fitted()` on the model object return the fitted values for the outcome variable (in our case, the fitted `height`)
+
+```{r}
+fitted(model)
+```
+
+* We can also use `predict()` to get estimated outcome values for values of the explanatory variable that weren't in the original data set. Doing this sort of prediction is one of the key purposes of regression analysis!
+
+For example: *'What height does the model estimate for individuals weighing $78$kg?'* Note that a `weight` of $78$kg wasn't in the data that we used to fit the model, so `fitted()` can't help us here. Instead we need to use the `predict()` function!
+
+```{r}
+predict_at <- data.frame(weight = c(78))
+
+# get predicted heights at those sample_weights
+predict(model, newdata = predict_at)
+```
+
+The model **predicts** that a person of `weight` $78$kg will have a `height` of $174.99$cm.
+
+<hr>
+
+# `modelr` package helper functions
+
+The base R `fitted()` and `predict()` functions are a bit annoying to use. Thankfully, the `modelr` package offers functions that allow us to deal with `lm()` output in a `tidy` way.
+
+For example, we can add predicted values and residuals using the `add_predictions()` and `add_residuals()` functions (first we remove our earlier columns, leaving just `height` and `weight`)
+
+```{r}
+library(modelr)
+
+sample <- sample %>%
+  select(-c(fit_height, residual, sq_residual)) %>%
+  add_predictions(model) %>%
+  add_residuals(model)
+sample
+```
+
+We can then use the predicted outcomes to plot the best fit line
+
+```{r}
+sample %>%
+  ggplot(aes(x = weight)) +
+  geom_point(aes(y = height)) +
+  geom_line(aes(y = pred), col = "red")
+```
+
+Note that if we're fitting a line, we could also use `geom_abline()` like so
+
+```{r}
+sample %>%
+  ggplot(aes(x = weight, y = height)) +
+  geom_point() +
+  geom_abline(
+    intercept = model$coefficients[1],
+    slope = model$coefficients[2],
+    col = "red"
+  )
+```
+
+But this will only work for a line. The method above using the `pred` values is much more general and can be used when we move on to multiple regression.
+
+We can also use `add_predictions()` to get predicted outcome values for unseen data, or to generate outcome values for a sequence of data points. For example, to get predicted `height` for a `weight` in the range from $50$ to $120$kg, we could do something like. 
+
+```{r}
+weights_predict <- tibble(
+  weight = 50:120
+)
+
+weights_predict %>%
+  add_predictions(model)
+```
+
+# Interpreting the slope
+
+The regression coefficient $b_1$ (more specifically, $b_{\textrm{weight}}$ in our case) links the outcome and explanatory variables in the following way. 
+
+<br>
+<center>
+**A $1$ unit increase in explanatory variable value changes the outcome variable value by an amount equal to $b_1$**.
+</center
+<br>
+<br>
+So, in our case, a $1$kg increase in `weight` changes the predicted `height` by $0.9336$cm
+
+<hr>
+
+# Recap
+
+<br>
+
+* What is regression? What is simple linear regression in particular?
+<details>
+<summary>**Answer**</summary>
+Regression is the process of fitting a model relationship between one or more explanatory variables (AKA independent variables) and a single outcome variable (AKA the dependent or response variable).
+<br><br>
+Simple linear regression restricts the fitting to a **single** explanatory variable.
+</details>
+
+<br>
+
+* What is the purpose of regression?
+<details>
+<summary>**Answer**</summary>
+The regression serves two purposes: it describes the data, telling us whether there is a significant association of explanatory and outcome variables, and lets us predict an outcome value based on an explanatory variable value.  
+</details>
+
+<br>
+
+* What form of model is fitted to sample data in simple linear regression?
+<details>
+<summary>**Answer**</summary>
+For an explanatory variable $x$ and outcome variable $y$ the simple linear model is of the form $\hat{y} = b_0 + b_1 \times x$, where $b_0$ is the intercept and $b_1$ is the slope.
+</details>
+
+<br>
+
+* What is a residual?
+<details>
+<summary>**Answer**</summary>
+A residual is the difference between a fitted outcome value and an actual outcome value.  
+</details>
+
+<br>
+
+* Describe the least squares method.
+<details>
+<summary>**Answer**</summary>
+The least squares method tries to minimise the sum of squared residuals by varying model coefficients. The lower the sum of squared residuals, the better the regression model fits the actual data.  
+</details>
+
+<br>
+
+* What `R` function do we use to perform linear regression?
+<details>
+<summary>**Answer**</summary>
+We use the `lm()` function (linear model).
+</details>
+
+<br>
+
+* How do we interpret the slope ($b_1$) in simple linear regression?
+<details>
+<summary>**Answer**</summary>
+A $1$ unit increase in explanatory variable value changes the outcome variable value by an amount equal to $b_1$
+</details>
+
+

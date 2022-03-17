@@ -1,0 +1,304 @@
+---
+title: "4_homework"
+output:
+  html_document:
+    css: ../../../styles.css
+    df_print: paged
+  pdf_document: default
+---
+
+
+
+This homework is revision from today's class. We will practice what we've learned about dates, times, and time series familiarity. 
+
+
+You'll need to copy and run these starting variables for this homework:
+
+```{r, warning = FALSE, message = FALSE}
+library(dplyr)
+library(lubridate)
+library(tidyverse)
+library(tsibble)
+library(tsibbledata)
+library(feasts)
+
+date1 <- ymd_hms("2017-04-22 22:01:18")
+date2 <- ymd_hms("2001-11-07 10:09:56")
+```
+
+You'll also need to load the `nycflights13` package, which contains example time series weather data.     
+
+```{r, warning = FALSE, message = FALSE}
+library(nycflights13)
+```
+
+The `nycflights13` package contains five different datasets:
+
+* `airlines`: airline names
+* `airports`: metadata about airports
+* `flights`: on time flight data for all flights that departed NYC
+* `planes`: plane metadata for plane tailnumbers
+* `weather`: hourly meterological data
+
+
+
+## Homework: Dates and Times
+
+<br>
+**Question 1**  
+
+Extract the different components (year, month, mday, yday, wday) from the variable `date1`. Add the labels to the month and do not abbreviate the month labels. 
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+
+# 1. Extract the different components (year, month, mday, yday, wday) from the variable `date1`. Add the labels to the month and do not abbreviate the month labels. 
+year(date1)
+month(date1, label = TRUE, abbr = FALSE)
+mday(date1)
+yday(date1)
+wday(date1)
+```
+</details>
+<br>
+
+
+<br>
+**Question 2**  
+
+Add 14 days to your `date1` variable and store it in a variable called `next_fortnight`. 
+Take away 10 years from your `date2` variable, and store it in `previous_decade`. 
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+# 2. Add 14 days to your `date1` variable and store it in a variable called `next_fortnight`. Take away 10 years from your `date2` variable, and store it in `previous_decade`. 
+
+next_fortnight <- date1 + days(14)
+previous_decade <- date2 - years(10)
+```
+
+</details>
+<br>
+
+
+<br>
+**Question 3**  
+
+Create a variable called `this_year` which contains today's date. Then create an interval object which uses `this_year` and the `previous_decade` variable you made above. Store it in `interval_years`. 
+*Hint: you'll need to use lubridate::interval in order to get the right function, as tsibble has one too*  
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+# 3. Create a variable called `this_year` which contains today's date. Then create an interval object which uses `this_year` and the `previous_decade` variable you made above. Store it in `interval_years`. 
+this_year <- today()
+interval_years <- lubridate::interval(this_year, previous_decade)
+as.period(interval_years)
+```
+
+
+</details>
+<br>
+
+
+<br>
+**Question 4**    
+
+Change the time zone of both your date variables to "America/New_York", and call them `nyc_date1` and `nyc_date2`. 
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+
+# 4. Change the time zone of both your date variables to "America/New_York", and call them `nyc_date1` and `nyc_date2`. 
+
+nyc_date1 <- ymd_hms("2017-04-22 22:01:18", tz = "America/New_York")
+
+nyc_date2 <- ymd_hms("2001-11-07 10:09:56", tz = "America/New_York")
+```
+
+
+</details>
+<br>
+
+
+<br>
+**Question 5**  
+
+Use the `flights` data from the `nycflights13` dataset. Make a date-time column called `departure_date` from the `year, month, day, hour, and minute` variables in the `flights` tibble.
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+# 5. Make a date-time column called `departure_date` from the `year, month, day, hour, and minute` variables in the `flights` tibble.
+library(nycflights13)
+flights %>% 
+  select(year, month, day, hour, minute) %>% 
+  mutate(departure = make_datetime(year, month, day, hour, minute))
+```
+</details>
+<br>
+
+
+
+
+## Time series familiarity 
+
+
+<br>
+**Question 6**  
+
+Start with the `weather` data from the `nycflights13` package. Select all the variables related to temperature, humidity, and precipitation, and pick out the key and index variables. Have a look at your data, and write a small description of the time series you observe. 
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+# select some columns from the weather data 
+weather <- nycflights13::weather %>% 
+  select(origin, time_hour, temp, humid, precip)
+
+# look at it 
+head(weather)
+```
+
+Here we can see that our data is collected in hourly format, with observations occuring every day. 
+</details>
+<br>
+
+
+<br>
+**Question 7**  
+
+Change the weather data into a tsibble. 
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+# create a time series tsibble with keys
+weather_tsbl <- weather %>%
+  as_tsibble(index = time_hour, key = origin)
+
+weather_tsbl
+```
+
+In order to create a time series tibble, remember you need to provide an *index* and a *key*. In our case, `time_hour` is the only column involving a date/date-time, and so this would be our index. A `tsibble` also requires a key, which defines individual observations that are tracked over time. In this example, the `origin` variable is the identifier, and therefore is our key. It is important to note that the duo of the index and key uniquely identifies each observation in a valid `tsibble`.   
+
+</details>
+<br>
+
+
+<br>
+**Question 8**  
+
+Add a year and month column to your weather data, and create a basic line plot which shows the temperature data from each airport over time. Have a think back to what you learned in visualisation week, and think about whether plotting the whole time series in one go is adequate here? Write down your suggestions for what could be done to make a better and more informative plot. 
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+weather_tsbl1 <- weather_tsbl %>% 
+  mutate(year = year(time_hour),
+         month = month(time_hour))
+
+
+# Basic line plot with points : all data 
+ggplot(data = weather_tsbl1, aes(x = time_hour, y = temp, group = origin)) + geom_line(aes(color=origin))
+```
+</details>
+<br>
+
+
+<br>
+**Question 9**  
+
+Choose an appropriate rolling window and calculate a moving average for your weather temperature data for each airport origin. Create a useful plot which overlays the original time series data and the rolling average data. Make sure the graph is easy for others to understand (*Hint: you might want to facet_wrap*). Finally, write a summary of why you chose the time window you did, and describe any trends you see. 
+
+<details>
+<summary>**Answers**</summary>
+```{r}
+# calculate a rolling window 
+weather_rolling <- weather_tsbl %>% 
+  group_by_key(origin) %>% 
+  mutate(temp_ma = slide_dbl(temp, ~ mean(., na.rm = TRUE), .size = 600))
+
+# plot the data 
+ggplot(weather_rolling) + 
+  geom_line(aes(x = time_hour, y = temp, group = origin), colour = "grey") + 
+  geom_line(aes(x = time_hour, y = temp_ma, colour = origin), size = 1) + 
+  facet_wrap(~ origin) + 
+  ylab("Temperature") + 
+  xlab("Time")
+```
+</details>
+<br>
+
+
+<br>
+**Question 10**  
+
+Downsample your data so that you plot daily temperature data for each airport, instead of hourly data. 
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+# aggregate by date
+weather_date <- weather_tsbl %>%
+  group_by_key(origin) %>%
+  index_by(date = ~ as_date(.)) %>%
+  summarise(temp_mean = mean(temp, na.rm = TRUE))
+
+# make a plot
+ggplot(data = weather_date, aes(x = date, y = temp_mean, group = origin)) +
+  geom_line(aes(color=origin))
+```
+</details>
+<br>
+
+
+<br>
+**Question 11**  
+
+Decompose your daily time series data (the downsampled one) using an appopriate downsampling technique. Justify your choice, and explain what the decomposition shows you. Does it tell you anything about the seasonality that you couldn't see before?
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+weather_date %>% 
+  STL(temp_mean ~ season("4 months")) %>%
+  autoplot()
+
+```
+
+I chose stl here because that method assumes that you may have multiple seasonal patterns with any seasonal period. For temperature, this might be the case : some weeks within a season will be warmer than others as you get towards each end. We only have a year's worth of data so I set my seasonal length to be 4 months (roughly a season I think!). 
+
+After doing this, I can see that there is indeed a strong seasonal component, with peaks and dips, presumably as the temperature rises and falls during days and nights in this case, as our data is plotted over the course of a year. 
+
+We can also see the same trend calculated by our moving average : increases in summer months and decreases in winter months. There also appears to be a fair amount of random fluctuation in our data, which we would agree probably comes along with temperature and temperamental weather!
+
+</details>
+<br>
+
+<br>
+**Question 12**  
+
+Extract features from your downsampled data. Which airport has the strongest trend?
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+head(weather)
+
+weather_date %>% 
+  features(temp_mean, feature_set(tags = "stl")) %>%
+  filter(trend_strength == max(trend_strength))
+
+```
+
+Answer: JFK
+
+</details>
+<br>
+
+

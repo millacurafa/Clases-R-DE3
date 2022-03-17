@@ -1,0 +1,385 @@
+---
+title: "Storytelling"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+    pdf_document: default
+editor_options: 
+  chunk_output_type: inline
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+```
+
+# Learning Objectives<br>
+
+* Understand why storytelling is important in data   
+* Know what different things to consider when telling a data story  
+* Understand what factors make engaging visualisations and stories  
+
+
+# What is Data Storytelling?
+
+Contrary to popular belief, data storytelling is not simply data visualization. 
+
+Instead, it is the process of creating a story out of data analysis findings, allowing regular business people and non-technical staff to understand the possibly complex insights and apply them to a business decision or action. And we need this: data storytelling allows us to extract and communicate insight through compelling stories. 
+
+And interestingly, the ability to make sense of large volumes of messy data and find unique insights in them is one of the hottest skills in the job market, according to LinkedIn.   
+
+<br>
+
+Data visualization expert Stephen Few said:
+
+> “Numbers have an important story to tell. They rely on you to give them a clear and convincing voice.” Any insight worth sharing is probably best shared as a data story. The phrase “data storytelling” has been associated with many things—data visualizations, infographics, dashboards, data presentations, and so on. Too often data storytelling is interpreted as just visualizing data effectively, however, it is much more than just creating visually-appealing data charts. Data storytelling is a structured approach for communicating data insights, and it involves a combination of three key elements: data, visuals, and narrative.
+
+
+For example, take a look at the following graphs: 
+
+<br> 
+ 
+```{r, fig.caption = "Mona Chalabi: viruses", echo=FALSE, out.width = '80%'}
+knitr::include_graphics("images/mona_virus.jpg")
+``` 
+<br>
+```{r, fig.caption = "Mona Chalabi: pizza", echo=FALSE, out.width = '80%'}
+knitr::include_graphics("images/mona_pizza.png")
+``` 
+
+
+<br>
+<blockquote class='task'>
+**Task - 2 mins** 
+
+What do you think about the above graphs? Do they tell you a story? Why do you think they are effective or ineffective?   
+
+</blockquote>
+<br>
+
+
+# Why do we need to learn about Storytelling?  
+
+<br> 
+For some people, crafting a story around the data may seem like an unnecessary, time-consuming effort. They may feel the insights or facts should be sufficient to stand on their own as long as they’re reported in a clear manner. They may believe the revealed insights alone should influence the right decisions and drive their audience to act. 
+
+Unfortunately, this point of view is based on the flawed assumption that business decisions are based solely on logic and reason. Your data may hold tremendous amounts of potential value, but not an ounce of value can be created unless insights are uncovered and translated into actions or business outcomes. This is where the storytelling aspect comes in: if you are able to take data and tell a story about it to **anyone**, you'll be successful and helpful to businesses. When you package up your insights as a data story, you build a bridge for your data to be portrayed accurately, but also so that people who have to use it to make business decisions can understand it. The highest-value content provides **insight**, rather than just knowledge. And the key thing is **insight** helps decision-making, and is therefore the most meaningful. 
+
+<br>
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+What do you think the hardest part of storytelling might be?
+
+<details>
+<summary>**Potential Answers**</summary>
+
+**Insights are often hidden:** Data insights don’t come to us naturally. We need to seek them out. And as you know, datasets are often very messy, the key variables might be in disparate locations, data be stored in a few different files, or only accessible on a tool we don’t know how to use. Before we can use data we need to get it out into the open where we can see it. And we need to be able to use our data knowledge to extract these insights first and figure out how do display them. All before we even get to our story
+
+**Data is often complicated to understand:** There is a reason why many universities offer extended degree programs in data, including Data Management and related programs. You need a specialized skill set to be able to understand data concepts at their base level.  
+
+**Data on it's own isn’t actionable:** When was the last time you looked at an Excel spreadsheet full of reams and reams of data, slapped your head and said “Why didn’t I think of that before!” Probably never, right? Data, absent the proper context, doesn’t give you what you need to make better decisions and take action.
+
+**Creating a compelling story is difficult:** It's hard to get people to pay attention. It's hard to keep people engaged. Coming up with a way to present your data that is clear, concise, accurate and interesting is a tough skill to master.   
+
+</details>
+</blockquote>
+<br> 
+
+
+Hopefully you can start to see the usefulness in carefully thinking about the story you tell with data. In today's session, we will cover different aspects of how to do this. For this, there are different components, and it’s important to understand how these different elements combine and work together in data storytelling:   
+
+  * How do we create an effective story    
+  * How do we make effective graphs to get our insights across   
+  * How to create effective narratives to go alongside our data  
+  
+<br> 
+
+
+***
+
+# Creating your story
+
+There are a few things to think about before you start with your presentation. 
+
+**Goal:** Before you create anything or even come up with an idea, you should always know what your goal is. This is just as important to data storytelling as anything else. Are you trying to answer a specific question asked by a business? Are you trying to convince colleagues to take action on something? Are you trying to show data to get a project funded? Whatever your goal, it's important to write it down first so you can plan accordingly. 
+
+**Story:** An effective data story isn’t just a smattering of stats. If you’ve done your job well and teased out the insights, you can craft a narrative to reveal that story. That said, the story you’re trying to tell will very much dictate the data visualization format you choose. Is there a clear message? Are people meant to uncover or assign their own meaning to the story? Are you creating a useful resource? Are you trying to guide them to a next action? Keep this in mind.
+
+**Volume of data:** This is one of the biggest issues we see over and over. People can go data-crazy sometimes and extract a mountain of data to turn into a story. That’s nice, but you must consider how much data is really required to tell the story. Sometimes you have millions of data points, and there is no need to use it all. 
+
+**Audience:** Who are you trying to reach with your data story? Who will be interested in it? What level of knowledge or understanding do they have? What data visualization formats are they accustomed to interacting with?
+
+<br> Once you've got a plan, you need to fill your story. What makes good visualisations?
+
+***
+
+
+# Creating your visuals 
+
+For data, the **visual and auditory** human perceptual system are probably the most important: you will either be creating charts and dashboards that people will look at, writing reports that people will read, or giving presentations that people will be  listening to.   
+
+Let's start with vision. Contrary to what you may have learned in high school, the process of perceiving an object is much more complex than the conceptual model of a digital video camera, in which our eyes act as a lens, our optic nerves as cables and our brains as processors and hard drives. Human vision is much more complex than just processing the light that is reflected by an object.
+
+## Colour
+
+Instead of capturing an entire scene like a camera, our eyes actually focus first on key points that stand out. That’s why our visual brains immediately notice difference and contrast. Take the following example:  
+<br>
+
+```{r, fig.caption = "", echo=FALSE, out.width = '80%'}
+knitr::include_graphics("images/bear_example.png")
+``` 
+
+
+## Patterns
+
+Our brains try to find meaning in data. There are different ways to do this, with the three main ones being size, orientation and colour. Our brains can easily pick these up, and so if you want information to stand out, it's best to apply one of these patterns. 
+
+
+```{r, fig.caption = "", echo=FALSE, out.width = '80%'}
+knitr::include_graphics("images/patterns.png")
+``` 
+
+<br>
+
+This is also evident already in most plots. Your title font will often be larger be default than the main axis labels, and these in turn will often be larger than the labels on each axis.   
+
+<br>
+```{r, echo=FALSE}
+library(ggplot2)
+student_char <- as.data.frame(HairEyeColor)
+
+ggplot(student_char) +
+  aes(x = Hair, y = Freq, fill = Sex) + 
+  geom_col(position= "dodge") + 
+  ylab("Number of Students \n") + xlab("\n Hair colour") +
+  theme_minimal() +
+scale_fill_brewer(palette = "Paired") + 
+  ggtitle("Statistic Student Characteristics \n")
+```
+
+<br>
+
+The colour here also helps differentiate between the different sex categories. Therefore in one graph, we've got size and colour used.  
+
+
+## Simplicity
+
+Our eyes can only process and handle a few things at once. If you create a graph that has too much information on it, it can be difficult to see the point.  
+<br>
+
+```{r, fig.caption = "", echo=FALSE, out.width = '80%'}
+knitr::include_graphics("images/terrible_graph.png")
+``` 
+
+<br>
+
+
+```{r, fig.caption = "", echo=FALSE, out.width = '80%'}
+knitr::include_graphics("images/worst_pie_chart_ever.png")
+``` 
+
+<br>
+
+Instead, having a clear, simple message within a graph is key. [Look at the following example from the Wall Street Journal](http://graphics.wsj.com/job-market-tracker/)  
+
+<br>
+
+```{r, fig.caption = "Wall Street Journal, Recession tracker", echo=FALSE, out.width = '100%'}
+knitr::include_graphics("images/recession.png")
+``` 
+
+<br>
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+What do you think is good and bad about this? Does it tell a story?
+
+</blockquote>
+<br> 
+
+Data visualization is meant to make the data as easy to understand as possible. It isn’t about just showing data visually; it’s about displaying it in a way that makes it easier to comprehend. Your eyes will focus on **what stands out first**. The best data storytellers take advantage of this principle by creating charts and graphs with one clear message that can be effortlessly understood. This final graph combines all of the things our brains are designed to pick up on: clear messages, simplicity, colour, and size differences.    
+
+
+## Final Data viz tips
+
+### Choose the graph that conveys the message  
+
+There may be more than one way to visualize the data accurately. In this case, consider what you’re trying to achieve, the message you’re communicating, who you’re trying to reach, etc. You want visual consistency so that the reader can compare at a glance. This might mean you use stacked bar charts, a grouped bar chart, or a line chart.  
+
+
+### Remove anything that doesn't add to the story
+
+But be mindful of things like chart junk, extra copy, unnecessary illustrations, drop shadows, ornamentations, etc. The great thing about data visualization is that design can help do the heavy lifting to enhance and communicate the story. Let it do its job. (Oh, and don’t use 3D charts—they can skew perception of the visualization.) Whatever you choose, don’t overwhelm by making the reader work to compare too many things.
+
+
+### Titles and Labels 
+
+Keep chart and graph headers simple and to the point. There’s no need to get clever, verbose, or pun-tastic. Keep any descriptive text above the chart brief and directly related to the chart underneath. Remember: Focus on the quickest path to comprehension.Double check that everything is labeled. Make sure everything that needs a label has one—and that there are no doubles or typos.
+
+
+### Colour
+
+Use a single color to represent the same type of data. If you are depicting sales month by month on a bar chart, use a single color. But if you are comparing last year’s sales to this year’s sales in a grouped chart, you should use a different color for each year. 
+
+You can also use an accent color to highlight a significant data point. Data is a great storytelling tool, but sometimes you need to do the heavy lifting by highlighting the significance and meaning of the data they’re looking at.
+
+Avoid patterns. Stripes and polka dots sound fun, but they can be incredibly distracting. If you are trying to differentiate, say, on a map, use different saturations of the same color. On that note, only use solid-colored lines (not dashes).
+
+
+### Ordering
+
+Order data intuitively. There should be a logical hierarchy. Order categories alphabetically, sequentially, or by value.
+
+Order consistently. The ordering of items in your legend should mimic the order of your chart.
+
+Order evenly. Use natural increments on your axes (0, 5, 10, 15, 20) instead of awkward or uneven increments (0, 3, 5, 16, 50).
+
+
+***
+
+# Creating a narrative
+<br>
+
+Once you have your overall goal, visualisations, and general story, you need to work on your narrative. You'll see some of the best examples of modern-day storytelling during the popular TED conference series. Analysis of the most popular 500 TED Talk presentations found that stories made up at least 65% of their content. Throughout time, storytelling has proven to be a powerful delivery mechanism for sharing insights and ideas in a way that is memorable, persuasive, and engaging. However, extracting the most value out of data isn’t always easy. And that's why we need to learn this skill.   
+
+<br>
+
+<blockquote class='task'>
+**Task - 10 mins** 
+
+
+**Making stats exciting...**
+
+
+Click on the image to watch the video below. This is world famous statistics expert Hans Rosling presenting UN statistics data about world development over time. Start at 2.30 minutes in and watch until 5 minutes in.  
+
+<br> 
+<center>
+[![The best stats you've ever seen | Hans Rosling](https://img.youtube.com/vi/hVimVzgtD6w/0.jpg)](https://www.youtube.com/watch?v=hVimVzgtD6)
+</center>
+<br>
+
+Get in a group and discuss:
+
+  * Did you like the presentation more or less than you thought you would, given that it was about UN statistics data?  
+  * What was good about this?  
+  * What wasn't so good?  
+  * Do you feel like he told a story with the data? If so, how did he achieve this?  
+  * Are there any techniques he's used that particularly stand out to you?  
+  
+</blockquote>
+<br> 
+
+The key take home really is that **in order to make data insights effective, you need to make people pay attention to, and understand it**. This is where a really good narrative can come in: it helps people to engage, and more importantly remember the message you are giving. 
+
+Keep in mind that data storytelling is not a story about numbers; good data alone does not make a good data story. Data storytelling is only effective when it provides value, whether it teaches people something new, gives them a new perspective, or inspires them to take action.
+
+
+
+## Structuring your narrative
+
+Telling a data story might not be as compelling as the latest Hollywood blockbuster. But it’s fair to say that data, when prepared for actionable insights, follows a somewhat similar formula as traditional storytelling.
+
+The way you deliver that story determines whether that message is communicated. Your narrative should guide readers through, provide context, and help them synthesize the data story as effectively as possible.
+Pixar, the famous creator of children’s movies such as Toy Story, defines a story in its most simple form as:
+
+<br> 
+
+> “Once upon a time, there was ...   
+   One day, ...  
+   Because of that, ...   
+   Until finally  ... ”  
+
+<br>
+As a general rule, a data presentation should start with any necessary background information to give context to the content, then move through the story (and/or data) intuitively. What this boils down to is that your data story or presentation should have:
+
+> A start point, that provides context ...  
+  A statement that provides the question of interest ...  
+  An explanation of the methods you've used ...  
+  Finally, a result, actionable item, and conclusion is presented ...  
+
+<br> 
+
+## Some tips for an effective narrative
+
+
+**Make important points clear:** When your objective is to convey a clear and specific story (rather than a more explorative experience), it’s important to directly call out key takeaways. Highlight important points or results from plots so people listening know what to take from it.  
+
+**Be objective:** While you may have a clearly defined story or message, your tone should remain analytical, not opinionated. (The interjection of opinion makes for a clear bias, which calls into question the integrity of the data being presented. This includes any biases that may come from mentioning a brand or sales messaging in the copy.)
+
+**Provide a Sound Conclusion:** Once you’ve presented your story, you want to lead your viewer to a desired conclusion without spelling it out for them. This can sometimes be a delicate balance between making a strong statement that clinches the narrative for readers and one that allows them to form their own opinions. Most importantly, it’s important to offer some sort of solution or recommendation that speaks to any challenges or hypotheses introduced in the opening paragraph.
+
+
+*** 
+
+# Storytelling : task
+<br> 
+
+Let's have a quick practice of everything we've learned so far. We're going to take a dataset, do a simple analysis on it, and create a "story".   
+
+<br> 
+
+<blockquote class='task'>
+**Task - 30 mins** 
+
+Your business question: Have lego sets got bigger over time? 
+
+Your context: you work for lego, and the CEO wants the answer to this question so he can make decisions about how much lego to include in the next set. He has no numerate skills whatsoever, no data expertise, and no coding skills, so you should present to him accordingly. He only wants to see **one graph**, and hear a meaningful answer to his question. You are allowed to give a two minute presentation to answer his question.   
+
+</blockquote> 
+
+
+```{r, echo =FALSE , eval = FALSE}
+
+# lego sets bigger over time? 
+
+# gotta keep it tidy!
+library(tidyverse) 
+
+# read in data
+sets <- read_csv("data/sets.csv")
+head(sets)
+
+# group by year
+sets_by_year <- sets %>% 
+  group_by(year) 
+
+ggplot(sets_by_year, aes(x = year, y = num_parts)) + 
+  geom_col()
+
+# summarize the median (not mean b/c the data is so skewed) by year
+parts_by_year <- sets_by_year %>% 
+  summarise(median = median(num_parts), mean = mean(num_parts))
+
+test <- parts_by_year %>%
+  pivot_longer(cols = -year, 
+               names_to = "what", 
+               values_to = "value")
+
+test
+ggplot(test) + 
+  aes(x = year, y = value, color = what) + 
+  geom_point()+
+  geom_line() + 
+  theme(legend.title = element_blank()) + 
+  xlab("") + ylab("lego piece set count per year \n") + 
+  ggtitle("Analysis of Lego Set Size Over Time \n")
+
+```
+
+
+
+
+
+<br> 
+
+
+
+
+

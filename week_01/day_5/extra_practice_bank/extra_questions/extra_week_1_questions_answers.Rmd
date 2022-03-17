@@ -1,0 +1,522 @@
+---
+title: "Extra week 1 questions - Answers"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+```
+
+# Creating and converting vectors
+
+## Creating vectors
+
+Create five vectors, called `my_double`, `my_integer`, `my_character`, `my_factor` and `my_logcal`, each of the appropriate type i.e `my_double` should be a numeric double, `my_integer` an integer vector etc. The values in these vectors are up to you.
+
+```{r, eval = TRUE}
+my_double <- c(2.4, 2.6, 3.3)
+my_integer <- c(1L, 3L, 5L)
+my_character <- c("a", "b", "c")
+my_factor <- factor(my_character)
+my_logical <- c(TRUE, FALSE, FALSE)
+```
+
+## Checking classes
+
+Check the class of each vector is as you would expect.
+
+```{r}
+class(my_double)
+class(my_integer)
+class(my_character)
+class(my_factor)
+class(my_logical)
+```
+
+## More checking classes
+
+You can use the function `is.double` to check if `my_double` is a double vector.
+
+```{r, echo = TRUE, eval = TRUE}
+is.double(my_double)
+```
+
+Do similar checks for all of the other vectors. You want to answer to be true each time.
+
+```{r}
+is.integer(my_integer)
+is.character(my_character)
+is.factor(my_factor)
+is.logical(my_logical)
+```
+
+## Converting 
+
+Convert `my_double` to be the four other types. Each time, look at the vector to see the result and check the class of the result.
+
+```{r}
+integer_convert <- as.integer(my_double)
+character_convert <- as.character(my_double)
+factor_convert <- as.factor(my_double)
+logical_convert <- as.logical(my_double)
+```
+
+```{r}
+integer_convert
+character_convert
+factor_convert
+logical_convert
+```
+
+```{r}
+class(integer_convert)
+class(character_convert)
+class(factor_convert)
+class(logical_convert)
+```
+
+## Converting numbers
+
+Create a vector called `numbers_character`, a character vector with the following values: "4", "5", "5". First convert this vector into integer. Then make a factor vector with the same values. What happens when you convert the factor vector to an integer?
+
+```{r}
+numbers_character <- c("4", "5", "5")
+```
+```{r}
+as.integer(numbers_character)
+
+# R knows how to convert this into integers
+```
+```{r}
+numbers_factor <- factor(numbers_character)
+```
+```{r}
+as.integer(numbers_factor)
+
+# We get the wrong numbers! 
+
+#This is because R stores factors my mapping each level to an underlying integer value. When you convert to a numeric type we see the underlying integer value, not the conversion we'd expect.
+```
+
+
+# Using functions and operators
+
+## Fibonacci numbers 
+
+Below we have the first 13 Fibonacci numbers
+
+```{r, echo = TRUE}
+fib <- c(1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233)
+```
+
+Write R code to answer each of these questions
+
+1. Add the next three numbers:  377, 610, 987. For the rest of the questions use this new extended Fibonacci sequence.
+
+2. Print the sequence out with the highest numbers first.
+
+3. How many of the elements are even?
+
+4. What percent of the elements are even?
+
+5. What is the 10th element of the sequence?
+
+The golden ratio has a special relationship with the Fibonacci sequence which we will now explore. The golden ratio can be calculated using the expression below.
+
+$$
+\varphi = \frac{1 + \sqrt{5}}{2} \approx 1.61803\,39887\ldots
+$$
+
+6. Make a one element vector called `golden_ratio`, using the formula above. You can find the square root of 5 by using `sqrt(5)`.
+
+7. We can use the formula below to calculate the nth element of the Fibonacci sequence. Use the formula to calculate the 10th element of the sequence.
+
+$$
+F_n  = \frac{\varphi^n- (1- \varphi)^n}{\sqrt 5}
+$$
+
+
+8. Now use the formula to calculate the first 16 elements of the sequence, and check if this result is the same as the data given.
+<details>
+<summary>**Hint**</summary>
+Use a vector from 1 to 16 in place of the number 10 in your answer above.
+</details>
+<details>
+<summary>**Hint 2**</summary>
+You'll need brackets around 1:16 in the formula
+</details>
+
+9. The ratio between two successive elements of the sequence will tend to the golden ratio. Calculate the ratio between each element of the sequence and the one after and check if this is true.
+<details>
+<summary>**Hint**</summary>
+You'll need to make another vector which contains the next element of the sequence to do the calculation.
+</details>
+
+```{r}
+# 1
+fib <- c(fib, 377, 610, 987)
+
+# 2
+rev(fib)
+
+# 3
+sum(fib %% 2 == 0)
+
+# 4
+sum(fib %% 2 == 0)/length(fib)*100
+
+# 5
+fib[10]
+
+# 6
+golden_ratio <- (1 + sqrt(5))/2
+golden_ratio
+
+# 7
+(golden_ratio^10 - (1 - golden_ratio)^10)/sqrt(5)
+
+# 8
+(golden_ratio^(1:16) - (1 - golden_ratio)^(1:16))/sqrt(5)
+
+# 9
+fib_prev <- c(0, fib)
+fib/fib_prev
+```
+
+# Functions and Control flow
+
+##
+
+Write a function that pre-appends "The answer is: " to any character input, and either returns the number for numbers less than 10, or divides the number by 10 for numbers greater than 10. For anything else return "Invalid input".
+
+```{r}
+answer_or_divide <- function(x) {
+  if (is.character(x)) {
+    return(paste("The answer is: ", x))
+  }
+
+  if (is.numeric(x)) {
+    if (x < 10) {
+      return(x)
+    } else {
+      return(x / 10)
+    }
+  }
+
+  return("Invalid input")
+}
+```
+
+##
+
+Write a function which checks if two vectors have the same elements. 
+
+If they have the same elements in the same order, return "Exactly the same"
+
+If they have the same elements but in a different order, return "The same"
+
+If they don't have the same elements, return "Different"
+
+```{r}
+is_same_vector <- function(vector_1, vector_2) {
+  if (vector_1 == vector_2) {
+    return("Exactly the same")
+  }
+
+  if (sort(vector_1) == sort(vector_2)) {
+    return("The same")
+  }
+
+  return("Different")
+}
+```
+
+
+## 
+
+Using the list below:
+
+```{r}
+my_list <- list(
+  4,
+  "apple",
+  10.5,
+  c("is", "an", "apple"),
+  "apple",
+  c("i", "like", "apples"),
+  8
+)
+```
+
+If the element is greater than length one, go and print out each element of the list individually. Print all the length one character vectors as usual.
+
+```{r}
+for (elem in my_list) {
+  if (is.character(elem)) {
+    if (length(elem) > 1) {
+      for (sub_elem in elem) {
+        print(sub_elem)
+      }
+    } else {
+      print(elem)
+    }
+  }
+}
+```
+
+## 
+
+Use the nested list below:
+
+```{r, echo = TRUE}
+characters <-
+  list(
+    list(name = "Homer", age = 36, gender = "Male"),
+    list(name = "Marge", age = 36, gender = "Female"),
+    list(name = "Bart", age = 10, gender = "Male"),
+    list(name = "Lisa", age = 8, gender = "Female"),
+    list(name = "Maggie", age = 1, gender = "Female")
+  )
+```
+
+
+- Convert the list into a data frame with three variables: name, age and gender.
+
+```{r}
+library(purrr)
+
+character_df <-
+  data.frame(
+    name = map_chr(characters, "name"),
+    age = map_dbl(characters, "age"),
+    gender = map_chr(characters, "gender")
+  )
+```
+
+- Using the new data frame find the average age of the characters.
+
+```{r}
+mean(character_df$age)
+```
+
+
+- Find only the female characters in the data frame.
+
+```{r}
+subset(character_df, gender == "Female")
+```
+
+
+# Puzzles
+
+## 
+
+**Medium difficulty**
+
+Write function that translates a word to Pig Latin and back. English is translated to Pig Latin by taking the first letter of every word, moving it to the end of the word and adding ‘ay’. “fox” becomes “oxfay”.
+
+*From: https://adriann.github.io/programming_problems.html*
+
+```{r}
+translate_to_pig_latin <- function(word){
+  
+  first_letter <- substring(word, 1, 1)
+  rest_of_word <- substring(word, 2)
+  
+  return(paste0(rest_of_word, first_letter, "ay"))
+  
+}
+```
+
+
+
+##
+
+**Medium difficulty**
+
+Write a function that tests whether a one element character vector is a palindrome.
+
+*From: https://adriann.github.io/programming_problems.html*
+
+```{r}
+is_palindrome <- function(string){
+  
+  vector_string <- strsplit(string, split = "")[[1]]
+  
+  return(all(vector_string == rev(vector_string)))
+         
+}
+```
+
+
+##
+
+Write a function that takes a sentence and returns the longest word in that sentence. 
+
+```{r}
+get_longest_word <- function(sentence){
+  
+  word_vector <- strsplit(sentence, split = " ")[[1]]
+  n_characters <- nchar(word_vector)
+  
+  return(word_vector[n_characters == max(n_characters)])
+}
+```
+
+## 
+
+A text adventure is a simple game where inputs are given typed by a user. Can you build a simple text adventure in R?
+
+```{r, eval = FALSE}
+# Here's an example of a very basic text adventure. 
+# If you wanted to make a more complex adventure, you might want to use functions to keep the code DRY
+
+rm(direction, eat_apple, fight) # Needed to reset from last game
+
+ending <- FALSE
+
+while (!ending){
+  
+  cat("You are in a dark forest. A fork lies in the road ahead. Which way do you go?\n")
+  
+  direction <- readline("(left or right)")
+  
+  if (direction == "left"){
+    
+    cat("You get eaten by a monster!! Game over.")
+    
+    ending <- TRUE
+    
+  } 
+  
+  if (direction == "right"){
+    
+    cat("As you walk through the forest you notice a tree up ahead.\nIt's illuminated in a beam of light, and on the branch nearest the path is one particularly shiny, red apple.\nDo you eat the apple?
+    ")
+    
+    eat_apple <- readline("(yes or no)")
+    
+    if (eat_apple == "yes"){
+      
+      cat("Yum! Tasty. You feel weirdly invigorated.\n")
+    
+    }
+    
+    if (eat_apple == "no"){
+      
+      cat("Probably a wise choice. You keep walking.\n")
+      
+    }
+    
+    
+    cat("You turn the next corner and are faced with a terrifying goblin! Do you run away or fight?\n")
+    
+    fight <- readline("(run away or fight)")
+    
+    if (fight == "run away"){
+      
+      cat("You run all the way home. You have gained nothing, and you have lost nothing.")
+      
+      ending <- TRUE
+      
+    }
+    
+    if (fight == "fight"){
+      
+      if (eat_apple == "yes"){
+       
+        cat("The fight lasts for a very long time, you are throwing punches, he is throwing punches. \nYou begin to get tired, but thankfully that shiny apple gives you strength and you overpower him in the end. \nThe goblin gives you a sack of magic beans to get you to leave him alone. \nYou win the game!")
+        
+        ending <- TRUE
+        
+      }
+      
+      if (eat_apple == "no"){
+        cat("The fight lasts for a very long time, you are throwing punches, he is throwing punches. \nYou begin to get tired, you wish you'd eaten that apple earlier...\nEventually you give in and you have to give the goblin your shoes to get him to leave you alone.\nYou walk home barefoot.")
+        
+        ending <- TRUE
+        
+      }
+    }
+    
+  }
+  
+
+}
+
+
+```
+
+## 
+
+**Harder**
+
+A palindromic number reads the same both ways. The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99.
+
+Find the largest palindrome made from the product of two 3-digit numbers.
+
+*From: https://projecteuler.net/problem=4*
+
+```{r}
+# Based off our palindrome answer
+is_palindrome <- function(number){
+  
+  string <- as.character(number)
+  
+  vector_string <- strsplit(string, split = "")[[1]]
+  
+  return(all(vector_string == rev(vector_string)))
+         
+}
+```
+
+```{r}
+x <- matrix(1:999)
+y <- matrix(1:999)
+
+products <- as.vector(x %*% t(y))
+products <- rev(sort(unique(products)))
+
+for (n in products){
+  
+  if (is_palindrome(n)){
+    print(n)
+    break
+  }
+}
+```
+
+## 
+
+**Harder**
+
+2520 is the smallest number that can be divided by each of the numbers from 1 to 10 without any remainder.
+
+What is the smallest positive number that is evenly divisible by all of the numbers from 1 to 20?
+
+*From: https://projecteuler.net/problem=5*
+
+```{r}
+x <- 20
+
+while (!all(x %% 1:19 == 0)){
+  
+  # can go up in steps of 20, because we must be divisible by 20
+  x <- x + 20 
+
+}
+
+x
+```
+
+
+
+
+

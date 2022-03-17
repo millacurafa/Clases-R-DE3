@@ -1,0 +1,608 @@
+---
+title: "Intro to visualisation and ggplot2"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+    pdf_document: default
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+library(tidyverse)
+```
+
+# Learning Objectives<br>
+* Understand the importants of **good** data visualisation
+* Understand the basics of the "grammar" of graphics
+* Know how to create basic plots in `ggplot2`
+* Know how to build plots with layers
+
+**Duration - 2 hour 30 minutes**<br>
+
+# Why is data visualisation so important? 
+<br>
+
+Data visualisation is a key term in data science that you may already be familiar with. A common definition would be:
+
+> Data visualisation is the graphical representation of information and data. By using visual elements like charts, graphs and maps, data visualisation tools provide an accessible way to see and understand trends, outliers and patterns in data. In the world of data, data visualisation tools and technologies are essential for analysing massive amounts of information and making data-driven decisions.
+
+<br>
+
+In essence, data visualisation is the process of taking data and translating and communicating it in graphical form. Humans are exceptionally good at processing and recalling visual data. Long lists of numbers and big blocks of text - less so. So we can use visualisation to better understand the data we work with, and we can also use it to communicate data to others.
+
+Why is this so important? Take a look at the graphs below. 
+
+<br> 
+<blockquote class='task'>
+**Task - 2 mins** 
+Do you think this graph works well as an explanatory graph? How could it be improved?
+
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("images/complicated-chart.png")
+``` 
+
+<details>
+<summary>**Answer**</summary>
+
+No, it's far too complicated. For so many reasons. Needs to focus on a few ideas and present the data in a clear way.  
+
+</details>
+</blockquote>
+<br>
+
+From the above chart, you can probably see why good data visualisation is both extremely hard, and extremely important. There are some general guidelines to follow when creating informative plots: 
+
+  * Have clear axis labelling, legends and titles  
+  * Don't truncate axis so they start or end in misleading places  
+  * Representation of numbers should match the true proportions (i.e. make sure your numbers add up)  
+  * Design should be simple: don't add colours where you don't need them, and don't add visual deceptions like white space that don't correspond to the data.
+  * Make sure you use the appropriate graph: don't use a series of bar graphs when one line graph would be clearer  
+  * Provide the context necessary to understood in the chart - show the relevant comparison(s)
+<br>
+
+Yes, it seems like some of these are rudimentary graphing skills — but you'd be amazed at how many people manage to miss them (especially when using R, as you have to generally add them separately).  
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins**   
+Explain why each of these charts misrepresents the data.
+
+```{r, echo=FALSE, out.width = '40%'}
+knitr::include_graphics("images/bad_chart1.jpg")
+```
+<br>
+```{r, echo=FALSE, out.width = '40%'}
+knitr::include_graphics("images/bad_chart2.jpg")
+```
+<br>
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("images/bad_chart3.jpg")
+```
+
+<details>
+<summary>**Answer**</summary>
+
+* In the first graph the height of the bars clearly don't correspond to the relative values.
+
+* The second graph's main sin is that it inverts the y-axis - without studying the graph closely you might imagine gun deaths fell when in fact they rose.
+
+* The third graph's issue is perhaps the subtlest of the three. The heights of the objects  correctly correspond to the relative values, but they've also blown up the width. If you increase height and width by a factor of 3 (say) then the area increases by a factor of 3x3=9 giving a misleading impression to the reader. 
+</details>
+</blockquote>
+
+
+Now we know what we don't want, let's get started.  
+<br> 
+
+# Using `ggplot2`  
+<br>
+
+`ggplot2` is an R package (part of the `tidyverse`) that enables you to create data visualisations. You can use it to create everything from simple bar graphs all the way up to detailed maps. It can take a while to get your head around how it works, however once you understand it I'm sure you'll find `ggplot2` very powerful.
+
+
+## `ggplot2` "grammar"
+
+<br>
+There are four main parts of the basic `ggplot2` call: 
+
+
+```{r, echo=FALSE, fig.cap="image from sharpsightlabs.com", out.width = '80%'}
+knitr::include_graphics("images/ggplot.png")
+```
+
+<br> 
+
+  * You start with the function `ggplot()`. This initiates plotting. That's all it does. Within this function you include the data you are plotting. 
+  * Next is the `aes` function. This allows you to choose which parts of your data you are going to plot. More precisely, the `aes()` function allows you to map the variables in your data frame to the aesthetic attributes of the geometric objects of your plot.
+  * You then add on the type of plot you want using the `+` call.  
+  * Finally, you call different a specific function for the plot you want. For example, if you wanted a bar chart, you would next call `geom_bar()`. More precisely, these are called the `geoms` of the plot: short for the geometric shapes you'll use. Lines, points, and bars all all types of geoms. This will become clearer once you start using it more.  
+<br>
+
+```{r, echo=FALSE, fig.cap="image from sharpsightlabs.com", out.width = '80%'}
+knitr::include_graphics("images/geom-examples.png")
+```
+<br> 
+
+And that's pretty much it! You can build commands on top of each other so that you can produce more and more complex plots, but ultimately you just need this simple starting block and can repeat syntax. This syntax flow is highly structured. This is where thes name 'ggplot' comes from: is short for 'grammar of graphics plot'. Similarly to the structure of grammar, `ggplot2` has a consistent and structured workflow. This structured nature of `ggplot2` is one of its best features.
+
+<br>
+
+<blockquote class='task'>
+**Task - 2 mins** 
+  
+```{r, echo=FALSE, out.width = '100%'}
+knitr::include_graphics("images/line_plot.jpeg")
+``` 
+
+Identify the geometric objects and aesthetic mapping used in each of this plots.
+
+<details>
+<summary>**Answer**</summary>
+
+* Geoms: Lines! 
+* Aesthetics: x = year, y = intake, colour = food type  
+
+</details>
+</blockquote>
+
+<br>
+
+## Using `ggplot2()`  
+
+
+If you haven't already, install `ggplot2`. We'll be using data from the `CodeClanData` package, so load that along with `ggplot2`.
+
+```{r, eval = FALSE}
+install.packages("ggplot2")
+```
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(CodeClanData)
+```
+
+
+We will plot the preferred superpowers from our students dataset.   
+
+1. The data we use is `students`.
+2. We want to make a bar chart, so we need bars as our geometric objects.
+3. We want to map the type of superpower to the x position of the bars. 
+
+Translating this into ggplot syntax gives us:
+
+```{r}
+ggplot(students) +
+  geom_bar(aes(x = superpower))
+```
+<br>
+
+So the first call is always to `ggplot()` and the first argument is always the dataset. Next, we include the type of geom we want `geom_bar`, along with the `aes()` terms we want. In our case, we are plotting `superpower` on the x axis.  
+
+You might be wondering why we don't have anything specified for the y axis? In this case, it is because `geom_bar()` is programmed to automatically count the data within your chosen variable (here, `superpower`) as bar graphs display frequency or count data. Although it is basic, it's a semi-decent graph in just two lines of code.  
+
+
+### Inside `aes` and outside `aes`.
+
+<br>
+
+Say we want to colour the bars in. This colouring doesn't depend on a specific variable from the data, so it goes **outside** `aes`.  
+
+```{r}
+ggplot(students) +
+  geom_bar(aes(x = superpower), fill = "light blue")
+```
+
+You can also do colour your bars by **variables in the data**. Let's say we want to colour the bars in by the year each student is in. We can do this by setting fill to be mapped the school year, **inside** `aes`.
+
+```{r}
+ggplot(students) +
+  geom_bar(aes(x = superpower, fill = school_year))
+```
+<br> 
+
+Looking fine. But what if you hate the default colours? Where is the GUI option to change that around? Thankfully the `ggplot2` designers have thought of that and given you some different ways to do that.   
+
+The first is to do it manually using the `scale_fill_manual()` function:
+
+```{r}
+ggplot(students) +
+  geom_bar(aes(x = superpower, fill = school_year)) + scale_fill_manual(values = c("red","yellow","orange","pink","purple"))
+
+```
+
+Not the best choice, but it did work...   
+<br>
+
+Thankfully, you can also scale the colours by using other automatic color scales, such as ones taken from the `RColorBrewer` package. For example, their default is:
+<br> 
+```{r}
+ggplot(students) +
+  geom_bar(aes(x = superpower, fill = school_year)) +  scale_fill_brewer()
+```
+<br>
+
+with lots of other themes available to choose from.  
+
+```{r}
+ggplot(students) +
+  geom_bar(aes(x = superpower, fill = school_year)) +  scale_fill_brewer(palette = "Pastel3")
+```
+<br> 
+
+While this graph is starting to border on one that's potentially a tad confusing, it just shows you how easy it is to create visualisations from your data in a couple of lines of code.  
+
+
+## Position adjustments
+
+When you make a bar chart with fill, by default the bars are stacked on top of each other as above. But we can change this by changing the position argument in `geom_bar`. We can use `position = "dodge"` to change the bars to be side by side.
+
+```{r}
+ggplot(students) +
+  geom_bar(aes(x = superpower, fill = school_year), position = "dodge") + 
+  scale_fill_brewer()
+```
+<br> 
+Or `position = "fill"` to make each bar the same height, and let the colour show the relative proportions. For this, we want to change the fill colours so we use `scale_fill_brewer()` instead of `scale_colour_brewer()`.  
+
+```{r}
+ggplot(students) +
+  geom_bar(aes(x = superpower, fill = school_year), position = "fill") + 
+  scale_fill_brewer()
+```
+
+
+This graph is looking alright now, and hopefully it is clear that you can start with a basic plot in `ggplot2`, and continually add and tweak different parts of it in order for it to look how you want it.  
+
+## Statistical transformations
+
+As we said above, the default `geom_bar` is actually doing a statistical transformation for us: it's counting the number in each group and using that to make the bar. This is the "count" statistic in `ggplot2`, if you specify `stat = "count"` in `geom_bar` our plot will look the same.
+
+```{r}
+ggplot(students) +
+  geom_bar(aes(x = superpower, fill = school_year), stat = "count") + 
+  scale_fill_brewer()
+```
+<br>
+
+But what if we have data where the counting has already been calculated? For this, let's create some a count column in our data:   
+<br>
+
+```{r}
+count_data <- students %>% 
+  select(superpower,school_year) %>% 
+  group_by(school_year) %>% 
+  mutate(counts = n())
+```
+
+
+If you try to plot this as it is, you'll get an error:
+
+```{r, eval = FALSE}
+# try with no count used
+ggplot(count_data) +
+  geom_bar(aes(x = superpower, y = counts))
+```
+
+
+This is because it doesn't know what to do if you've already got count data. In this case, we need to specify that we use no statistical transformation in `geom_bar`. We do this by setting `stat = "identity"` which translates to: plot the data as is. 
+
+```{r}
+ggplot(count_data) +
+  geom_bar(aes(x = superpower, y = counts), stat = "identity")
+```
+
+Alternatively, you can use `geom_col`, which is the same as `geom_bar` but with no statistical transformation by default.  
+
+```{r}
+ggplot(count_data) +
+  geom_col(aes(x = superpower, y = counts))
+```
+
+
+
+## Labels
+
+The final thing we'll cover in our basic plot are labels are an important part of making our plots easy to understand. R will fill in labels based on the names from the data, by default. However, you will often want to overwrite these using `labs`. You can specify the `xlab` and `ylab`, for the x and y label. You can add a title and subtitle with `title` and `subtitle` respectively. Also you can change the title of any legend, by giving the aesthetic name.
+
+If you want to add more space you can include a newline indicator: "\n".
+
+```{r}
+ggplot(students) +
+  geom_bar(aes(x = superpower, fill = school_year)) +
+  labs(
+    x = "\nSuperpower",
+    y = "Count",
+    title = "Preferred Superpower by School Year",
+    subtitle = "Data from students around the world\n",
+    fill = "School Year"
+  ) + 
+  scale_fill_brewer()
+```
+
+Note that you can use the `xlab`, `ylab`, and `ggtitle` functions instead:
+
+```{r}
+ggplot(students) +
+  geom_bar(aes(x = superpower, fill = school_year)) +
+  xlab("\nSuperpower") +
+  ylab("Count") +
+  ggtitle("Preferred Superpower by School Year",
+          subtitle = "Data from students around the world\n") +
+  labs(fill = "School Year") +
+  scale_fill_brewer()
+  
+
+```
+
+
+And there you have a plot that is at least informative and accurately displays the data.  
+
+
+<blockquote class='task'>
+**Task - 10 mins** 
+
+Now it's your turn. 
+Take this subset of the `olympics_overall_medals` data from the `CodeClanData` package. It shows the top 10 countries with the most medals. 
+
+```{r}
+top_10 <- olympics_overall_medals %>%
+  arrange(desc(count)) %>%
+  top_n(10)
+
+top_10
+```
+<br> 
+
+Create an informative plot that plots the count of medals by team. **Write down an explanation of what the plot shows**.    
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+ggplot(top_10) +
+  geom_bar(aes(x = team, y = count), fill = "gold", stat = "identity") +
+  coord_flip() +
+  labs(
+    y = "Number of Medals",
+    x = "Team",
+    title = "Top 10 teams for all time Gold Meal count"
+  )
+```
+</details>
+</blockquote>
+
+
+
+# Layers
+<br>
+
+Plots in `ggplot` (like ogres) have layers. The bar plots we created above is only a single layer, but in `ggplot2` you can build up plots with many geoms.
+
+Let's have an example. We have a lot of chickens, and 4 types of chicken feed. The chickens are split into 4 groups, each group is fed one of these type of feed, and each chicken is weighed regularly. We want to show how the weights of these chickens increase over time.
+
+Below is an example of a one-layer `ggplot` that visualises our chicken data.
+
+```{r}
+data("ChickWeight") # chickweight is a standard built-in dataset available in Base R
+
+head(ChickWeight)
+```
+
+
+```{r}
+ggplot(ChickWeight) +
+  geom_line(
+    aes(x = Time, y = weight, group = Chick, colour = Diet))
+```
+<br> 
+
+Our first layer shows how chicken weights change over time, on different types of diets, in the form of **lines**.  Now we add a second layer which identifies the actual observations. This one will use **points** as it's geometric object. The structure of the call is very similar to the first layer.
+<br>
+
+```{r}
+ggplot(ChickWeight) +
+  geom_line(
+    aes(x = Time, y = weight, group = Chick, colour = Diet)) +
+  geom_point(
+    aes(x = Time, y = weight, colour = Diet))
+```
+
+<br>
+Now we have our individual observations and our lines.  We can add a final layer we add a smoothed trend line and confidence band for each group. These statistics are automatically calculated by the `geom_smooth()` function. You can alter the method used with the argument "method=" - see `?geom_smooth` for details.
+
+```{r, warning = FALSE, message = FALSE}
+ggplot(ChickWeight) +
+  geom_line(
+    aes(x = Time, y = weight, group = Chick, colour = Diet),
+    alpha = 0.25
+  ) +
+  geom_point(
+    aes(x = Time, y = weight, colour = Diet),
+    alpha = 0.5
+  ) +
+  geom_smooth(
+    aes(x = Time, y = weight, colour = Diet)
+  )
+```
+<br>
+*Note: the `alpha` argument sets the transparency of the geoms you are plotting*  
+
+So now we have one plot, with three layers. However, there is some redundancy in this code. We are using the same aesthetics for almost every layer. Any aesthetics that apply to every layer can be placed either inside `ggplot` or just after.
+<br>
+
+```{r, warning = FALSE, message = FALSE}
+ggplot(ChickWeight) + 
+  aes(x = Time, y = weight, colour = Diet) +
+  geom_line(aes(group = Chick), alpha = 0.25) +
+  geom_point(alpha = 0.5) +
+  geom_smooth()
+```
+<br>
+This shows how powerful `ggplot` is: with the same syntax, you can add multiple layers to your plots easily.  
+
+<br>
+
+
+<blockquote class='task'>
+**Task 1 - 10 mins** 
+ 
+Using the `students` dataset: 
+
+1. Use `geom_point` to make a scatter graph, with the height of students on the x-axis and their reaction time of the y axis.
+
+2. Make all the points blue. For `geom_bar`, the colour of the bar is controlled by `fill`, but for `geom_point` the colour of the points are controlled by `colour`.
+
+3. Make the colour of the points depend on the `superpower` the student wishes they had. 
+
+4. Change the position of the plot to `jitter`. What do you see?
+
+5. Write down what the graph tells you overall.  
+
+<details>
+<summary>**Answer**</summary>
+
+1.
+```{r}
+ggplot(students) +
+  geom_point(aes(x = height_cm, y = reaction_time))
+```
+
+2.
+```{r}
+ggplot(students) +
+  geom_point(aes(x = height_cm, y = reaction_time), colour = "blue")
+```
+
+3.
+```{r}
+ggplot(students) +
+  geom_point(aes(x = height_cm, y = reaction_time, colour = superpower))
+```
+
+4. 
+```{r}
+ggplot(students) +
+  geom_point(aes(x = height_cm, y = reaction_time, colour = superpower), position = "jitter")
+```
+
+Each point has been moved up and down a small amount. This isn't very useful in this plot, but is useful when you have many points on top of each other.
+
+</details>
+
+</blockquote>
+ 
+ 
+ 
+<blockquote class='task'>
+**Task 2 - 10 mins** 
+ 
+Use the dataset `pets` from the `CodeClanData` package to do the following:  
+ 
+Create a labelled scatter plot, of pet age vs. weight.  
+
+- We want age of the x-axis and weight on the y axis
+- We want the points the be different colours depending on the gender of the pet, and different shapes depending on the type of animal.
+- We want all the points to be bigger than normal (size 4).
+- We also want labels with the pets names next to every point.
+
+<details>
+<summary>**Answer**</summary>
+  
+```{r}
+ggplot(pets) + 
+  aes(x = age, y = weight) +
+  geom_point(aes(colour = sex, shape = animal), size = 4) +
+  geom_text(
+    aes(label = name),
+    nudge_x = 0.5,
+    nudge_y = 0.1,
+  )
+```
+
+</details>
+</blockquote>
+
+
+Finally, different layers can also use different datasets that are specified using the `data` argument in a geom. This is particularly useful if we want a geom to only plot a subset of the data. For example, here we are only labelling "Fluffy".
+
+```{r}
+ggplot(pets) + 
+  aes(x = age, y = weight) +
+  geom_point(aes(colour = sex, shape = animal), size = 4) +
+  geom_text(
+    aes(label = name),
+    nudge_x = 0.5,
+    nudge_y = 0.1,
+    data = subset(pets, name == "Fluffy")
+  )
+```
+
+# Saving
+
+We can also save the image generated using the ggsave function. This saves the last image by default.
+
+```{r}
+ggplot(pets) + 
+  aes(x = age, y = weight) +
+  geom_point(aes(colour = sex, shape = animal), size = 4) +
+  geom_text(
+    aes(label = name),
+    nudge_x = 0.5,
+    nudge_y = 0.1,
+  )
+```
+
+```{r, eval = FALSE}
+ggsave("g1_sav.pdf")    
+ggsave("g1_sav.png")    
+```
+
+You can alter the size of the raster graphics using the "width" and "height" arguments. 
+
+The function recognises the file extension (e.g. .pdf or .png) and saves in the appropriate format. You can also use the export button in RStudio (at the top of the Plots pane).
+
+
+
+# Recap
+
+* What is distinctive about `ggplot2`'s approach to visualisation?
+
+<details>
+<summary>**Answer**</summary>
+
+ggplot uses a grammar of graphics based approach
+
+</details>
+
+* How do we structure a basic layered ggplot2 call?
+
+<details>
+<summary>**Answer**</summary>
+
+```{r, eval = FALSE}
+ ggplot(data = df, aes(<default mappings)) +
+ geom_type(stat = "<statistic>", position"<position-adjustment",
+   aes(mappings specific to this layer), <hardcoded-aesthetics>) +
+ ..
+ geom_type(stat = "<statistic>", position"<position-adjustment",
+   aes(mappings specific to this layer), <hardcoded-aesthetics>)
+```
+
+</details>
+
+<hr>
+
+# Additional Resources
+
+Links of where else to look
+
+* [ggplot2 home page (the cheat sheet is essential viewing)](https://ggplot2.tidyverse.org) 
+
+
+
+
+
+

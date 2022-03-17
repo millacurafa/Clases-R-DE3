@@ -1,0 +1,429 @@
+---
+title: "Connecting `R` to local and remote databases"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+  author: "Del Middlemiss"<br>
+  date: "6th June 2019"
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives<br>
+
+* How to access secure database access credentials using `keyring`
+* How to connect to a local database in `R`
+* How to connect to a remote database in `R`
+
+**Duration - 60 minutes**<br>
+
+In the last lesson, we entered SQL commands into a file, and then ran them on our PostgreSQL database via the `psql` command line interface. It's useful to know how to do this: you will very likely encounter the need to query and perhaps even maintain databases in this way.
+
+But the main focus in data analysis is on *getting data into an analysis environment*, in our case `R`. In this lesson, we'll see how to connect `R` to both a local PostgreSQL database ('local' here means hosted on our own machine), and to a remote PostgreSQL database hosted on a server.
+
+In both cases we will see how to *keep your access credentials for a database secure*. This is a key requirement, particularly if you intend to share your `R` code with others! You don't want to post usernames and passwords to Github :-)
+
+<hr>
+
+# Setup
+
+To get started, we're going to create and seed a local PostgreSQL database containing the details of 1000 employees of the OmniCorp corporation. We have a file `omni_employees.sql` containing the command to create tables along with the seeding data.
+
+<blockquote class='task'>
+**Task - 10 mins**
+
+* Create a local PostgreSQL database called `omni_employees`
+* Seed the database from the file `omni_employees.sql`
+* Check that the seeding has worked by writing and running a query to return all the records in table `employees` in database `omni_employees`, a second to return all the records in table `teams`, and a third to return all records in table `pay_details`.
+* Take a few moments to familiarise yourself with the data in the tables.
+
+<details>
+<summary>**Hints**</summary>
+
+* To create a db, use the `createdb` command at the terminal
+* To run a file on a database, use the command `psql -d <database_name> -f <file_name>`
+* You need to write a `SELECT` query to return **all** records (remember `*`) from the table, save the query in a file (say `query.sql`), and then run it on your database.
+</details>
+
+<details>
+<summary>**Solution**</summary>
+
+1. Create the database
+```bash
+createdb omni_employees
+```
+2. Seed the database
+```bash
+psql -d omni_employees -f omni_employees.sql
+```
+3. Queries to check the seeding has worked
+```sql
+--query1.sql
+SELECT * FROM employees;
+
+--query2.sql
+SELECT * FROM teams;
+
+--query3.sql
+SELECT * FROM pay_details;
+```
+```bash
+psql -d omni_employees -f query1.sql
+psql -d omni_employees -f query2.sql
+psql -d omni_employees -f query3.sql
+```
+In the resulting output, you can press `g` to go to the top, and `shift + g` to go to the bottom, `space` to go forward a page, and `b` to go back a page. You should find 1000 rows.
+</details>
+
+</blockquote>
+
+<hr>
+
+# `Keychain Access` and the `R` `keyring` package
+<br>
+
+Your Mac (and indeed, Windows and Linux machines) have a **secure store** for access credentials (usernames and passwords). We can use the `keyring` package in `R` to extract items locked away in this store. Let's save the username and password for your local PostgreSQL installation in the secure store. We haven't had to worry about these credentials in the lessons so far because of the way we have set up your laptops, but in the future, you will likely have to securely store and use database credentials. 
+
+<div class='emphasis'>
+You **must** keep these secure, companies can fail security audits if employees don't take reasonable precautions to safeguard credentials! But don't worry, it's pretty easy.
+</div>
+
+Think of the `keyring` package as a locked gateway into a 'vault' for your credentials. When the time comes to use your credentials, you simply tell `keyring` to serve up your username and password at the appropriate places in your code, but the beauty of the package is that **you never enter your credentials into your `R` code in plain text**! 
+
+## Creating keychains and storing credentials in `Keychain Access`
+
+The easiest way to set up a keychain and store items within it on your Mac is via the `Keychain Access` application. 
+
+* Open `Keychain Access` (hit `cmd + space`, type 'Keychain Access' and hit `enter`)
+* Right click on the `Keychains` panel and choose `New Keychain...`
+  - Enter a name 'local' in box `Save As:` and click `Create...`
+  - Enter a `New Password:` and re-enter it in `Verify:` to secure your keychain
+* The new 'local' keychain should appear in the `Keychains` panel. Left click on it to highlight 'local'
+* Press the `+` button to add a new item to the keychain.
+  - For `Keychain Item Name:` enter 'postgresql_username'
+  - For `Account Name:` enter your Mac account name (the name that appears on your login screen)
+  - For `Password:` enter your Mac account name again
+* Press the `+` button again to add another new item to the keychain.
+  - For `Keychain Item Name:` enter 'postgresql_password'
+  - For `Account Name:` enter your Mac account name
+  - For `Password:` enter your Mac account password (the password you use to login)
+* For both `postgresql_username` and `postgresql_password`, right click, go to `Get Info`, then `Access Control` and finally `Allow all applications to access this item`
+
+## Alternative method using `keyring` in the `RStudio` console
+
+Alternatively, we can set up a keychain and store items within it directly from the `RStudio` console using the `keyring` package.
+
+```{r, eval=FALSE, echo=TRUE}
+# -- ALL OF THE FOLLOWING IN THE R CONSOLE IN RSTUDIO
+library(keyring)
+
+# we'll create a keyring to store local credentials
+keyring_create(keyring = "local")
+# a dialogue will occur asking for a password to protect this keyring.  Choose something other than your laptop login password!
+
+key_set(service = "postgresql_username", keyring = "local")
+# a dialogue will appear asking for a 'password'. This is badly phrased, it wants you to enter the actual data to store in this key. 
+# Enter your Mac account name
+
+key_set(service = "postgresql_password", keyring = "local")
+# again, the badly phrased dialogue will appear. 
+# Enter your Mac account password
+
+keyring_lock(keyring = "local")
+# this 'locks' the keyring. 
+# to get access to the credentials stored inside, we'll have to 'unlock' it again by entering the password we set when we created the keyring.
+```
+
+So, we created a password protected keychain called `local`, stored some items inside it, and then locked it. To obtain access again, we have to unlock it with the password we set when we created the keychain. The keychain will then stay unlocked for the duration of the 'login session', which is a bit of a grey area. It's always better to lock the keychain again after we're finished with it.
+
+## Back to `R`...
+
+Right, now let's get back to `R` and use the credentials we stored in the `local` keychain!
+
+```{r}
+# we'll simulate this being a different bit of code, so we would need to load the keyring
+# package again
+library(keyring)
+
+# first, we unlock the keyring. This will ask for the password
+keyring_unlock(keyring = "local")
+
+# next, here's a fake piece of code that uses the username and password stored in the keyring
+# we use the key_get() function to do this
+username <- key_get(service = "postgresql_username", keyring = "local")
+password <- key_get(service = "postgresql_password", keyring = "local")
+
+# lock the keyring again
+keyring_lock(keyring = "local")
+```
+
+You should see your username and password unobscured in the `Environment` panel. Note how, in this `R` code, we never entered the username or password in plain text. We **told `R` to go get the credentials from the key chain**, and that's it! We could, if we wished, safely commit the code above to Github, it contains no sensitive information. We'll be using this pattern going forward!
+
+<hr>
+
+# Connecting to and using a local PostgreSQL database
+
+## Connecting
+
+Now our credentials are stored in `keyring`, we are ready to connect `R` to the `omni_employees` database we set up earlier! You probably shouldn't be surprised by now that we're going to use another package to do this. Onward!
+
+```{r}
+# the RPostgreSQL package contains the specific drivers for connecting to PostgreSQL databases
+library(RPostgreSQL)
+
+# first, let's get our credentials from the local keyring
+keyring_unlock(keyring = "local")
+username <- key_get(service = "postgresql_username", keyring = "local")
+password <- key_get(service = "postgresql_password", keyring = "local")
+keyring_lock(keyring = "local")
+
+# next, we create a connection to the database
+my_db_connection <- dbConnect(drv = PostgreSQL(max.con = 1), user = username, password = password, dbname = 'omni_employees', host = 'localhost')
+
+# now that we've used the username and password to create a db connection, we can delete them from global scope
+rm(username, password)
+```
+
+Note when we loaded package `RPostgreSQL` it told us it was also loading the required package `DBI`. This is the database interface package: it establishes the core functions necessary for an `R` database connection. The `RPostgreSQL` package provides the driver to make this work for PostgreSQL databases. 
+
+<blockquote class = 'task'>
+**Task - 3 mins** Take a few minutes to look at the documentation for the particular `dbConnect()` function we are using here, identify the arguments we pass in above.
+```{r, eval=FALSE, echo=TRUE}
+# in R console in RStudio
+library(RPostgreSQL)
+?RPostgreSQL::`dbConnect,PostgreSQLDriver-method`
+```
+</blockquote>
+
+Most of the arguments are reasonably clear. The one that requires a little explanation is what we pass in as the `drv` argument. The `PostgreSQL()` function returns a driver object that allows us to connect to a PostgreSQL database: this is what we pass in as `drv`.
+
+We pass in an argument `max.con = 1` to `PostgreSQL()` to make sure we don't end up with too many simultaneously open connections.
+
+## Reading
+
+Now we have our connection, let's use it to list the tables in the `omni_employees` database
+
+```{r}
+# list the tables, passing in the connection object
+dbListTables(conn = my_db_connection)
+```
+
+It shows us the `employees` table. Next, let's get the fields in that table
+
+```{r}
+# note recurring pattern, always pass in the connection object along with any other required arguments
+dbListFields(conn = my_db_connection, name = "employees")
+```
+
+Finally, let's get the records in the table!
+
+```{r}
+# the pattern again! Takes in connection object and a string containing SQL command
+data <- dbGetQuery(conn = my_db_connection, statement = "SELECT * FROM employees")
+
+# what class does this return?
+class(data)
+
+# contents and size
+head(data)
+nrow(data)
+```
+
+`dbGetQuery()` does three things one after another: 
+
+1. It sends the query
+2. It retrieves the results 
+3. It 'clears the result set' 
+
+The last phrase is a bit mysterious. What is a result set? To see what this means, let's use another query function which **does not** clear the result set.
+
+```{r}
+# this time use the dbSendQuery() function
+result_set <- dbSendQuery(conn = my_db_connection, statement = "SELECT * FROM employees")
+
+# what class does this return?
+class(result_set)
+
+first_10 <- dbFetch(res = result_set, n = 10)
+first_10
+
+next_10 <- dbFetch(res = result_set, n = 10)
+next_10
+
+# to get all remaining records in results_set, set n to -1
+all_remaining <- dbFetch(res = result_set, n = -1)
+# expect 980 records: 1000 minus the 20 we have fetched already
+nrow(all_remaining)
+
+# once we have all the results we want, clear the result_set
+dbClearResult(res = result_set)
+```
+
+Finally, it is good practice to close the database connection, once we are finished with it.
+
+```{r}
+dbDisconnect(conn = my_db_connection)
+```
+
+So far, we've been reading data, and this is the mode in which a data analyst will most often interact with a database. But, if we want to **act** on the database, we can use the `dbSendStatement()` function, following a similar pattern to the other `db...` functions we used above.
+
+<blockquote class="task">
+**Task - 10 mins** Blast, we've discovered that Saleem Adame's `email` is incorrect in the database, it should be 'sadame3@utexas.edu'! We need to `UPDATE` the database to change that record. But we've closed our database connection, so we need to start again from scratch...
+
+1. Re-establish a connection to the local `omni_employees` database using the `dbConnect()` function .
+2. Perform an `UPDATE` on the `email` field in Saleem Adame's record using the `dbSendStatement()` function. Set the `email` to 'sadame3@utexas.edu'.  Tips:
+    i. We need to pass in the connection object along with the string containing the SQL `UPDATE` command. 
+    ii. In the SQL command, we should identify Saleem Adame's record using the `id` field, as it is **unique**.  
+3. Check that the update worked by `SELECT`ing **only** Saleem Adame's record. Tips:
+    i. Use the `dbGetQuery()` function to do this
+    ii. Again, in the SQL command, remember to use `id` to specify the record.
+4. Remember to close your database connection when you are finished with it!
+    
+<details>
+<summary>**Solution**</summary>
+```{r}
+keyring_unlock(keyring = "local")
+username <- key_get(service = "postgresql_username", keyring = "local")
+password <- key_get(service = "postgresql_password", keyring = "local")
+keyring_lock(keyring = "local")
+
+db_connect <- dbConnect(drv = PostgreSQL(max.con = 1), user = username, password = password, dbname='omni_employees', host='localhost')
+
+rm(username, password)
+
+dbSendStatement(conn = db_connect, statement = "UPDATE employees SET email = 'sadame3@utexas.edu' WHERE id = 3")
+
+result <- dbGetQuery(conn = db_connect, statement = "SELECT * FROM employees WHERE id = 3")
+result
+
+dbDisconnect(conn = db_connect)
+```
+</details>
+</blockquote>
+
+# Connecting to and using a remote database
+
+Now we'll connect to a remote database, which in this case will be another PostgreSQL database. The good news is that the syntax to set up and use a remote database connection is **identical** to that above!
+
+We've set up a small remote PostgreSQL database seeded with the same data as your local database. We used a free service, so the server is not particularly powerful, and it may not be able to service all connections simultaneously, but let's try it and see!
+
+<blockquote class="task">
+**Task - 10 mins**
+Here are the details of the remote PostgreSQL database we wish to connect to:
+
+* username: 'cjitjeca'
+* password: 'dt1SkrwzsAMBGQnyKaNG-nSKFoo9snlP'
+* database_name: 'cjitjeca'
+* host: 'manny.db.elephantsql.com' or '34.245.37.126' (these are equivalent)
+
+Go ahead and do the following:
+
+1. Store the username and password in a new keychain entitled `remote`. Use keychain item names `omni_postgresql_username` and `omni_postgresql_password` (you can use either `Keychain Access` or `keyring` functions in the console for this).
+2. Retrieve the credentials from the keychain and use them to establish a connection to the remote database. 
+3. Use the connection to run a `SELECT` query returning the first record in the `employees` table of the remote database.
+4. Remember to lock keychains and close connections when you are finished with them!
+
+<details>
+<summary>**Solution**</summary>
+
+In RStudio console, can do the following, or use `Keychain Access`
+```{r, eval=FALSE, echo=TRUE}
+# in the R console in RStudio
+keyring_create(keyring = "remote")
+key_set(service = "omni_postgresql_username", keyring = "remote")
+# enter 'cjitjeca' at the prompt
+key_set(service = "omni_postgresql_password", keyring = "remote")
+# enter 'dt1SkrwzsAMBGQnyKaNG-nSKFoo9snlP' at the prompt
+keyring_lock(keyring = "remote")
+```
+
+```{r}
+keyring_unlock(keyring = "remote")
+username <- key_get(service = "omni_postgresql_username", keyring = "remote")
+password <- key_get(service = "omni_postgresql_password", keyring = "remote")
+keyring_lock(keyring = "remote")
+
+db_connect <- dbConnect(drv = PostgreSQL(max.con = 1), user = username, password = password, dbname='cjitjeca', host='34.245.37.126')
+
+rm(username, password)
+
+result <- dbGetQuery(conn = db_connect, statement = "SELECT * FROM employees WHERE id = 1")
+result
+
+dbDisconnect(conn = db_connect)
+```
+</details>
+</blockquote>
+
+<hr>
+
+# Recap
+
+* What's the purpose of the `keyring` package?
+<details>
+<summary>**Answer**</summary>
+To give us a way to access credentials stored securely in a local laptop and use them in code **without entering them in plain text**.
+</details>
+
+<br>
+
+* What `keyring` package functions do we use to store and retrieve credentials from a keyring?
+<details>
+<summary>**Answer**</summary>
+`key_set()` and `key_get()`, respectively.
+</details>
+
+<br>
+
+* What is the relationship of the `DBI` and `RPostgreSQL` packages?
+<details>
+<summary>**Answer**</summary>
+This is a bit more complex. Think of `DBI` as setting a 'standard' specifying that an '`R` to database' connection must offer a set of standard functions (e.g. `dbConnect()`, `dbGetQuery()`). `RPostgreSQL` provides the driver to make all of the required functionality work for PostgreSQL databases.
+</details>
+
+<br>
+
+* What does the `dbConnect()` function do? Why must we pass a 'driver' object into this function?
+<details>
+<summary>**Answer**</summary>
+`dbConnect()` provides an `R` connection to a specific local or remote database (specified in the arguments we pass in). We also pass in a driver object to tell `dbConnect()` **what type** of database we are connecting to.
+</details>
+
+<br>
+
+* What do the following functions do: `dbListTables()`, `dbListFields()`?
+<details>
+<summary>**Answer**</summary>
+Both methods take in a database connection object<br>
+`dbListTables()`:  lists all the tables in the connected database<br>
+`dbListFields()`: takes in a table name, lists all the column names in that table
+</details>
+
+<br>
+
+* What's the difference between `dbGetQuery()` and `dbSendQuery()`?
+<details>
+<summary>**Answer**</summary>
+  * `dbGetQuery()` runs a query on a connected database, fetches the results and clears the result set, all in one call of the function. 
+  * Think of `dbSendQuery()` as a more 'manual' query function: it runs the query and returns a `PostgreSQLResult` from which results have to be retrieved using `dbFetch()`. Once we're finished with the results, we clear the result set using `dbClearResult()`
+</details>
+
+# Additional Resources
+
+* [SQL queries with R](https://rpubs.com/nwstephens/sql-queries-with-r) - going forward, there are various ways to query a database from within `R`. 
+
+* [Brief DBI overview](https://rstudio-pubs-static.s3.amazonaws.com/52614_1fa12c657ba7492092bd538205d7f02e.html)
+
+
+
+

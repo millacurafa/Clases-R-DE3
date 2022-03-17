@@ -1,0 +1,106 @@
+Name	Funding	Business	Founded	Fate	Comment
+BiteSquad	Self	Delivery-Food	2012	Acquired	Acquired by Waitr for $321 million
+Canary	Self	Delivery-Weed	2014	Gone	Out in 2015
+Bannerman	Seed	Services-Security	2014	Alive	"""We raised a small number and hit profitability. We’re at a point now where we don’t need to raise money, which is a very lucky situation at this moment."""
+Buttery	Seed	Delivery-Booze	2015	Acquired	Acquired by Drizly
+Caarbon	Seed	Services-Valet	2014	Gone	Out by 2016
+iCracked	Seed	Services-iPhone Repair	2010	Acquired	Acquired by SquareTrade in 2019
+Prim	Seed	Services-Laundry	2013	Gone	
+Rewinery	Seed	Delivery-Wine	2012	Gone	
+Unwind Me	Seed	Services-Massage	2013	Acquired	Acquired by Soothe in 2015
+Vatler	Seed	Services-Valet	2014	Gone	Closed in 2015
+Washly	Seed	Services-Car Washing	2011	Gone	
+Coaster	n/a	Services-Drinks	2012	Gone	Out in 2015
+DashLocker	n/a	Services-Laundry	2012	Gone	Out in 2017
+dVisit	n/a	Services-Health	2012	Gone	Out in 2015
+FloristNow	n/a	Delivery-Flowers	2012	Gone	
+FoodNow	n/a	Delivery-Food	2011	Acquired	Acquired by BiteSquad
+Handii	n/a	Services-Home	2012	Gone	
+KallDoc	n/a	Services-Health	2016	Gone	
+Nimbl	n/a	Delivery-Cash	2014	Gone	
+Squeegy 	n/a	Services-Car Washing	2015	Gone	Some operations acquired by Spiffy
+Worthee	n/a	Services-Dog Walking	2013	Gone	
+Instacart	"$1,900,000,000"	Delivery-Grocery	2012	Unicorn	Last round 2018
+DoorDash	"$1,400,000,000"	Delivery-Food	2013	Unicorn	Last round $535m
+Postmates	"$678,000,000"	Delivery-General	2011	Unicorn	$300 million round in 2018
+Wag	"$361,500,000"	Services-Dog Walking	2014	Alive	$300 million round from Vision Fund in 2018
+Rover	"$311,000,000"	Services-Dog Walking	2011	Alive	Last round in 2018
+GrubHub	"$284,100,000"	Delivery-Food	2004	Unicorn	
+Boxed	"$243,600,000"	Delivery-Big Box	2013	Alive	
+Blue Apron	"$199,400,000"	Delivery-Food	2012	Alive	IPO'd
+Doctor on Demand	"$160,700,000"	Services-Health	2012	Alive	
+Munchery	"$125,400,000"	Delivery-Food	2011	Gone	Bust in 2019
+Eaze	"$117,000,000"	Delivery-Weed	2014	Alive	Last round 12/2018
+Handy	"$110,700,000"	Services-Home	2012	Acquired	"Acquired by ANGI Homeservices, unit of IAC"
+Enjoy	"$80,000,000"	Services-Tech	2014	Alive	Last round 08/15
+Soothe	"$78,300,000"	Services-Massage	2013	Alive	Last round in 2018
+Heal	"$71,000,000"	Services-Health	2014	Alive	Last round in 2018
+Drizly	"$67,500,000"	Delivery-Booze	2012	Alive	
+HomeJoy	"$65,900,000"	Services-Cleaning	2010	Gone	Closed in 2015
+Good Eggs	"$65,000,000"	Delivery-Grocery	2011	Alive	
+Victor	"$62,500,000"	Services-Transportation	2010	Alive	Last round in 2017 
+Shyp	"$62,100,000"	Services-Shipping	2018	Gone	Closed 2018
+BellHops	"$58,600,000"	Services-Moving	2013	Alive	
+Shiftgig	"$56,000,000"	Services-General Labor	2012	Alive	Last round in 2017
+Wonolo	"$52,900,000"	Services-General Labor	2013	Alive	Last round in 2018
+TaskRabbit	"$50,000,000"	Services-General	2008	Acquired	Acquired by Ikea in 2017
+Bouqs Company	"$43,100,000"	Delivery-Flowers	2012	Alive	
+HelloTech	"$42,000,000"	Services-Tech	2014	Alive	
+Nurx	"$41,400,000"	Services-Health	2014	Alive	
+Chef'd	"$40,500,000"	Delivery-Grocery	2013	Gone	Closed in 2018
+Pager	"$40,000,000"	Services-Health	2014	Alive	
+Urgently	"$39,600,000"	Services-Car Repair	2013	Alive	Latest round 2019
+YourMechanic	"$38,500,000"	Services-Car Repair	2012	Alive	Last round in 2018
+Honk	"$31,800,000"	Services-Car Repair	2014	Alive	Last round 2018
+Maple	"$29,000,000"	Delivery-Food	2014	Acquired	Acquired by Deliveroo in May 2017
+Upcounsel	"$26,000,000"	Services-Legal	2012	Alive	Last round in 2018
+Operator	"$25,000,000"	Services-Shopping	2014	Alive	Maybe gone? US app done
+Rinse	"$25,000,000"	Services-Laundry	2013	Alive	
+HouseCall	"$20,000,000"	Services-Home	2013	Alive	Last round 2017
+Spiffy	"$18,100,000"	Services-Car Washing	2014	Alive	Last round in 2018
+Wrench	"$17,200,000"	Services-Car Repair	2015	Alive	Last round in 2018
+Washio	"$16,800,000"	Services-Laundy	2013	Gone	Closed in 2016
+Workpop	"$16,100,000"	Services-General Labor	2014	Acquired	Acquired by Cornerstone on-Demand
+Urban	"$15,400,000"	Services-Massage	2014	Alive	Last round in 2018
+FitMob	"$14,750,000"	Services-Fitness	2015	Acquired	Acquired by ClassPass
+Spoonrocket	"$13,500,000"	Delivery-Food	2013	Acquired	Acquird by iFood
+Zeel	"$13,200,000"	Services-Massage	2010	Alive	
+Saucey	"$10,200,000"	Delivery-Booze	2013	Alive	Last round in 2017
+Waitr	"$10,000,000"	Delivery-Food	2013	Alive	Kind of weird IPO situation
+Dolly	"$9,700,000"	Services-Moving	2013	Alive	
+GoPuff	"$8,300,000"	Delivery-Grocery	2013	Alive	
+FoxTrot	"$7,800,000"	Delivery-Booze	2013	Alive	
+BloomThat	"$7,700,000"	Delivery-Flowers	2013	Acquired	Acquired by FTD
+Tablelist	"$7,400,000"	Services-Bottle Service	2013	Alive	Crazy Fyre Festival thing
+Cleanly	"$7,300,000"	Services-Laundry	2015	Alive	
+Plowz and Mowz	"$7,000,000"	Services-Gardening	2013	Alive	https://www.syracuse.com/business-news/index.ssf/2018/07/plowz_mowz_raises_5m_to_double_syracuse_workforce_in_move_downtown.html
+Minibar	"$6,800,000"	Delivery-Booze	2013	Alive	Last round 2017
+Curbstand	"$6,500,000"	Services-Valet	2013	Alive	Zombie/became a simple valet parking company with an app
+Cherry	"$5,250,000"	Services-Car Washing	2011	Gone	Out by 2012
+Jitjajo	"$5,000,000"	Services-Hospitality Labor	2015	Alive	
+Manicube	"$5,000,000"	Services-Nail Care	2012	Acquired	Bought in 2015
+LoungeBuddy	"$4,000,000"	Services-Airport Lounge	2013	Alive	
+Swipecast	"$4,000,000"	Services-Models	2015	Alive	
+Thirstie	"$4,000,000"	Delivery-Booze	2013	Alive	
+Lugg	"$3,900,000"	Services-Mover	2014	Alive	
+Exec	"$3,300,000"	Services-General	2011	Acquired	Acquired by Handy
+Vetted	"$3,300,000"	Services-Vet	2015	Alive	Last round in 2017 
+BlackJet	"$3,100,000"	Services-Transportation	2012	Gone	
+Swifto	"$2,500,000"	Services-Dog Walking	2010	Alive	
+Geekatoo	"$2,200,000"	Services-Tech	2010	Acquired	Acquired by HelloTech
+FlyCleaners	"$2,000,000"	Services-Laundry	2013	Alive	
+Lawn Love	"$1,900,000"	Services-Gardening	2014	Alive	
+Medicast	"$1,900,000"	Services-Health	2013	Acquired	Acquired by Providence Health
+RingaDoc	"$1,900,000"	Services-Health	2010	Acquired	Acquired by Practice Fusion in 2014
+Tutorspree	"$1,800,000"	Services-Tutoring	2010	Acquired	Acquired by Wyzant in 2014
+Changelane	"$1,200,000"	Services-Car Repair	2014	Gone	
+Flinja	"$1,200,000"	Services-General Labor	2013	Gone	
+VetPronto	"$1,100,000"	Services-Vet	2014	Acquired	Acquired by Vetted in 2017
+Doughbies	"$670,000"	Delivery-Cookies	2014	Gone	"""But did it make sense for a bakery to have an app and deliver on-demand? Probably not."""
+SixDoors	"$650,000"	Delivery-Gifts	2013	Gone	
+JetMe	"$400,000"	Services-Transportation	2013	Gone	
+BottlesTonight	"$260,000"	Services-Bottle Service	2013	Alive	But close
+Shortcut	"$215,000"	Services-Barbers	2014	Alive	
+Laborocity	"$125,000"	Services-General Labor	2014	Alive	
+StyleBee	"$120,000"	Services-Stylists	2014	Alive	
+Dinnr	"$90,700"	Delivery-Grocery	2012	Gone	Out in 2014

@@ -1,0 +1,158 @@
+---
+title: "Distributions homework - solutions"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "14th November 2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+You are given a cut of a database containing details of mobile phones and their customer reviews on an online shopping site in file `20190928-items.csv`. Each row in the data corresponds to one model of mobile phone. Use the data to answer the following questions.  
+
+As part of the MVP we want you not to just run the code but also have a go at **intepreting the results** - this is the **main learning objective** from this homework. Don't worry if you aren't sure, it's ok to get it wrong, but give it a go, through trying we will learn. 
+
+# MVP
+
+* Load the data, `clean_names()` and explore it.
+
+```{r, message=FALSE}
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+phones <- read_csv("data/20190928-items.csv")
+phones <- clean_names(phones)
+glimpse(phones)
+```
+
+<br>
+
+* Find the brand with the highest numbers of phones in the dataset.
+
+```{r}
+top_brand <- phones %>%
+  group_by(brand) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  top_n(1)
+top_brand
+```
+
+<br>
+
+* For your top brand, plot the distribution of phone ratings as a probability density, overlaying a fitted normal distribution. Do you think the normal distribution provides a good model of these ratings?<br><br>[**Hint** - you will need to calculate the `mean()` and `sd()` of the ratings to plot the appropriate normal. Alternatively, investigate using the `fitdistr()` function in the `MASS` package]
+
+```{r}
+samsung_ratings <- phones %>%
+  filter(brand == "Samsung") %>%
+  select(rating)
+
+samsung_stats <- phones %>%
+  filter(brand == "Samsung") %>%
+  summarise(
+    count = n(),
+    mean = mean(rating),
+    sd = sd(rating)
+  )
+samsung_stats
+
+# or can use the fitdistr() function from the MASS package
+samsung_stats_fitdistr <- MASS::fitdistr(x = samsung_ratings$rating, densfun = "normal")
+samsung_stats_fitdistr
+```
+
+```{r}
+samsung_ratings %>%
+  ggplot(aes(x = rating)) +
+  geom_histogram(aes(y = ..density..), col = "white") +
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      mean = samsung_stats$mean,
+      sd = samsung_stats$sd
+    ),
+    col = "red"
+  )
+```
+
+It's a reasonable fit: the distribution is roughly bell-shaped. The main problems seem to be a larger number of ratings in the tails of the distribution than are predicted by the normal, at ratings $1$, $2$ and $5$
+
+<br>
+
+* We can be more quantitative in comparing the distribution of top brand ratings with a normal distribution. You calculated the `mean()` and `sd()` of your distribution in an earlier question. Use these values to calculate the *proportions* of ratings within one-, two- and three standard deviations of the mean. Compare these proportions with those you expect for a normal distribution.  
+
+<details>
+<summary>**Hint**</summary>
+You can use a `filter()` to get only the ratings within one-, two- and three standard deviations of the mean, and then think about how to calculate what proportion each of these filtered sets make of the total number of ratings. You'll need to use three separate `filter()` and `summarise()` pipes to do this.
+</details>
+
+<details>
+<summary>**Further hint - code to filter within one SD**</summary>
+Here's the code to filter and summarise the proportion of ratings within one standard deviation of the mean.
+
+```{r, eval=FALSE}
+samsung_ratings %>%
+  filter(rating >= samsung_stats$mean - samsung_stats$sd) %>%
+  filter(rating <= samsung_stats$mean + samsung_stats$sd) %>%
+  summarise(prop_within_1sd = n() / nrow(samsung_ratings))
+```
+</details>
+
+```{r}
+samsung_ratings %>%
+  filter(rating >= samsung_stats$mean - samsung_stats$sd) %>%
+  filter(rating <= samsung_stats$mean + samsung_stats$sd) %>%
+  summarise(prop_within_1sd = n() / nrow(samsung_ratings))
+
+samsung_ratings %>%
+  filter(rating >= samsung_stats$mean - 2 * samsung_stats$sd) %>%
+  filter(rating <= samsung_stats$mean + 2 * samsung_stats$sd) %>%
+  summarise(prop_within_2sd = n() / nrow(samsung_ratings))
+
+samsung_ratings %>%
+  filter(rating >= samsung_stats$mean - 3 * samsung_stats$sd) %>%
+  filter(rating <= samsung_stats$mean + 3 * samsung_stats$sd) %>%
+  summarise(prop_within_3sd = n() / nrow(samsung_ratings))
+```
+
+For a normal distribution, expect $68\%$ of values to fall within one standard deviation of the mean. Here, $79\%$ of ratings are within this range, so our distribution is slightly too central.  
+
+Adding another standard deviation to either side should increase the proportion of values by $27\%$ to $95\%$ overall in a normal distribution. Our distribution adds $13\%$, going to $92\%$ overall, so there are too few values in the range from one- to two standard deviations.
+
+Finally, in a normal distribution, adding a further standard deviation to either side should increase the proportion of values by $4.7\%$ to $99.7\%$ overall. Our distribution adds $6\%$ to $98\%$, so this is pretty close.
+
+# Extension
+
+Investigate the use of the `qqnorm()` plot in R to determine whether data is normally distributed. What is a 'quantile-quantile plot'? What do we expect to see in a `qqnorm()` plot if data is nearly normally distributed?
+
+Here are a few resources:
+
+* [Understanding QQ plots](https://data.library.virginia.edu/understanding-q-q-plots/)
+* [Short video tutorial](https://www.youtube.com/watch?v=Erze9pNIX8A) (the presenter doesn't use RStudio, but the commands are the same. Just ignore the final comments on hypothesis tests for now.)
+* [Longer video tutorial](https://www.youtube.com/watch?v=smJBsZ4YQZw)
+* [Quantile-Quantile plots - R Base Graphs](http://www.sthda.com/english/wiki/qq-plots-quantile-quantile-plots-r-base-graphs)
+
+```{r}
+# can use base R functions
+qqnorm(samsung_ratings$rating)
+qqline(samsung_ratings$rating)
+
+# or package versions
+library(car)
+qqPlot(samsung_ratings$rating)
+```
+
+Here we see significant deviations from straight line in the tails, so the data is not very well approximated as normal.

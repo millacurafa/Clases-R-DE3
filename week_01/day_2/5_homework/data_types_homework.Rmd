@@ -1,0 +1,117 @@
+---
+title: "Data Types Homework"
+output:
+  html_document: 
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Make sure you create a new project in which to do this homework!
+
+# Part 1
+
+In this part, you will compare several ways of storing the same data. 
+
+<br>
+**Question 1.**  
+
+Create a vector called `stock_prices` with the following data points: 23, 27, 23, 21, 34, 24, 25, 30, 37, 30.
+
+Create a vector called `day_of_week`, which repeats Monday to Friday twice. i.e.
+'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'.
+
+<br> 
+
+**Question 2.**
+
+Create a vector called `day_of_week_factor`, which has the same data as `day_of_week`, but is of `factor` type.
+
+Create a vector called `named_stock_prices`, which contains the stock prices, named by days of the week. 
+
+<br>
+
+**Question 3.**  
+
+Make a data frame called `stock_data` containing the stock price and day of the week information, and `View()` the result.
+
+<br>
+
+**Question 4.**  
+
+Make a list called `stock_list` with named elements as follows: the vector of `stock_prices`, the vector `day_of_week`, and the data frame you made in question 3. Choose sensible names for the list elements. 
+
+
+<br>
+
+# Part 2
+
+In this part, you will practice selecting elements from vectors, data frames, matrices and lists.
+
+For Part 2, you need the code you've written for Part 1. If you've really struggled with this and can't do it, then the code for Part 1 is listed underneath the hidden button below. Do try your hardest first though before using the code below! 
+
+<details>
+<summary>**Part 1 code (if stuck)**</summary>
+```{r}
+stock_prices <- c(23, 27, 23, 21, 34, 24, 25, 30, 37, 30)
+
+day_of_week <- c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')
+
+day_of_week_factor <- as.factor(day_of_week)
+
+stock_data <- data.frame(stock_prices = stock_prices, day_of_week = day_of_week)
+
+stock_list <- list(stock_prices = stock_prices, day_of_week = day_of_week, stock_data = stock_data)
+```
+</details>
+<br>
+
+**Question 1.**
+
+Select the 4th, 5th and 6th stock prices from `stock_prices`.
+
+Select the stock prices greater than 30 from `stock_prices`.
+
+<br>
+
+**Question 2.**
+
+Select the `day_of_week` column from the `stock_data` data frame.
+
+Select the rows of the `stock_data` data frame where the `stock_prices` are less than 25.
+
+Select the 1st column of `stock_data`.
+
+Select the 3rd row of `stock_data`.
+
+Select the 3rd element in the 1st column of `stock_data`.
+
+<br>
+
+**Question 4.** 
+
+Select the data frame from within the list of stocks.
+
+<br>
+
+
+# Extension
+
+Download the `tidyquant` library.
+
+1. Use it to get stock prices from a company of your choice from the current year. You'll need to look up the help file to do this.
+
+2. Edit the data frame to keep only the `date` and `close` columns.
+
+3. Subset to find the rows at which the `close` price is higher than average.
+
+
+
+
+
+

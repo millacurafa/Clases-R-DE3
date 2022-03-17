@@ -1,0 +1,434 @@
+---
+title: "Variable transformations"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "30th May 2019 - rev. 29th July 2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# Learning Objectives
+
+* Understand why transformation of variables is sometimes required prior to regression
+* Understand that $\log()$ is the most common transformation
+* Be able to transform data and perform a regression
+* Be able to interpret the regression coefficient for transformed data 
+
+**Duration - 60 minutes**
+
+<hr>
+
+# Transformations
+
+Remember the conditions that have to be satisfied for linear regression to be valid. Written in terms of the residuals, we have:
+
+* the residuals (errors) are independent of each other. 
+* the variance of the residuals is independent of $x$.
+* the residuals are **normally distributed** around zero.
+
+It probably won't surprise you to learn that sometimes these conditions are *not satisfied* for data that we encounter in real applications. Not to worry, though, we can try to **transform** such data *before* we perform regression, with the aim of satisfying the conditions!
+
+Let's have a look at a 'badly behaved' data set to see the problems we encounter! 
+
+We're going to plot data taken from [Gapminder](https://www.gapminder.org) for average life expectancy against income per capita of various countries in the world. First we need to assemble the dataframe.
+
+```{r, message = FALSE}
+library(tidyverse)
+library(janitor)
+```
+
+```{r, message = FALSE}
+income <- read_csv('income_per_person_gdppercapita_ppp_inflation_adjusted.csv') %>%
+              clean_names()
+
+life <- read_csv('life_expectancy_years.csv') %>%
+          clean_names()
+
+head(income)
+head(life)
+```
+
+Let's say our year of interest is 2018 so we want to join the info for life expectancy and income information together:
+
+```{r}
+income_life <- income %>%
+  select(country, x2018) %>%
+  rename(income_2018 = x2018) %>%
+  full_join(life, by = "country") %>%
+  select(country, income_2018, x2018) %>%
+  rename(life_2018 = x2018) %>%
+  na.omit() # drop any rows where don't have both income and life exp. info
+```
+
+Now let's plot the data and see what we have!
+
+```{r}
+ggplot(income_life, aes(x = income_2018, life_2018)) +
+  geom_point()
+```
+
+<blockquote class='task'>
+**Task - 2 mins** Obviously, trying linear regression on this data is not justified! The data is clearly non-linear. Obtain box plots of each variable and say which you think is most 'problematic'.
+<details>
+<summary>**Solution**</summary>
+```{r}
+ggplot(income_life, aes(y = income_2018)) + 
+  geom_boxplot()
+```
+
+```{r}
+income_life %>%
+ ggplot(mapping = aes(y = life_2018)) + 
+  geom_boxplot()
+```
+
+It's clear that `income` is causing the problem here: the `life` values are reasonably symmetrically spread out, while the `income` data are strongly concentrated at low values. Let's plot a histogram to confirm this.
+```{r}
+ ggplot(income_life, aes(x = income_2018)) + 
+  geom_histogram()
+```
+
+We see a very right-skewed distribution. 
+</details>
+</blockquote>
+
+Let's fit a linear model to this data anyway, to see how wrong it goes!
+
+```{r, message = FALSE}
+library(modelr)
+
+#fit model
+fit <- lm(life_2018 ~ income_2018, data = income_life)
+summary(fit)
+
+#add fit into dataframe
+income_life_model <- income_life %>%
+                    add_predictions(fit) %>%
+                    add_residuals(fit, var = "resid")
+```
+
+
+Let's plot the model and the residuals:
+
+```{r}
+# plot the linear model
+ggplot(income_life_model) +
+  geom_point(aes(x = income_2018, y = life_2018)) +
+  ylim(c(50,100)) +
+  geom_line(aes(x = income_2018, y = pred), col = "red") #plot regression line
+```  
+
+```{r}
+# plot the residuals
+ggplot(income_life_model) +
+  geom_point(aes(x = income_2018, y = resid)) +
+  geom_smooth(aes(x = income_2018, y = resid), method = "loess", col = "red", se = FALSE) + #plot regression line
+  geom_hline(yintercept = 0, linetype="dashed")
+```  
+
+
+
+An awful fit! The residuals clearly show a trend we're not capturing.
+
+So what can we do?! One thing we might try is **transforming** either the dependent or independent variable, or both.
+
+The transformation that is most frequently useful is taking the $\log()$ of a variable, for the following reason:<br><br>
+
+<center>*Taking the $\log()$ of a variable tends to make its distribution **more normal**! *</center><br>
+
+<blockquote class='task'>
+**Task - 2 mins** Take the $\log()$ of the `income` variable in the current problem and see if the transformed distribution looks more normal in a box plot, a histogram or both.
+<details>
+<summary>**Solution**</summary>
+```{r}
+ggplot(income_life, aes(y = log(income_2018))) + 
+  geom_boxplot()
+
+ ggplot(income_life, aes(x = log(income_2018))) + 
+  geom_histogram()
+```
+Aha, this looks more promising!
+</details><br>
+
+<hr>
+
+# Varieties of log transformations
+
+For bivariate data with dependent variable $y$ and independent variable $x$, we have four possibile states of $\log$ transformation:
+
+* *linear-linear*: this is just the untransformed data we've seen already: we plot and regress $y$ against $x$.
+* *log-linear*: we plot and regress $\log(y)$ against $x$.
+* *linear-log*: we plot and regress $y$ against $\log(x)$.
+* *log-log*: we plot and regress $\log(y)$ against $\log(x)$.
+
+Let's perform the log-linear transform on `income_life`
+
+```{r}
+#fit model
+fit <- lm(log(life_2018) ~ income_2018, data = income_life)
+summary(fit) 
+
+#add fit into dataframe
+income_life_model <- income_life %>%
+                    add_predictions(fit) %>%
+                    add_residuals(fit, var = "resid")
+
+# plot the linear model
+ggplot(income_life_model) +
+  geom_point(aes(x = income_2018, y = log(life_2018))) +
+  geom_line(aes(x = income_2018, y = pred), col = "red") #plot regression line
+
+# plot the residuals
+ggplot(income_life_model) +
+  geom_point(aes(x = income_2018, y = resid)) +
+  geom_smooth(aes(x = income_2018, y = resid), method = "loess", col = "red", se = FALSE) + #plot regression line
+  geom_hline(yintercept = 0, linetype="dashed")
+```  
+
+This hasn't helped much at all! 
+
+<blockquote class='task'>
+**Task - 10 mins** Go ahead and plot and regress the linear-log and log-log transformed data. Check the residuals.
+<details>
+<summary>**Solution**</summary>
+**Linear-log**
+```{r}
+#fit model
+fit_log <- lm(life_2018 ~ log(income_2018), data = income_life)
+summary(fit_log) 
+
+#add fit into dataframe
+income_life_model_log <- income_life %>%
+                    add_predictions(fit_log) %>%
+                    add_residuals(fit_log, var = "resid")
+
+# plot the linear model
+ggplot(income_life_model_log) +
+  geom_point(aes(x = log(income_2018), y = life_2018)) +
+  geom_line(aes(x = log(income_2018), y = pred), col = "red") #plot regression line
+
+# plot the residuals
+ggplot(income_life_model_log) +
+  geom_point(aes(x = log(income_2018), y = resid)) +
+  geom_smooth(aes(x = log(income_2018), y = resid), method = "loess", col = "red", se = FALSE) + #plot regression line
+  geom_hline(yintercept = 0, linetype="dashed")
+```
+<br><br>
+**log-log**
+```{r}
+#fit model
+fit <- lm(log(life_2018) ~ log(income_2018), data = income_life)
+summary(fit) 
+
+#add fit into dataframe
+income_life_model <- income_life %>%
+                    add_predictions(fit) %>%
+                    add_residuals(fit, var = "resid")
+
+# plot the linear model
+ggplot(income_life_model) +
+  geom_point(aes(x = log(income_2018), y = log(life_2018))) +
+  geom_line(aes(x = log(income_2018), y = pred), col = "red") #plot regression line
+
+# plot the residuals
+ggplot(income_life_model) +
+  geom_point(aes(x = log(income_2018), y = resid)) +
+  geom_smooth(aes(x = log(income_2018), y = resid), method = "loess", col = "red", se = FALSE) + #plot regression line
+  geom_hline(yintercept = 0, linetype="dashed")
+```
+It looks like the linear-log and log-log transformations *both* do a good job of transforming the original data into a form suitable for linear regression! Plots of the residuals show no clear trend in each case. So, taking the $\log()$ of the independent variable is clearly helpful in this case.
+</details>
+</blockquote>
+
+So we've transformed our data to enable us to reasonably fit a linear regression, but *what does this all mean*? Is this a valid thing to do? What equation have we *actually* fitted to the untransformed data? What does the regression coefficient mean? 
+
+Details of how to interpret regressions of the transformed data is included in the drop-down sections below. You don't need to remember or even understand the details at this stage, just remember that this information is here to help you when you use one of these transforms in the future.
+
+<br>
+<div class='emphasis'>
+<details>
+<summary>**The log-linear transform**</summary>
+
+* The equation we're effectively fitting to the untransformed data is $y = a \times b^x$ <br><br>
+* The transformed equation used for regression is $\log(y) = \log(a) + \log(b) \times x$ <br><br>
+
+The transformed equation is linear if we plot and regress $\log(y)$ against $x$. The regression $\textrm{intercept} = \log(a)$ and the regression $\textrm{gradient} = \log(b)$. So $a = e^{\textrm{intercept}}$ and $b = e^{\textrm{gradient}}$.<br><br>
+
+**Interpretation of the gradient**:<br><br> if we change $x$ by a **factor** $f_x$ (e.g. $f_x=1.1$, a $10\%$ increase in $x$), then $y$ changes by a **factor** $f_y = b^{(f_x-1) \times x}$. Note that $f_y$ **depends on $x$**. 
+
+<br>
+**Example work through** 
+<br>
+
+* We transform our data into the form $\log(y)$ against $x$ and fit the regression model, which gives us an $\textrm{intercept} = 2.03$ and a $\textrm{gradient} = -3.12$.
+* Next, we calculate $a$ and $b$ in the untransformed fit equation as $a = e^{2.03}=7.614$ and $b = e^{-3.12} = 0.044$.
+* The untransformed fit equation is then $y = 7.614 \times 0.044^x$. This is the equation we plot against the untransformed data to check the fit.
+* As an example, an increase in $x$ from $x = 2$ to $x = 2.2$, i.e. $f_x = 1.1$ (a $10\%$ increase) changes $y$ by a factor $f_y = 0.044^{(1.1 - 1) \times 2} = 0.044^{0.2} = 0.5354$. 
+* But an increase in $x$ from $x = 3$ to $x = 3.3$, which again corresponds to $f_x = 1.1$ (a $10\%$ increase), changes $y$ by a factor $f_y = 0.044^{0.3} = 0.3918$. It's clear that $f_y$ depends on $x$.
+</details>
+
+<details>
+<summary>**The linear-log transform**</summary>
+
+* The equation we're effectively fitting to the untransformed data is $y = a + b \times \log(x)$ <br><br>
+* The transformed equation used for regression is $y = a + b \times \log(x)$ <br><br>
+* Both equations are **the same** for this transform. You can think of this as a consequence of the fact that the transformed equation is *already* in the form $y = \textrm{something}...$; we don't need to manipulate it any further. <br><br>
+
+The transformed equation is linear if we plot and regress $y$ against $\log(x)$. The regression $\textrm{intercept} = a$ and the regression $\textrm{gradient} = b$.
+
+**Interpretation of the gradient**:<br><br> if we change $x$ by a **factor** $f_x$, then $y$ changes by an **amount** $a_y = b \times \log(f_x)$. Note that $a_y$ **does not depend on $x$**. 
+
+<br>
+**Example work through** 
+<br>
+
+* We transform our data into the form $y$ against $\log(x)$ and fit the regression model, which gives us an $\textrm{intercept} = -10.412$ and a $\textrm{gradient} = 3.12$.
+* The values obtained from the fit just carry straight over as $a = \textrm{intercept} = -10.412$ and $b = \textrm{gradient} = 3.12$.
+* The equation we plot against the original data to check the fit is then $y = -10.412 + 3.12 \times \log(x)$.
+* As an example, an increase in $x$ from $x = 2$ to $x = 2.2$, i.e. $f_x = 1.1$ (a $10\%$ increase) changes $y$ by an amount $a_y = 3.12 \times \log(1.1) = 0.297$.
+</details>
+
+<details>
+<summary>**The log-log transform**</summary>
+
+* The equation we're effectively fitting to the untransformed data is $y = a \times x^b$. This is known as a *power function*. <br><br>
+* The transformed equation used for regression is $\log(y) = \log(a) + b \times \log(x)$ <br><br>
+
+The transformed equation is linear if we plot and regress $\log(y)$ against $\log(x)$. The regression $\textrm{intercept} = \log(a)$ and the regression $\textrm{gradient} = b$. So $a = e^{\textrm{intercept}}$ and $b = \textrm{gradient}$.    
+
+**Interpretation of the gradient**:<br><br> if we change $x$ by a **factor** $f_x$, then $y$ changes by a **factor** $f_y = (f_x)^b$. Note that $f_y$ **does not depend on $x$**.
+
+<br>
+**Example work through** 
+<br>
+
+* We transform our data into the form $\log(y)$ against $\log(x)$ and fit the regression model, which gives us an $\textrm{intercept} = 0.1$ and a $\textrm{gradient} = 2.9$.
+* Next, we calculate $a$ and $b$ in the untransformed fit equation as $a = e^{0.1}=1.105$ and $b = 2.9$.
+* The untransformed fit equation is then $y = 1.105 \times x^{2.9}$. This is the equation we plot against the untransformed data to check the fit.
+* As an example, an increase in $x$ from $x = 2$ to $x = 2.2$, i.e. $f_x = 1.1$ (a $10\%$ increase) changes $y$ by a factor $f_y = 1.1^{2.9} = 1.318$.
+</details>
+</div>
+<br>
+
+We found above that the regressions of the linear-log and log-log transformed data were reasonable. Let's interpret the linear-log fit using the instructions above.
+
+```{r}
+library(broom)
+
+# linear-log
+fit <- lm(life_2018 ~ log(income_2018), data = income_life)
+
+# y = a + b * log(x)
+
+# get coeffs from model
+intercept <- tidy(fit) %>%
+            filter(term == "(Intercept)") %>%
+            pull(estimate)
+
+gradient <- tidy(fit) %>%
+            filter(term == "log(income_2018)") %>%
+            pull(estimate)
+
+# convert to a and b. No conversion needed in this model
+a <- intercept
+b <- gradient
+
+#fit transformation
+fitted <- tibble(fit_x = seq(min(income_life$income_2018), max(income_life$income_2018), by = 0.1)) %>% # get range of x values for fit
+          mutate(fitted_y_linlog = a + b * log(fit_x)) # insert a and b into untransformed equation
+
+# plot
+plot <- ggplot() +
+  geom_point(data = income_life_model, aes(x = income_2018, y = life_2018)) +
+  geom_line(data = fitted, aes(x = fit_x, y = fitted_y_linlog), col = "red") 
+
+plot
+```
+
+<blockquote class='task'>
+**Task - 5 mins** Plot the untransformed fit equation against the original data for the log-log regression model. To do this, follow the instructions in the dropdown above. It would be nice to plot the linear-log and log-log model fits together, to see how they differ.
+<details>
+<summary>**Solution**</summary>
+```{r}
+#log-log
+fit <- lm(log(life_2018) ~ log(income_2018), data = income_life)
+
+# y = a * x ** b
+
+# get coeffs from model
+intercept <- tidy(fit) %>%
+            filter(term == "(Intercept)") %>%
+            pull(estimate)
+
+gradient <- tidy(fit) %>%
+            filter(term == "log(income_2018)") %>%
+            pull(estimate)
+
+# convert to a and b. Only a needs conversion in this model
+a <- exp(intercept)
+b <- gradient
+
+#fit transformation
+fitted <- fitted %>%
+          mutate(fitted_y_loglog = a * fit_x ** b) # insert a and b into untransformed equation
+
+# plot
+plot +
+  geom_line(data = fitted, aes(x = fit_x, y = fitted_y_loglog), col = "blue") 
+```
+</details>
+</blockquote>
+
+<hr>
+
+# Helpful packages for variable transformations
+
+There are a number of packages that can help you transform variables. 
+
+* The `ladder()` function in the `HH` package shows you the results of a standard series of transformations known as *Tukey's ladder of powers* on both variables of a bivariate data. Here's how you use the function:
+
+```{r, message = FALSE}
+library(HH)
+```
+
+```{r}
+ladder(life_2018 ~ income_2018, data = income_life)
+```
+
+Numbers $(-1, \; -0.5, \; 0, \; 0.5, \; 1, \; 2)$ correspond to transformations $(-\frac{1}{x}, \; -\frac{1}{\sqrt{x}}, \; \log(x), \; \sqrt{x}, \; x, \; x^2)$.
+
+* The `bestNormalize` package is very useful if you find yourself doing a lot of variable transformations. It makes 'doing' and 'undoing' transformations easy, and selects the 'best' transformation for your data.  
+
+<hr>
+
+# Recap
+
+<br>
+
+* In general, why do we transform data prior to regression?
+<details>
+<summary>**Answer**</summary>
+We transform data in an attempt to make it more normal, so as to satisy the regression assumptions.
+</details>
+
+<br>
+
+* Why are log transformations so commonly used in preparing data for regression?
+<details>
+<summary>**Answer**</summary>
+Because log transformation tends to make a distribution more normal.
+</details>
+
+<br>

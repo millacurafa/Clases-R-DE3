@@ -1,0 +1,233 @@
+---
+title: "Sampling distributions and standard errors - mini lab"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "30th August 2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+**Duration - 45 minutes**<br>
+
+<hr>
+
+# Introduction 
+
+Let's practice drawing and analysing sampling distributions from a larger dataset that we will treat as a population. Slightly morbidly, we're going to use data deriving from a study of heart disease!
+
+<br>
+<div class='emphasis'>
+Remember throughout the following tasks that this is something of a 'fake' situation, and we are doing this just for pedagogical purposes. Normally, we would have a single sample drawn from a population, and we would never see the sampling distribution; it would be a notional concept, if you like!
+</div>
+<br>
+
+Here are three helper functions we'll use to calculate standard errors later: 
+
+```{r}
+finite_correction <- function(n, N){
+  return(sqrt((N-n)/(N-1)))
+}
+
+standard_error_mean <- function(n, N, popn_stdev){
+  se_mean <- finite_correction(n, N) * popn_stdev / sqrt(n)
+  return(se_mean)
+}
+
+standard_error_proportion <- function(n, N, popn_prop){
+  se_proportion <- finite_correction(n, N) * sqrt(popn_prop * (1-popn_prop) / n)
+  return(se_proportion)
+}
+```
+
+<hr>
+
+# MVP
+
+* Load and explore the data held in `heart.csv`. A data dictionary is also available. 
+
+```{r, message = FALSE}
+library(tidyverse)
+```
+
+```{r}
+heart <- read_csv("data/heart.csv")
+glimpse(heart)
+```
+
+* Plot a histogram and/or boxplot for `thalach` (maximum heart rate achieved in stress testing). How normal is the distribution?
+
+```{r}
+heart %>%
+  ggplot(aes(x = thalach)) +
+  geom_histogram()
+```
+
+`thalach` definitely looks as though it has some left skew. Also calculate box plots:
+
+```{r}
+heart %>%
+  ggplot(aes(y = thalach)) +
+  geom_boxplot()
+```
+
+* Also plot a barplot of `exang` (whether the patient displayed exercise induced angina)
+
+```{r}
+heart %>%
+  ggplot(aes(x = exang)) +
+  geom_bar()
+```
+
+* Now calculate population parameters: what is the mean `thalach` in the population. What proportion of patients have exercise induced angina?
+
+```{r}
+params <- heart %>%
+  summarise(
+    mean_thalach = mean(thalach), 
+    prop_exang = mean(exang)
+  )
+params
+```
+
+* Now take a single sample of $50$-patients from the population and calculate point estimates for mean `thalach` and proportion of `exang` from this sample (let's call these `mean_thalach` and `prop_exang` going forward).<br>[**Hint** - use `rep_sample_n()` from the `infer` package to do this]
+
+```{r}
+library(infer)
+point_ests <- heart %>%
+  rep_sample_n(size = 50, reps = 1) %>%
+  ungroup() %>%
+  summarise(
+    mean_thalach = mean(thalach), 
+    prop_exang = mean(exang)
+  )
+point_ests
+```
+
+* What are the sampling errors of these point estimates?
+
+```{r}
+point_ests - params
+```
+
+* Now we're going to repeatedly sample $50$-patients from the population and build up sampling distributions for the `mean_thalach` and `prop_exang` point estimates. Take $5000$ samples and store the sampling distributions in a variable `rep_sample_50`.<br><br>
+[**Hint** - again, use `rep_sample_n()` to do this. Don't forget to group by `replicate` before calculating point estimates]
+
+
+```{r}
+rep_sample_50 <- heart %>%
+  rep_sample_n(size = 50, reps = 5000) %>%
+  group_by(replicate) %>%
+  summarise(
+    mean_thalach = mean(thalach), 
+    prop_exang = mean(exang)
+  )
+```
+
+* Visualise the sampling distributions of `mean_thalach` and `prop_exang` as densities, and also plot normal distributions for comparison. How normal do the sampling distributions look?<br>[**Hint** - don't forget to pass `aes(y = ..density..)` into `geom_histogram()`]
+
+```{r}
+rep_sample_50 %>%
+  ggplot(aes(x = mean_thalach)) +
+  geom_histogram(aes(y = ..density..), col = "white") +
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      mean = mean(rep_sample_50$mean_thalach), 
+      sd = sd(rep_sample_50$mean_thalach)
+    ),
+    col = "red"
+  )
+
+rep_sample_50 %>%
+  ggplot(aes(x = prop_exang)) +
+  geom_histogram(aes(y = ..density..), col = "white") +
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      mean = mean(rep_sample_50$prop_exang), 
+      sd = sd(rep_sample_50$prop_exang)
+    ),
+    col = "red"
+  )
+```
+
+We see a the `mean_thalach` sampling distribution looks pretty normal. The `prop_exang` distribution shows some indication of discreteness of outcomes.
+
+* Obtain standard errors of the sampling distribution of `mean_thalach` and `prop_exang` directly as the standard deviations of the sampling distributions held in `rep_sample50`
+
+```{r}
+rep_sample_50 %>%
+  summarise(
+    sd_mean_thalach = sd(mean_thalach),
+    sd_prop_exang = sd(prop_exang)
+  )
+```
+
+* Now we would like to compare the 'directly calculated' standard errors with those we get by applying the standard error formulae coming from the central limit theorem. How well do the 'theory' values agree with 'directly calculated' values? Does this give you confidence in the central limit theorem?
+
+```{r}
+stderr_mean_thalach <- standard_error_mean(n = 50, N = nrow(heart), popn_stdev = sd(heart$thalach))
+stderr_mean_thalach
+
+stderr_prop_exang <- standard_error_proportion(n = 50, N = nrow(heart), popn_prop = mean(heart$exang))
+stderr_prop_exang
+```
+
+They're reasonably close! It certainly gives me confidence in the CLT - we can calculate standard errors for sampling distributions without having to draw lots of samples.
+
+<hr>
+
+# Extension
+
+* Try running the sampling and visualisation above again, but this time **with sample sizes of 5**. Do the sampling distributions still look normal?
+
+```{r}
+rep_sample_5 <- heart %>%
+  rep_sample_n(size = 5, reps = 5000) %>%
+  group_by(replicate) %>%
+  summarise(
+    mean_thalach = mean(thalach), 
+    prop_exang = mean(exang)
+  )
+```
+
+```{r}
+rep_sample_5 %>%
+  ggplot(aes(x = mean_thalach)) +
+  geom_histogram(aes(y = ..density..), col = "white") +
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      mean = mean(rep_sample_5$mean_thalach), 
+      sd = sd(rep_sample_5$mean_thalach)
+    ),
+    col = "red"
+  )
+
+rep_sample_5 %>%
+  ggplot(aes(x = prop_exang)) +
+  geom_histogram(aes(y = ..density..), col = "white") +
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      mean = mean(rep_sample_5$prop_exang), 
+      sd = sd(rep_sample_5$prop_exang)
+    ),
+    col = "red"
+  )
+```
+
+Even for sample sizes of $5$, the `mean_thalach` sampling distribution looks reasonable, but the `prop_exang` distribution is truncated at $0$ and shows clear signs that it is really discrete rather than continuous!
+

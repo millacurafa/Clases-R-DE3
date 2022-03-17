@@ -1,0 +1,27 @@
+---
+title: "Predicting Loan Defaults"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../resources/note_styles.css
+  pdf_document: default
+---
+
+
+# Background
+
+You’ve been hired by LendingClub, an online loan provider to help with some problems their business has been facing. 
+
+They are concerned about the default rate on their loans. They want to understand who is likely to default and who they should lend to in the future
+
+# Data
+
+The data is available at the following link:
+
+https://www.kaggle.com/wendykan/lending-club-loan-data
+
+Make sure you read the information and the data dictionary to ensure you understand the data.
+

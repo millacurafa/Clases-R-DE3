@@ -1,0 +1,345 @@
+---
+title: "Extra programming tasks - answers"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+# For loops & apply 
+
+## Question 1
+Create vectors `x` and `y` using the commands 
+
+```{r}
+x <- c(1, 2, 9)
+y <- c(2, 6, 4)
+```
+
+Write a for `loop` to compute the element-wise product vector, saving your results in a new vector z,  $z = x \times y$ (e.g. $z_1 = x_1 \times y_1, \; z_2 = x_2 \times y_2, ...$).  Compare this to `x * y` in R. 
+
+<details>
+<summary>**Solution**</summary>
+
+
+This is one way of writing a solution although yours may be different (as with the case with many of the answers in this homework!):  
+
+```{r}
+z <- numeric(length(x))
+
+for (i in  1:length(x)) {
+  z[i] <- x[i] * y[i]
+}
+```
+
+Comapring this to `x * y`:  
+
+```{r}
+x * y
+```
+
+It's the same! 
+
+**Efficiency tip**  
+If you know the size of the output you will be creating (in this case your results vecotr, `z`, will be length 3 then always initialise your output variable to required length and data type before taking it into the loop. Try not to incrementally increase the size of your data inside the loop (this will be computationally slower). 
+
+For example we could have also initialised `z` as an empty object:
+
+```{r}
+z <- NULL
+
+for (i in 1:length(x)) {
+  z[i] <- x[i] * y[i]
+}
+```
+This means each time it steps through the loop the size of `z` is increased. Although the time difference in this example would be very small, it would start to make a difference for much larger computations. 
+
+Of course you may not know what the size of your output will be and so can't initialise this way!
+
+This is a nice blog on efficiency when comparing loops, applys etc. This is not something you will need to worry about now, but may be of interest in the future when potentially working on very large datasets: https://www.r-bloggers.com/strategies-to-speedup-r-code/
+
+</details>
+</blockquote>
+
+<br>
+
+## Question 2
+
+Define `x` to be a sample of size 10 from the N(0, 1) distribution using `x <- rnorm(10)` (don't worry if you've not come across a distribution before, we will be covering probability distributions in statistics, but for now just need to know it generates some random numbers between -1 and 1).  
+
+Replace all values that are less than 0 with 0 using the following methods:  
+
+  a.  the `ifelse()` function
+  b.  a `for` loop including an `if` statement
+  c.  writing a function (to convert a number to zero if negative) and then use that function in an `apply()` statement
+  
+<details>
+<summary>**Solution**</summary>
+
+a.
+```{r}
+x <- rnorm(10)
+x
+
+x <- ifelse(x < 0, 0, x)
+x
+```
+
+b.
+```{r}
+x <- rnorm(10)
+x
+
+#seq_along can be used as an alternative to '1:length(x)' - can read the help file to learn more about this
+for (i in seq_along(x)) {
+  
+  if (x[i] < 0) {
+    x[i] <- 0
+  } 
+}
+
+x
+```
+
+c. 
+
+```{r}
+x <- rnorm(10)
+x
+
+make_zero <- function(y) {
+  if (y < 0) {
+    y <- 0
+  } else {
+    y
+  }
+}
+  
+x <- sapply(x, make_zero)
+x
+```
+
+</details>
+</blockquote>
+
+<br>
+
+## Question 3
+
+Function `cumsum()` computes the cumulative sum of a vector. Use a `for` loop instead of this built in function to compute the cumulative sum of `x` from exercise 2. Compare your loop to the `cumsum` function. 
+
+<details>
+<summary>**Solution**</summary>
+
+One possible method is:
+```{r}
+x <- rnorm(10)
+
+z <- numeric(length(x))
+
+for (i in 1:length(x)) {
+  z[i] <- sum(x[1:i])
+}
+
+z
+
+# check
+z == cumsum(x)
+```
+
+
+</details>
+</blockquote>
+
+<br>
+
+## Question 4
+
+Consider the following lines of code that work on a matrix `x` containing observations of several real-valued variables:
+
+```{r, eval=FALSE}
+x.min <- apply(x, 2, min)
+x.max <- apply(x, 2, max) 
+
+for (i in 1:nrow(x)) {
+  x[i, ] <- (x[i, ] - x.min) / (x.max - x.min)
+}
+```
+
+  a. **Without running the code** explain what each line of the code does. 
+  b. **Without running the code** what is the range of the columns of `x` once the code has been run?
+  c. Can you rewrite this code using 'loop-avoidance' functions (e.g. `apply()`)? 
+  
+<details>
+<summary>**Solution**</summary>
+ a.
+```{r, eval = FALSE}
+x.min <- apply(x, 2, min) #this applies the function min() across each column (since the MARGIN argument is 2) of the matrix, and so would return the minimum value in each column of a matrix
+x.max <- apply(x, 2, max)  #this applies the function max() across each column (since the MARGIN argument is 2) of the matrix, and so would return the maximum value in each column of a matrix
+
+for (i in 1:nrow(x)) {  #creates a for loop for 1 to the number of rows of the matrix x
+  x[i, ] <- (x[i, ] - x.min) / (x.max - x.min) #sets each entry in the matrix to be the difference between the entry and the minimum of the column that entry is in, divided by the difference the min and max of that column
+}
+
+# This is called normalisation and will be covered later in the course. 
+```
+
+<br>
+
+b. 
+The range will be between 0 and 1 (inclusive) because:
+* When x[i, ] is the column maximum (x.max) the outcome will be 1 (as the top and bottom of the fraction will be equal). 
+* When x[i, ] is the column minimum (x.min) the outcome will be 0 (as the top of the fraction is 0 and so the fraction result is 0).  
+And since all values in the column will be between the column minimum and maximum all the results will be between 0 and 1 (including the values 0 and 1 themselves i.e. inclusive of them). 
+
+c.
+```{r, eval=FALSE}
+apply(x, 2, function(x) (x - min(x))/(max(x) - min(x)))
+```
+</details>
+</blockquote>
+
+<br>
+
+## Question 5
+
+Load the library `CodeClanData`, check the help file for the `qb_monthly_sales` dataset and inspect some of the data 
+
+  a. Find the date of the highest costs using the function `which.max()`. 
+  b. Find the date of the lowest revenue using the function `which.min()`. 
+
+<details>
+<summary>**Solution**</summary>
+
+a.
+```{r}
+library(CodeClanData)
+
+# The dataset has rows with revenue and sales but we are only interested in the entries for costs. If we didn't subset then we will get the maximum to be the maximum for any or revenue, sales or costs, but we only want to look at costs. This is an example of why important to look and explore a dataset before begining any analysis!
+only_cost <- subset(qb_monthly_sales, Cashflow == "Cost")
+
+# which.max will return the row number where the highest cost occured based on the value in the 'Amount' column
+max_cost <- which.max(only_cost$Amount)
+
+# then use this row number calculated above to return the date value on that row (i.e. the data when the maximum cost occured)
+only_cost$Date[max_cost]
+
+```
+
+If you're used to using Excel functions this is similar to using an INDEX/MATCH or a VLOOKUP!
+
+b. 
+```{r}
+only_revenue <- subset(qb_monthly_sales, Cashflow == "Total Revenue")
+
+min_revenue <- which.max(only_revenue$Amount)
+
+only_revenue$Date[min_revenue]
+```
+
+
+</details>
+</blockquote>
+
+<br>
+
+# Functions
+
+## Question 6
+
+Write an R function `quadratic()` which computes the real-valued solutions of a quadratic equation
+
+$$a \times x^2 + b \times x + c$$
+Your function should take `a`, `b` and `c` as arguments and return the unique solutions to the above quadratic equation (we'll show you the maths below to do this). 
+
+* Your function should start by computing the *discriminant* $\Delta = b^2 - 4 \times a \times c$
+* If $\Delta < 0$, then the quadartic has no real solutions. In this case, the function should return a message "No solution".
+* If $\Delta = 0$, then the quadratic equation has exactly one ("double") solution, $-\frac{b}{2 \times a}$. In this case, return this value only. 
+* If$\Delta > 0$, then the quadratic equation has two solutions, $-\frac{b + \sqrt{\Delta}}{2 \times a}$ and $\frac{b + \sqrt{\Delta}}{2 \times a}$. In this case return a vector of length two containing both solutions. 
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+quadratic <- function(a, b, c) {
+
+  discrim <- b^2 - 4*a*c
+  
+  if (discrim < 0) {
+    print("No solution") 
+  } 
+  else if (discrim == 0) {
+   return(-b/2*a) }
+  else {
+    x <- (b + sqrt(discrim))/(2*a)
+    return(c(-x, x))
+  }
+}  
+```
+
+</details>
+</blockquote>
+
+<br>
+
+## Question 7
+
+Consider the following function 
+
+```{r}
+my_function <- function(z) {
+ m <- Inf
+ for (i in 1:length(z)) {
+   if (z[i] < m) { 
+     m <- z[i] 
+   }
+ }
+ return(m)
+}
+```
+
+**Without running the function** what does `my_function()` do? Can you explain it in plain language?
+
+<details>
+<summary>**Solution**</summary>
+
+It loops through the vector and if an entry is lower than a previous entry then m is assigned to that entry, if it is higher then nothing happens. So eventually m will become the lowest value in the vector, and once it has been assigned the lowest value it will remain as this until the loop has finished.
+
+</details>
+</blockquote>
+
+<br>
+
+
+
+# Problem solving
+
+## Question 8
+
+Create the following vector without using the function `c()` at all
+
+    5 6 7 4 5 6 3 4 5 2 3 4
+    
+<details>
+<summary>**Hint**</summary>
+Consider creating 2 vectors and adding them, and remember that you can create vectors using other functions such as `rep()` or `seq()`.
+
+</details>
+</blockquote>
+
+
+<details>
+<summary>**Solution**</summary>
+    
+```{r}
+a <- rep(1:3, times = 4)
+b <- rep(4:1, each = 3)
+a + b
+```
+
+</details>
+</blockquote>
+

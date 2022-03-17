@@ -1,0 +1,22 @@
+---
+title: "Decision tree & clustering lab"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Decision tree
+We will be looking at the `avocado` dataset used for the week 10 weekend homework. Build a decision tree to model the likelihood of a sale being of an organic avocado.
+
+# Clustering 
+Use k-means clustering to investigate potential relationships in the `USArrests` dataset we looked at in the hierarchical clustering lesson: 
+
+  * Explore the data - do you think it looks potentially suitable for clustering?
+  * Chose a value of k
+  * Create clusters with chosen value of k - pull out the sizes of the clusters and the average of each variable in the dataset for each cluster.
+  * Visualise the clusters (Hint - there is more than 2 variables in the dataset so refer to the classnotes about how to visualise). 
+
+

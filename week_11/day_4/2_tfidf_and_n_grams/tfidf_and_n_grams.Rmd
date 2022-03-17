@@ -1,0 +1,415 @@
+---
+title: "TF-IDF and n-grams"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Mhairi McNeill"<br>
+date: "27/08/2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center", message = FALSE, warning = FALSE)
+```
+
+# Learning Objectives
+
+* Understand the definition of TF-IDF
+* Be able to work with and calculate TF-IDF scores
+* Understand the definition of ngram
+* Be able to work with ngrams
+
+**Duration - 1 hour 30 minutes**
+
+# Getting started
+
+In this lesson we'll learn about other, more complex, ways of turning words into data. In particular you'll learn about **TF-IDF scores** and **n-grams**.
+
+Start by loading all the libraries we'll need in this lesson.
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(tidytext)
+library(harrypotter)
+```
+
+Let's start with a simple example. Here's some basic sentences.
+
+```{r}
+sentences <- 
+c(
+  "This is a sentence about cats.",
+  "This is a sentence about dogs.",
+  "This is a sentence about alligators."
+)
+```
+
+Here's the sentences converted into text data. 
+
+```{r}
+sentences_df <- 
+tibble(
+  sentence = sentences,
+  id = 1:3
+) %>%
+unnest_tokens(word, sentence) 
+
+sentences_df
+```
+
+Finally, let's see how often each word appears in each sentence. 
+
+```{r}
+sentences_df %>%
+  count(word, id)
+```
+
+## TF-IDF
+
+A big problem in text mining is that common words appear in every type of text. One way of dealing with this is to remove stop words, but there's another way of dealing with this, which is to *weight* our word counts. We want to weight so that words that are common in many places have a lower weight, and words that are uncommon have a higher weight. The way this weighing is commonly done is through *TF-IDF* scores.
+
+TF-IDF stands for Term Frequency - Inverse Document Frequency. For each word in a "document", we first count the term frequency:
+
+$$
+TF = \frac{\text{How often term appears in document}}{\text{Number of terms in document}}
+$$
+
+A word is clearly more important in a document, when the term frequency is high.
+
+Then we calculate the document frequency.
+
+$$
+DF = \frac{\text{Number of documents term appears in}}{\text{Number of documents}}
+$$
+
+A word is also more important in a document when it's document frequency is low. This means that the word appears in this document, much more than in the other documents.
+
+We put these calculations together to calculate Term Frequency - Inverse Document Frequency. We use the inverse of the Document Frequency, because we want the TF-IDF score to be high when the document frequency is low. We also take the log, because the term frequency is more important than the inverse document frequency.
+
+$$
+TF-IDF = TF \times log(\frac{1}{DF})
+$$
+
+Documents don't have to be big; a document could be a chapter in a book, or a few sentences. In our example above, each individual sentence would form a document.
+
+TF-IDF is really easy to calculate the `tidytext`. All we do is take a data frame of word counts and use the `bind_tf_idf` function. The first argument is the column which contains the terms, the second the column which contains which document each term belongs to, and the third argument is the column which has the counts.
+
+```{r}
+sentences_df %>%
+  count(word, id) %>%
+  bind_tf_idf(word, id, n)
+```
+
+You can see that the TF-IDF score is highest for words that are unique to each sentence. Words which appear in every sentence of a TF-IDF score of zero (document frequency will be $\frac{3}{3} = 1$, and the log of one is zero.)
+
+## TF-IDF across all Harry Potter Books
+
+Now let's see an example with the Harry Potter books. We want to find out which words are most unique to each book. So our documents will be individual books.
+
+We need to do some data processing to make each book a document. First, let's put all 7 books into a list.
+
+```{r}
+titles <- c("Philosopher's Stone", "Chamber of Secrets", "Prisoner of Azkaban","Goblet of Fire", "Order of the Phoenix", "Half-Blood Prince","Deathly Hallows")
+
+books <- list(philosophers_stone, chamber_of_secrets, prisoner_of_azkaban, goblet_of_fire, order_of_the_phoenix, half_blood_prince, deathly_hallows)
+```
+
+And we can use `map_chr`, to `paste` together each chapter in each book. 
+```{r}
+books <- purrr::map_chr(books, paste, collapse = " ") 
+```
+
+Once this is done, we can just work as usual, putting our text into a data frame, and then using `unnest_tokens`.
+
+```{r}
+all_books_df <-
+tibble(
+  title = titles,
+  text = books
+) %>%
+  unnest_tokens(word, text)
+```
+
+Here we use `bind_tf_idf` to find the words that have the highest TF-IDF scores across the seven books.
+
+```{r}
+all_books_tf_idf <-
+all_books_df %>%
+  count(word, title) %>%
+  bind_tf_idf(word, title, n) %>%
+  arrange(desc(tf_idf))
+
+all_books_tf_idf
+```
+
+A more interesting result might be seeing the single word with the highest TF-IDF score in each book.
+
+```{r}
+all_books_tf_idf %>%
+  group_by(title) %>%
+  filter(tf_idf == max(tf_idf))
+```
+
+You might notice something weird here. Why is the word 'c', the most word most associated with "Deathly Hallows"?  We can go back to our origional data and find the context that it appears in.
+
+```{r}
+all_books_df %>%
+  filter(title == "Deathly Hallows") %>%
+  mutate(
+    context = paste(lag(word), word, lead(word))
+  ) %>%
+  filter(word == "c")
+```
+
+This looks wrong. After some more investigation (looking up the book on a Kindle!) it seems this is an encoding error. Let's just remove the word.
+
+```{r}
+all_books_df <-
+  all_books_df %>%
+  filter(!(title == "Deathly Hallows" & word == "c"))
+```
+
+Now we can recalculate the TF-IDF scores
+
+```{r}
+all_books_tf_idf <-
+all_books_df %>%
+  count(word, title) %>%
+  bind_tf_idf(word, title, n) %>%
+  arrange(desc(tf_idf))
+```
+
+And see the word most unique to each book.
+
+```{r}
+all_books_tf_idf %>%
+  group_by(title) %>%
+  filter(tf_idf == max(tf_idf))
+```
+
+
+<blockquote class = 'task'>
+**Task - 10 minutes**
+
+Use the dataset `austen_books()` from the library `janeaustenr`.
+
+Find the word in each book with the highest
+
+1. Term frequency
+2. TF-IDF score
+
+Which is more interesting?
+
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+library(janeaustenr)
+
+austen_df <-
+  austen_books() %>%
+  unnest_tokens(word, text)
+```
+
+```{r}
+austen_tf_idf <-
+austen_df %>%
+  count(word, book) %>%
+  bind_tf_idf(word, book, n) 
+```
+
+```{r}
+austen_tf_idf %>%
+  group_by(book) %>%
+  filter(tf == max(tf))
+```
+
+```{r}
+austen_tf_idf %>%
+  group_by(book) %>%
+  filter(tf_idf == max(tf_idf))
+```
+
+- Clearly, we can learn more about the books from the TF-IDF score.
+
+</details>
+</blockquote>
+
+# N-grams
+
+Throughout these lessons we keep using the word 'tokens' rather than 'words'. Why are we doing that? It's because the unit you work with in text mining doesn't have to be in the words - there's other options. A very common token type is n-grams.
+
+The word "n-gram" actually describes infinitely many ways of tokenizing words - 2-grams, 3-grams, 4-grams etc. etc.
+
+A 2-gram is a combination of two consecutive words. Probably the easiest way of understanding it is to see an example. In the sentence "here is some text", there are three 2-grams: "here is", "is some" and "some text".
+
+Let's make a data frame of phrases, and then use `unnest_tokens` to see what 2-grams look like. We need to specify `token = "ngram"` and `n = 2` for 2-grams.
+
+```{r}
+phrases <- 
+c(
+  "here is some text",
+  "again more text",
+  "text is text"
+)
+
+phrases_df <- 
+tibble(
+  phrase = phrases,
+  id     = 1:3
+) 
+
+phrases_df %>%
+  unnest_tokens(bigram, phrase, token = "ngrams", n = 2)
+```
+
+You can see that we have all pairs of words. Words that aren't at the start or end appear twice: one at the start of a 2-gram and once at the end of a 2-gram. 2-grams are more commonly known as *bigrams*.
+
+Now, what if we set n to be three?
+
+```{r}
+phrases_df %>%
+  unnest_tokens(trigram, phrase, token = "ngrams", n = 3)
+```
+
+We have every combination of 3 consecutive words. This are 3-grams, or *trigrams*.
+
+It should be pretty clear now what 4-grams and 5-grams are! Indeed you can keep going and make n as large as you like. However, it's very uncommon to go much bigger than trigrams, and bigrams are much more common than trigrams.
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+For the book "Philosophers Stone", find the top
+
+1. Bigrams
+2. Trigrams
+3. Sentences (you'll need to set `token = "sentences"`)
+
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+book_1_df <- 
+tibble(
+  chapter = 1:17,
+  text = philosophers_stone
+) 
+```
+
+```{r}
+book_1_df %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
+  count(bigram, sort = TRUE)
+```
+
+```{r}
+book_1_df %>%
+  unnest_tokens(trigram, text, token = "ngrams", n = 3) %>%
+  count(trigram, sort = TRUE)
+```
+
+```{r}
+book_1_df %>%
+  unnest_tokens(sentence, text, token = "sentences") %>%
+  count(sentence, sort = TRUE)
+```
+
+- Sentence tokenising might not be working properly - it seems to count the '.' in 'Mr.' as a full stop, which is ending a sentence.
+
+</details>
+</blockquote>
+
+## `separate`
+
+We can use ngrams to do interesting things. It's particularly useful to use `separate` to convert the ngram into it's constitute words in your data frame. 
+
+You might have noticed that our top bigrams are quite uninteresting - they are mostly made up of stop words. Now let's use `separate` to split the n-gram, and `anti_join` to remove bigrams that contain stop words.
+
+```{r}
+book_1_bigrams  <- 
+book_1_df %>%
+  unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
+  count(bigram, sort = TRUE) %>%
+  separate(bigram, c("word_1", "word_2"), sep = " ") %>%
+  anti_join(stop_words, by = c("word_1" = "word")) %>%
+  anti_join(stop_words, by = c("word_2" = "word"))
+```
+
+```{r}
+book_1_bigrams 
+```
+
+Much better!
+
+Remember that you can use `unite` to do the opposite operation from `separate`.
+
+```{r}
+book_1_bigrams %>%
+  unite(bigram, word_1, word_2, remove = FALSE, sep = " ")
+```
+
+<blockquote class = 'task'>
+**Task - 10 minutes**
+
+Find the most common bigrams in the "Chamber of Secrets", not including any bigrams that contain a stop word.
+
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+book_2_bigrams  <- 
+tibble(
+  chapter = 1:19,
+  text = chamber_of_secrets
+) %>%
+unnest_tokens(bigram, text, token = "ngrams", n = 2) %>%
+count(bigram, sort = TRUE)
+
+book_2_bigrams %>%
+  separate(bigram, c("word_1", "word_2"), sep = " ", remove = FALSE) %>%
+  anti_join(stop_words, by = c("word_1" = "word")) %>%
+  anti_join(stop_words, by = c("word_2" = "word"))
+```
+
+</details>
+</blockquote>
+
+# Recap 
+
+* What is the formula for TF-IDF?
+<details>
+<summary> **Solution** </summary>
+TF = How often term appears in document \ Number of terms in document
+DF = Number of documents term appears in \ Number of documents
+TF-IDF = TF x log(1/DF)
+</details>
+
+* Which function do you use to get TF-IDF scores?
+<details>
+<summary> **Solution** </summary>
+`bind_tf_idf`
+</details>
+
+* What is an ngram?
+<details>
+<summary> **Solution** </summary>
+A sequence of n consecutive characters
+</details>
+
+* How do you find bigrams in R?
+<details>
+<summary> **Solution** </summary>
+`unnest_tokens(df, bigram, phrase, token = "ngrams", n = 2)`
+</details>
+
+# Additional Resources
+
+

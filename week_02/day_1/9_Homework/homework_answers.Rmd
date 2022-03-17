@@ -1,0 +1,139 @@
+---
+title: "Reading in data homework - Answers"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# MVP
+
+
+1. Read in the `state_income_data.csv` file using the appropriate function. 
+
+2. How do you specify your own column names when using `read_csv()`?
+
+3. Read in the `cars.csv` file and use the `col_types()` function to ensure you load in:
+
+* `X1` as `character`
+* `mpg`, `cyl`, `disp`, `hp` as `double`
+* `vs` as `logical`
+
+4. Read in the `scotland.txt` file using the appropriate function. 
+
+5. How do you read text into a one element character vector?
+
+6. Read in the `steam-200k-sample.csv` file. Fix any problems you may encounter. 
+
+7. Read in the `historic_eu_payments.tsv` file. 
+
+8. How do you read lines of text into a multi-element text vector?
+
+9. Read in the `africa_health_data.dta` file using the appropriate method.
+
+10. Read in the JSON file from the following url: http://makemeanalyst.com/wp-content/uploads/2017/06/sample_json.txt
+
+<details>
+<summary>**MVP Answers**</summary>
+
+```{r, eval = FALSE}
+# 1. Read in the `state_income_data.csv` file using the appropriate function. 
+income <- read_csv("data/state_income_data.csv")
+
+# 2. How do you specify your own column names when using `read_csv`?
+col_names =
+
+# 3. Read in the `cars.csv` file and use the 'col_types' function to ensure you load in:
+# `X1` as character, `mpg`, `cyl`, `disp`, `hp` as double, `vs` as logical
+car_data <- read_csv("data/cars.csv", col_types = cols( X1 = col_character(), 
+                     mpg = col_double(),
+                     cyl = col_double(),
+                     disp = col_double(),
+                     hp = col_double(),
+                     vs = col_logical()))
+
+# 4. Read in the `scotland.txt` file using the appropriate function.
+## need to use delim one as it's a delimited file 
+scotland <- read_delim("data/scotland.txt", delim = ";")
+
+# 5. How do you read text into a one element character vector?
+read_file
+
+# 6. Read in the `steam-200k-sample.csv` file. Fix any problems you may encounter. 
+# load in the video games data, and remove the metadata 
+video_games <- read_csv("data/steam-200k-sample.csv",skip = 4)
+
+# 7. Read in the `historic_eu_payments.tsv` file. 
+eu_payments <- read_tsv("data/historic_eu_payments.tsv")
+
+# 8. How do you read lines of text into a multi-element text vector?
+read_lines
+
+# 9. Read in the `africa_health_data.dta` file using the appropriate method.
+library(haven)
+africa_health <- read_stata("data/africa_health_data.dta")
+head(africa_health)
+
+# 10. Read in the json file from the following url: http://makemeanalyst.com/wp-content/uploads/2017/06/sample_json.txt
+
+library("rjson")
+sample_json_data <- fromJSON(file="http://makemeanalyst.com/wp-content/uploads/2017/06/sample_json.txt")
+```
+</details>
+
+# Extension
+
+A lot of Excel sheets you will encounter will contain more than one sheet. Try to write some code that reads in all the different sheets in the file `green_bindle_consulting.xlsx`. 
+
+[**Hint**: you will need to write a `for` loop]
+
+<details>
+<summary>**Extension Answers**</summary>
+
+```{r, eval = FALSE}
+
+library(readxl)
+
+## Method 1 - loops & naming the sheets 'data_sheet_1' etc.
+num_sheets<-length(excel_sheets("data/green_bindle_consulting.xlsx"))
+
+for(i in 1:num_sheets) {
+  assign(paste0("data_sheet_",i), data.frame(read_excel("data/green_bindle_consulting.xlsx", 
+                                                sheet = i)))
+}
+## Method 2 - loops & naming the sheets the names of the tabs.
+name_sheets<-excel_sheets("data/green_bindle_consulting.xlsx")
+num_sheets<-length(name_sheets)
+
+for(i in 1:num_sheets) {
+  assign(name_sheets[i], data.frame(read_excel("data/green_bindle_consulting.xlsx", 
+                                                        sheet = i)))
+  }
+
+
+## Method 3 - lappy & naming the sheets the names of the tabs.
+name_sheets<-excel_sheets("data/green_bindle_consulting.xlsx")
+num_sheets<-length(name_sheets)
+
+all_tabs <- lapply(name_sheets, function(x) read_excel("data/green_bindle_consulting.xlsx", sheet = x))
+names(all_tabs)<-name_sheets
+#list2env(all_tabs, globalenv()) #may not be necessary to do this step - may want to just call each element of the list
+
+## Method 4 - start with a list and loop through assigning elements of the list
+all_tabs <- list()
+name_sheets<-excel_sheets("data/green_bindle_consulting.xlsx")
+
+for(sheet in name_sheets) {
+  all_tabs[[sheet]] <- data.frame(read_excel("data/green_bindle_consulting.xlsx", 
+                                                    sheet = sheet))
+}
+
+

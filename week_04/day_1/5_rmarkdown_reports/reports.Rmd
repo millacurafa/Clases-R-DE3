@@ -1,0 +1,91 @@
+---
+title: "Rmarkdown reports"
+author: "Stephanie Boyle"
+date: "10/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Dirty Data Project
+
+## Dataset 1 : Decathalon data
+
+Here is my report about my first dataset. Let's start at the beginning... 
+
+
+### Cleaning notes
+
+
+The dataset I used was `this_one.csv`. To clean it I did the following :
+
+1. Cleaned this...   
+2. Cleaned that... 
+3. And finally this... 
+
+Here is my code:
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+
+```
+
+```{r}
+student_sleep_data <- sleep
+
+student_sleep_data %>% 
+  summarise(mean(extra))
+
+```
+
+
+And here is my plot, which I will hide the code for but print the graph: 
+
+```{r, echo = FALSE}
+plot(student_sleep_data$extra)
+```
+
+
+
+Here is some code that I want to display, but not run:
+
+```{r, eval = FALSE}
+print(student_sleep_data)
+```
+
+
+Now finally, here is a table I've drawn up. 
+  
+  
+Table Header | Second Header
+------------ | -------------
+Table Cell   | Cell 2
+Cell 3       | Cell 4 
+
+
+
+
+# Some accompanying pics
+
+You can add any pictures to your notes either like this:
+
+![](images/mind-blown.jpg)  
+
+or like this...   
+  
+
+
+![](https://www.dictionary.com/e/wp-content/uploads/2018/03/mind-blown.jpg)  
+
+  
+
+You can add a gif like this   
+
+
+![](http://www.reactiongifs.com/r/2013/10/tim-and-eric-mind-blown.gif)
+
+and you can add links to useful websites
+
+[Can add links to useful websites like this](https://rmarkdown.rstudio.com/gallery.html)

@@ -1,0 +1,220 @@
+---
+title: "Classifying and defining data"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+```
+
+# Learning Objectives
+
+* Awareness of different classifications of data
+* Know how to define and document data
+
+**Duration - 30 minutes**
+
+# Data Classifications
+
+There are a number of other different classifications of data:
+
+1. **Metadata:** data about data  
+2. **Reference Data:** lookup data - i.e. the raw data that you can go back to and check everything from.    
+3. **Master Data:** the core data that is essential to operations in a specific business or business unit.    
+4. **Transactional Data:** records of everything that happens.  
+5. **Conditional Data:** business contextual master data.  
+6. **Analytical Data:** "Big Data" - storing absolutely everything else.  
+
+Let's look at each of these in more depth.  
+<br>
+
+## Metadata
+
+Metadata is data that defines and describes the characteristics of other data. It is sometimes stored in a data dictionary, or even in a structured dataset of its own.
+
+Let's identify some metadata:
+
+<blockquote class='task'>
+**Task** 
+
+Open the 2 Game of Throne files and data dictionary 
+
+Where is the metadata in these files?
+
+<details> 
+<summary>**Solution**</summary>
+
+* In the data dictionary
+* See how the dictionary describes the type, description and sometimes the content of the data
+</details>
+</blockquote>
+
+## Reference data
+
+Reference data is data that is referenced by other data, often as lookup of valid values. These datasets do not (and should not) change often. When they are changed, that should be tightly controlled. Often this data has a master or unique code that references it back to a master file where additional data is stored.
+
+Examples of reference data are:
+* Country codes: code, description, dialling code, etc
+* Currency codes: code, description, country code, etc.
+* UK address list (PAF)
+* UK Phone numbers
+
+Whenever you have a drop-down list in an application, it comes from a reference data source.
+
+<blockquote class='task'>
+**Task - 5 minutes** 
+
+Go online and find your own examples of reference data, the more bizarre the better.
+
+<details> 
+<summary>**Hint**</summary>
+
+Google ISO codes and see what you find
+
+Have a look at different lists of acceptable titles - some include "Lord" and "Countess" whilst others insist you stick to "Mr / Mrs / Ms"
+It says a lot about an organisation's culture from their standard list of titles.
+
+</details>
+</blockquote>
+
+<blockquote class='task'>
+**Task** 
+
+Where is there reference data in the GoT file?
+
+Which file contains entirely reference data?
+
+<details> 
+<summary>**Solution**</summary>
+
+One example is the religion field, i.e. there is a group of acceptable values which have been documented in the data dictionary
+
+The episode data file is actually entirely reference data. It contains the full list of episodes, which will not change and can be used as a lookup for the character data file.
+
+</details>
+</blockquote>
+
+
+## Master data 
+
+Master data is relatively static data that is referenced elsewhere.
+There are the “big 5” master data domains are:
+
+* **Customer** – who you sell to
+* **Supplier** – who you buy from
+* **Product** – what you buy, sell, make, stock
+* **Finance** – how you report your finances
+* **People** – who you employ or interact with
+
+All these will be referenced elsewhere within your business systems.
+
+An example is your mobile phone account with your customer number, phone number, address and payment details.
+
+<blockquote class='task'>
+**Task** 
+
+Think of another example of master data in your daily life
+
+<details> 
+<summary>**Hint**</summary>
+
+Where do you have customer numbers or need an email to log in to an application?
+
+</details>
+</blockquote>
+
+## Transactional Data
+
+These are records of everything that happens. It is generally very high volume.
+
+For your mobile phone account is is a record of every call that is made, the time of the call, the recipient number and the call length. But it will also reference your customer number, phone number, recipient number, which are master data.
+
+For the GoT data, it is a record of every death that occurs in the show.
+
+<blockquote class='task'>
+**Task** 
+
+Where do you create transactional data on a system?
+
+<details> 
+<summary>**Hint**</summary>
+
+The internet of things is creating lots of transactional data all the time. What devices do you have connected to it?
+
+</details>
+</blockquote>
+
+## Conditional data
+
+This is the data that sits between master and transactional data. It needs to be kept under strict control as it can impact business performance, but changes more regularly than master data.
+
+An example would be a price list. You might agree a fixed price list with a customer for a period of time. When they place an order the date is checked and if within the time period of a discount they get a cheaper price, if not they get a more expensive price. Hence the outcome is **conditional** on this data.
+
+Other examples might be loyalty discount codes or special deal eligibility. Another example is currency exchange rates. This is a form of reference data but does have a high rate of change and would therefore not be stored in the master data.
+
+<blockquote class='task'>
+**Task** 
+
+Can you think of another example of conditional data?
+
+</blockquote>
+
+## Analytical Data
+
+In its raw state it is very high volume. It will often need to be aggregated or summarised to make it useful. This might be to make the analysis more manageable, or for privacy reasons.
+
+
+<br> 
+
+# Defining data
+
+Writing good data definitions requires practice. Badly written definitions can lead to confusion and misunderstanding, which defeats the purpose of writing them in the first place. Best practices exist to help us write better definitions, that are accurate and clearly understood.
+
+The definition should explicitly describe and explain the meaning of the data element, data entity or concept represented and careful to describe context in which the term is used.  
+
+A well-formed definition should be:
+
+* **Concise:**  Described as succinctly as possible. 
+* **Precise:**  Described using unambiguous words when possible. 
+* **Non-Circular:**  The term being described should not be used in the definition. 
+* **Distinct:**  Described in a way that differentiates this data element, data entity or concept from others. 
+* **Unencumbered:**  The definition should not refer to physical location or how it is created. 
+
+
+You should also always try to include the context (when possible). This helps make data definitions clearer for others.  This could include:  
+
+* **Broader Term:** The class of the thing being defined, often using the "IS A" relationship. (A school **is an** organization.) 
+* **Distinguishing Characteristics:**  Attributes that differentiate the thing being defined from other things in the same class often using the "HAS A" relationship.  (A school **has an** academic program.) 
+* **Function Qualifier:** A description of how the thing being defined is used or its core functionality, often using a "USED FOR" relationship.  (A school **is used for** educating students.)
+
+All definitions should start with the restating of the term (“An Employee is…”) and be written as complete sentences.  These recommendations reduce the risk of ambiguity (especially when the definition is copied to another location) and improve the readability and understandability of the content. Additionally, this practice helps to point out any potential circular definitions.
+
+Here are some examples of good and bad definitions.
+
+| Term               | Bad                                                                                                   | Good                                                                                                                                                                             | Comments                    |
+|--------------------|-------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------|
+| governance process | identifies decision makers and the process and information required for a decision                    | a governance process is a process by which appropriate decision makers use relevant information to make decisions regarding a change or solution, including means for obtaining approvals and priorities | Start with a noun           |
+| developer          | a developer is responsible for the engineering of solutions                                           | a developer is a professional responsible for the engineering of solutions                                                                                                                      | Avoid circular definitions  |
+| evaluation         | an assessment                                                                                         | an evaluation is the result of assessing, judging, appraising, or interpreting something                                                                                                          | Avoid synonyms              |
+| analyst            | a generic name for a role with the responsibility for gathering and assimilating data or requirements | an analyst is a professional responsible for gathering and assimilating data or requirements                                                                                                   | Start broad and then refine |
+| actor              | a human or nonhuman role that plays a part in a process                                               | an actor is a human, device, or system that plays a part in a process                                                                                                                        |                             |
+
+
+	
+<blockquote class='task'>
+**Task - 10 minutes** 
+
+Write out a high quality definition for each of the following data items:
+
+* customer_name
+* email_address
+* customer_start_date
+
+</blockquote>

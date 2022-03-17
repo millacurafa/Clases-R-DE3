@@ -1,0 +1,370 @@
+---
+title: "Shiny Lab - Answers"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Mhairi McNeill"<br>
+date: "24/06/2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+**Learning Objectives**<br>
+
+* Get practice applying everything you've learnt about Shiny apps
+* Get used to creating an app from a design.
+
+**Duration - 3 hours**<br>
+
+In this lab you are going to be shown several apps, and we want you to recreate them as closely as you can. Throughout this lab you'll use the `students_big` dataset from the Code Clan Data package. You can think of the image you see as the first stage in our workflow - creating a diagram. Go though the other stages and build up the app.
+
+# Height and Arm Span vs Age
+
+In this app we are plotting two histograms that show the height and arm-span for children of different ages, as chosen by radio buttons on the top of the app.
+
+Hints:
+
+- Use `radioButtons` with `inline = TRUE`, to get horizontal radio buttons.
+- This app uses `fluidRow` and `column`
+- Both plots use the same data. Can you use `reactive` to make this efficient?
+
+```{r, eval = FALSE}
+library(CodeClanData)
+library(ggplot2)
+library(dplyr)
+library(shiny)
+
+ui <- fluidPage(
+  radioButtons("age", "Age", choices = sort(unique(students_big$ageyears)), inline = TRUE),
+  fluidRow(
+    column(6,
+      plotOutput("height")
+    ),
+    column(6,
+      plotOutput("arm_span")
+    )
+  )
+)
+
+server <- function(input, output) {
+  
+  filtered_df <- reactive({
+    students_big %>%
+      filter(ageyears == input$age)
+  })
+  
+  output$height <- renderPlot({
+    ggplot(filtered_df()) +
+      aes(x = height) +
+      geom_histogram()
+  })
+  
+  output$arm_span <- renderPlot({
+    ggplot(filtered_df()) +
+      aes(x = arm_span) +
+      geom_histogram()
+  })
+
+
+}
+
+shinyApp(ui, server)
+```
+
+# A customisable scatter plot
+
+Here we are going to change attributes of a scatter plot, without changing the data used to make the scatter plot.
+
+Hints:
+
+- Use a named list inside an input, to display different values that the input takes. For example, for our colour input you will want `choices = c(Blue = "#3891A6", Yellow = "#FDE74C", Red = "#E3655B")`
+- The choices for shape are: Square = 15, Circle = 16, Triangle = 17. You will need to force the the input value to be numeric inside the graph. Outputs of `selectInput` are character by default. 
+- `ggtitle` is the easiest way to add the title to 
+- This uses the sidebar layout
+
+
+```{r, eval = FALSE}
+library(CodeClanData)
+library(ggplot2)
+library(dplyr)
+library(shiny)
+
+ui <- fluidPage(
+  
+  titlePanel("Reaction Time vs. Memory Game"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      radioButtons("colour",
+        "Colour of points",
+        choices = c(Blue = "#3891A6", Yellow = "#FDE74C", Red = "#E3655B")
+      ),
+
+      sliderInput("alpha",
+        "Transparency of points",
+        value = 0.7,  max = 1, min = 0
+      ),
+      
+      selectInput("shape",
+        "Shape of Points",
+        choices = c(Square = 15, Circle = 16, Triangle = 17)
+      ),
+      
+      textInput("title",
+        "Title of Graph",
+        value = "Reaction Time vs. Memory Game"
+      )
+    ),
+
+    mainPanel(
+      plotOutput("scatter_plot")
+    )
+  )
+)
+
+
+server <- function(input, output) {
+  
+  output$scatter_plot <- renderPlot({
+    
+    ggplot(students_big) +
+      aes(x = reaction_time, y = score_in_memory_game) +
+      geom_point(
+        colour = input$colour,
+        alpha  = input$alpha,
+        shape  = as.numeric(input$shape)
+      ) +
+      labs(title = input$title)
+    
+  })
+
+}
+
+shinyApp(ui, server)
+```
+
+# Three different plot options
+
+The app has three different options to show the same data: a bar chart, a pie chart and a stacked bar chart.
+
+Hints:
+
+- You will need to use if-statements inside server to do this. You can use if statements inside `renderPlot`. Remember that the last thing `renderPlot` should return is the plot you want to make.
+
+```{r, eval = FALSE}
+library(CodeClanData)
+library(ggplot2)
+library(dplyr)
+library(shiny)
+
+ui <- fluidPage(
+  
+  radioButtons("type",
+    "Plot Type",
+    choices = c("Bar", "Pie Chart", "Stacked Bar")
+  ),
+  
+  plotOutput("plot")
+   
+)
+
+server <- function(input, output) {
+  
+  output$plot <- renderPlot({
+    
+    if (input$type == "Bar"){
+      
+      plot <- 
+      ggplot(students_big) +
+        aes(x = gender, fill = gender) +
+        geom_bar()
+      
+    }
+    
+    if (input$type == "Pie Chart"){
+      
+      plot <- 
+      ggplot(students_big) +
+        aes(x = 1, fill = gender) +
+        geom_bar() +
+        coord_polar("y")
+      
+    }
+    
+    if (input$type == "Stacked Bar"){
+      
+      plot <-
+      ggplot(students_big) +
+        aes(x = 1, fill = gender) +
+        geom_bar() 
+      
+    }
+    
+    plot
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+
+# An app with tabs
+
+This Shiny application has tabs, here's how it looks in both tabs:
+
+Hints:
+
+- There's lots of different regions in this data set. You will probably want to use `unique` to find the different regions in the data to use in the input.
+- The plots and tables don't update until the button "Update Plots and Table" is pressed.
+- The plot and the data both use the same dataset.
+- The table in the data table uses `dataTableOutput`.
+- The two plots here are done with two separate plot outputs. However, it would be possible to create this using faceting.
+- This app uses sidebar layout, tab panels and fluid row (for the plots).
+
+
+```{r, eval = FALSE}
+library(CodeClanData)
+library(ggplot2)
+library(dplyr)
+library(shiny)
+
+ui <- fluidPage(
+  
+  titlePanel("Comparing Importance of Internet Access vs. Reducing Pollution"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("gender",
+                  "Gender",
+                  choices = c(Male = "M", Female = "F")
+      ),
+      
+      selectInput("region",
+                  "Region",
+                  choices = unique(students_big$region)
+      ),
+      
+      actionButton("go", "Generate Plots and Table")
+      
+    ),
+    
+    mainPanel(
+      tabsetPanel(
+        tabPanel("Plots",
+                 fluidRow(
+                   column(6, plotOutput("internet_access")),
+                   column(6, plotOutput("reducing_pollution"))
+                 )
+    
+        ), 
+        
+        tabPanel("Data",
+                dataTableOutput("table") 
+        )
+        
+      )
+    )
+  )
+)
+  
+
+server <- function(input, output) {
+  
+  filtered_data <- eventReactive(input$go, {
+    students_big %>%
+      filter(gender == input$gender) %>%
+      filter(region == input$region) %>%
+      select(
+        region,
+        gender,
+        importance_internet_access,
+        importance_reducing_pollution
+      )
+  })
+  
+  output$internet_access <- renderPlot({
+    ggplot(filtered_data()) +
+      aes(x = importance_internet_access) +
+      geom_histogram()
+  })
+  
+  output$reducing_pollution <- renderPlot({
+    ggplot(filtered_data()) +
+      aes(x = importance_reducing_pollution) +
+      geom_histogram()
+  })
+  
+  output$table <- renderDataTable({
+    filtered_data()
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+
+# A trickier one - how do we change `ggplot2` variables?
+
+Here we have a basic app with only one plot. What's tricky is that we can choose between plotting each of the 6 "importance" variables.
+
+Hints:
+
+- When you select a variable using `selectInput`, it returns a string instead of a name.
+- If you use `aes_string` instead of `aes`, then you can accept strings instead of name in `ggplot`.
+- This plots are made with `geom_density`, with `alpha = 0.5`.
+- For more complicated situations like this - when you are working with names, rather than values - you might need to learn about `tidyeval`. 
+- Here's some resources on `tidyeval` if you are interested:
+  * short video https://www.youtube.com/watch?v=nERXS3ssntw
+  * section of book https://tidyeval.tidyverse.org/sec-why-how.html 
+
+
+```{r, eval = FALSE}
+library(CodeClanData)
+library(ggplot2)
+library(dplyr)
+library(shiny)
+
+ui <- fluidPage(
+  
+  selectInput("variable",
+              "Which variable to plot?",
+              choices = c(
+                "importance_reducing_pollution",
+                "importance_recycling_rubbish",
+                "importance_conserving_water", 
+                "importance_saving_enery",
+                "importance_owning_computer",
+                "importance_internet_access"
+              )
+  ),
+  plotOutput("plot")
+)
+  
+
+server <- function(input, output) {
+
+  
+  output$plot <- renderPlot({
+    
+    ggplot(students_big) +
+      aes_string(x = input$variable, fill = "gender") +
+      geom_density(alpha = 0.5)
+    
+  })
+  
+}
+
+shinyApp(ui, server)
+```
+
+

@@ -1,0 +1,290 @@
+---
+title: "Packages and Help"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+# Learning Objectives
+
+* Know how to install R packages from CRAN
+* Understand how to use packages and functions in R
+* Know how to use the RStudio help file function
+
+**Lesson Duration: 1 hour**
+
+As we discussed earlier, one of the strengths of R is the huge ecosystem of packages available.
+
+Using an R package gives you access to extra functions and data. 
+
+# Installing a package
+
+* Before you start, remember to set-up a project.
+
+You can think about a package the same way as any piece of software that comes from the internet. Before you can use the software you need to download and install it. 
+
+To install a package we use the function `install.packages`:
+
+```{r, eval = FALSE}
+install.packages("RXKCD")
+```
+
+We only need to install a package once. Once it's installed we can tell R that we want to use it like this
+
+```{r}
+library(RXKCD)
+```
+
+Note
+
+- You only need to do the first step once! Once a package is installed you don't need to install it again. You can think of installing the package as being like downloading and installing RStudio. Once you've done that once you then need only to click on it to open. In a sense, calling the `library()` function is the equivalent of clicking on a program. 
+
+- You need quotes ("") for installing a package, but not for loading it.
+
+# Using a package
+
+Once you've installed a package and loaded the library, all the functions in that library are available for you to use.
+
+For example, `searchXKCD()` and `getXKCD()` are two functions from inside the `RXKCD` package. 
+
+- `searchXKCD()` searches through XKCD comics and finds comics that have the string you search for in their title or transcript.
+
+- `getXKCD()` gets an XKCD comic by number and displays it for you.
+
+Let's try this out now. Remember to use your keyboard shortcuts for creating and running a code chunk.
+
+```{r}
+searchXKCD("data")
+```
+
+```{r, results="hide"}
+getXKCD(373)
+```
+
+Now, let's restart the R session. This "refreshes" R, and will remove all the packages we've loaded in using `library`.
+
+* Go to Session > Restart R
+
+Now try to run the two chunks again. 
+
+We have errors because R doesn't know about the two functions any more.
+
+## Why do we need packages?
+
+<blockquote class = 'task'>
+
+**Task - Class Discussion - 5 minutes**
+
+Why do we need to load packages? Couldn't we have every function from every package already loaded in R?
+
+</blockquote>
+
+Let's install a new package.
+
+```{r, eval = FALSE}
+install.packages("lubridate")
+```
+
+```{r}
+library(lubridate)
+```
+
+The warning message you saw says that an "object" is "masked".  What does this mean? When you loaded the `lubridate` package, the inbuilt functions `date()` in R is overwritten by one from `lubridate` with the same name. Basically, there are only so many different names that functions can have!
+
+It's easy to arrive at a situation where you expect to be using a certain function, but actually end up with a different one from another package if you have too many packages loaded.
+
+You can check which functions are being masked by calling the function `conflicts()`.
+
+```{r}
+conflicts()
+```
+
+## The `packages` panel
+
+In the bottom left quadrant of RStudio of the tabs is the `Packages` panel. It shows you which packages you have installed. Clicking on a package will take you to the help files for that package.
+
+You can install packages or update packages using the commands at the top of the panel. You can also load a package by clicking on the tick box next to the package. However, we would strongly recommend loading packages by using `library()` calls in your scripts. It can be easy to forget which packages you've loaded, and your analysis won't run the next time you open it without the packages loaded. 
+
+## The base package
+
+The R functions that come without installing any packages make up what is normally called "base R". There are actually several core packages that make up the base including `base`, `stats` and `methods` (that"s why the warning talks about "package:base"). 
+
+## Warnings vs. errors
+
+The red message that you saw when you loaded the `lubridate` package was a **warning**. This is R telling you there is a problem, but not so big a problem that it couldn't run the code!
+
+The red message that you saw after refreshing and trying to run the functions from `RXKCD` was an **error**. Here R is telling you about a problem that's so big that it can't run the code.
+
+## Using a function from a package
+
+If you only need to use a function or two within a package then you can specify a specific function by using a double colon
+
+```{r eval=FALSE}
+RXKCD::searchXKCD("data")
+```
+
+* Restart your R session again so that `RXKCD` definitely isn't loaded and try running the function above using double colon notation.
+
+```{r, results="hide"}
+RXKCD::getXKCD(605)
+```
+
+This time the function will run, even though `RXKCD` isn't loaded, because we specified which package the function was in. 
+
+# Getting help
+
+Every function (including all the base R functions and functions within packages) has a help file associated with it. Sometimes you might hear this described as looking up the 'docs' or 'documentation' of a function. If you aren't sure how to use a function, you can look up the help file by inserting a question mark before the function name.
+
+```{r}
+?median
+```
+
+Note that you don't need to insert round brackets after the function name: this is because you are not **executing** the function here, you are just using the name of the function.
+
+The help pages for functions can be a little overwhelming if you're not used to reading them. Let's break down the help file for `median()` as an example.
+
+- **Description** - All help files start with a description of the function. Sometimes these can be a little difficult to understand.
+
+- **Usage** - This is one of the most useful parts of a help page. It shows you the function with all the arguments available. 
+
+Arguments **without** an equals sign `=` are mandatory, you have to give them a value.
+
+Arguments **with** an equal sign afterwards are optional, if you don"t specify them they will **default** to the value after the equals sign. 
+
+- **Arguments** - This gives you more detail about the arguments that can be passed into the function: in particular, what type of object they need to be.
+
+- **Details** - This gives extra information about the function. Sometimes this section is very useful.
+
+- **Value** - This tells you what type of object the function will return. 
+
+- **Examples** - This can be the most useful part of the help file. This shows you some examples of the function being used. Sometimes it is  to start with this part of the help file.
+
+You can also get help about any of the inbuilt datasets.
+
+```{r}
+?mtcars
+```
+
+Look at the help file for `min`. What do you notice?
+
+```{r}
+?min
+```
+
+Sometimes functions share their help files with other functions, particularly if the functions share related concepts or ideas.
+
+## Help for a package
+
+Each package has it's own help page too:
+
+```{r}
+help(package = "RXKCD")
+```
+
+<blockquote class = 'task'>
+
+**Task - 10 minutes**
+
+Using the package `beepr`, get R to play the noise of a fanfare. You will need to read the help files to do this.
+
+<details>
+<summary>**Solution**</summary>
+
+```{r, eval=FALSE}
+install.packages("beepr")
+```
+
+```{r, eval=FALSE}
+library(beepr)
+beep("fanfare")
+```
+
+</details>
+</blockquote>
+
+
+# The course data package
+
+We've put together a special R package, which contains just datasets that you'll be using in the course. You need to install the data package in a slightly different way from usual, because it is stored on GitHub and not on CRAN (the central official hub for R packages). 
+
+Luckily, the installation is still very easy. First you need to install `devtools`.
+
+```{r, eval=FALSE}
+install.packages('devtools')
+```
+
+Then use the function `install_github()` from the `devtools` package.
+
+```{r, eval = FALSE}
+devtools::install_github('codeclan/CodeClanData')
+```
+```{r}
+library(CodeClanData)
+```
+
+To use any dataset in the package, you can just call it by name.
+
+```{r}
+students
+```
+
+# Recap
+
+1. How do you install a package
+
+<details>
+<summary> Solution </summary>
+
+With `install.packages`.
+
+</details>
+
+2. How do you load a package when you want to use it?
+
+<details>
+<summary> Solution </summary>
+
+With `library`
+
+</details>
+
+3. How do you access a single function from a package?
+
+<details>
+<summary> Solution </summary>
+
+With `::`
+
+</details>
+
+4.  How do you access the help files for a function?
+
+<details>
+<summary> Solution </summary>
+
+With `?`
+
+</details>
+
+5. How do you access the help files for a package?
+
+<details>
+<summary> Solution </summary>
+
+With `help(package = )`
+
+</details>
+
+6. For each package, how often do you use `install.packages` and how often do you use `library`?
+
+<details>
+<summary> Solution </summary>
+
+You will only use `install.packages` once, `library` every time you use the package.
+
+</details>

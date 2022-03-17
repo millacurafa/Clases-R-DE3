@@ -1,0 +1,472 @@
+---
+title: "Creating and writing to a PostgreSQL database"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "5th June 2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives<br>
+
+* Be able to create a PostgreSQL database on your local machine
+* Be able to put data into the database
+
+**Duration - 60 minutes**<br>
+
+# Introduction
+
+## What is a database?
+
+A database is just somewhere for us to store our data. There are many different shapes and sizes of database. SQL is a language which is often used to query these databases and that's what we will be learning today.
+
+## What do we do with databases?
+
+<blockquote class='task'>
+**Task - 2 mins** Have a think about and discuss with the people around you some examples of data you might store in a database.
+<details>
+<summary>**Solution**</summary>
+The possibilities are truly vast: customers and customer orders. Climate sampling sites and climate data gathered there.
+</details>
+</blockquote>
+
+ What sorts of manipulations do we make to data in databases?
+
+ - **Create** (at some point, usually before we are involved, data goes into a database)
+ - **Read** (we need to get data out to perform analyses)
+ - **Update** (occasionally, we may need to be able to change data)
+ - **Delete** (occasionally, we need to be able to remove data from our database)
+
+We refer to these four operations as "CRUD". As data analysts, we are naturally most interested in **Read**ing from databases: we want to import data into an analysis environment and produce useful and actionable insights. But, we'll briefly show you how to perform the other three operations, just so you have seen them in action! 
+
+> Tick off 'CRUD' as we go through the commands
+
+## What is SQL?
+
+"SQL" stands for "Structured Query Language" (pronounced either as "ess-queue-ell" or "sequel"). There are number of different 'versions' of SQL in common use: some freely available and others proprietary. PostgreSQL is an open source object-relational database system, and this is the SQL version we will be using on the course, but you should be aware there are lots of different versions out there: MySQL, Oracle, SQL Server etc...
+
+The core functionality of each of the versions tends to be the same, and it's really only core functionality we'll be looking at here!
+
+`psql` is the command line interface to PostgreSQL. To check that `psql` is installed, we can type this at the terminal
+
+```bash
+# terminal
+which psql
+```
+
+> If there are any issues with running `psql`, ensure that the `postgresapp` is installed and running (it should have been configured in installfest), and that the path is updated to include it - launch `psql` from the system icon, and note the path used.
+
+```bash
+# terminal
+psql
+```
+
+To quit the sql terminal
+
+```sql
+-- psql terminal
+\q
+```
+
+## Database structure
+
+In SQL, a database is a collection of **tables**. A table is a collection of **columns** and **rows**.
+
+* A table describes the type of item that we want to store. 
+* A column represents some information we might find interesting about that item. 
+* A row is the physical data we want to save.
+
+For example, we might have a `zoo` database with a table called `animals`. The `animals` table might have the columns `name`, `age` and `species`, and we'll also add in an `animal_id` column to keep track of individual animals. The `animals` table would then have rows of data like:
+
+| `animal_id` | `name` | `age` | `species` |
+| --- | --- | --- | --- |
+| 1 | Leo | 12 | Lion |
+| 2 | Tony | 8 | Tiger |
+| 3 | Matilda | 6 | Cow |
+| 4 | Bernice | 12 | Bear |
+
+Note: a column is sometimes referred to as a **field**, but they mean the exact same thing.
+
+## Table relationships
+
+Often the tables in a database are **related** to each other in some fashion, and in fact people often use the terms 'SQL database' and 'relational database' interchangeably, as virtually all relational databases use SQL.
+
+Let's see an example of a relationship. Imagine we expand our `zoo` database by adding a `diets` table to help the zookeepers track what to feed each animal.
+
+| `diet_id` | `diet_type` |
+| --- | --- |
+| 1 | herbivore |
+| 2 | carnivore |
+| 3 | omnivore |
+
+So far so good. But now we need to say **which diet each animal should receive**.
+
+<blockquote class='task'>
+**Task - 2 mins** Think of the two tables we have in the database so far: `animals` and `diets`. Can you see how to change the database to indicate which diet each animal in the `zoo` should receive?
+<details>
+<summary>**Hint**</summary>
+We need to add something to the `animals` table. Can you think what?
+</details>
+<details>
+<summary>**Solution**</summary>
+We need to **add an extra column** to the `animals` table, like so
+
+| `animal_id` | `name` | `age` | `species` | `diet_id` |
+| --- | --- | --- | --- | --- |
+| 1 | Leo | 12 | Lion | 2 |
+| 2 | Tony | 8 | Tiger | 2 |
+| 3 | Matilda | 6 | Cow | 1 |
+| 4 | Bernice | 12 | Bear | 3 |
+
+This establishes a **relationship** between the two tables! Every row in the `animals` table is now linked to a row in the `diets` table.
+</details>
+</blockquote>
+
+<hr>
+
+# Creating databases and tables
+
+To work with data in databases we perform the four CRUD operations. We'll work through the SQL commands that give us that functionality.
+
+## Creating a database
+
+Before we can do anything though, we need to create a table to store our records in. But before we can create a table, we have to create a database to put it in!
+
+```sql
+-- psql terminal
+CREATE DATABASE star_wars; -- REMEMBER SEMI COLON
+\q
+```
+
+Another, much more convenient way to create or delete a database is through the terminal:
+
+```bash
+dropdb star_wars
+createdb star_wars
+```
+## Data Types
+
+So before we run off and create lots of shiny tables, we need to talk about datatypes. You'll be glad to hear they roughly match up to what we have already seen in R. There are many data types we can use in SQL - the most common we will be using are:
+
+* VARCHAR - fixed length text (string)
+* INT - integer numerical data (4-byte integer)
+* REAL - continuously valued numerical data (8-byte floating point)
+* BOOLEAN - true / false data (TRUE, FALSE, booleans)
+* TIMESTAMP - date and time information
+
+We can pass arguments to VARCHAR to say how large we want the data in the field to be as a maximum.
+
+## Creating tables
+
+By convention, we will name our database tables as the plural of the thing we are creating. So rows of animal data would be stored in a table called `animals`. Sheep would be stored in a table called... well, `sheep`, but you might want to call it `sheeps` to make it clear it's a table holding data on multiple sheep. Sometimes grammar has to suffer for technical clarity!
+
+Let's make a table that's going to store data about Star Wars characters. A character might have the following attributes:
+
+- name
+- darkside (true / false)
+- age
+
+<blockquote class='task'>
+**Task - 2 mins** Have a think about what data type each of these columns will be.
+<details>
+<summary>**Solution**</summary>
+name - VARCHAR<br>
+darkside - BOOLEAN<br>
+age - INT<br>
+</details>
+</blockquote>
+
+Before we create a table, we will drop it so that we can run our script multiple times. PostgreSQL won't let you create a table that already exists.
+
+```bash
+# terminal
+touch star_wars.sql
+```
+
+We can use the following template every time we create a new database table:
+
+```sql
+DROP TABLE table_name;
+
+CREATE TABLE table_name (
+  column_name1 DATA_TYPE,
+  column_name2 DATA_TYPE,
+  column_name3 DATA_TYPE
+)
+```
+
+So, in our case, it would look like this:
+
+```sql
+-- star_wars.sql
+DROP TABLE characters;
+
+CREATE TABLE characters (
+  name VARCHAR(255),
+  darkside BOOLEAN,
+  age INT
+);
+```
+
+- What is our table called?
+- What are the names of our columns?
+- What are the size constraints?
+
+There is a special command that we can run from the terminal to execute PostgreSQL scripts.
+
+```bash
+# terminal
+psql -d star_wars -f star_wars.sql
+```
+
+Flag `-d` tells `psql` which database to apply the script to, and flag `-f` says which file the script is stored in. We put the `.sql` extension on the end by convention: it helps us to know what's stored in a file without having to open it!
+
+We will write all of our statements in the one file and comment them out, so you can see the history of what we are working through.
+
+<hr>
+
+# Creating (**C**-RUD)
+
+We're going to start with the C in CRUD but first let's learn the SQL statement that you'll probably use most of all!
+
+```sql
+-- star_wars.sql
+SELECT * FROM characters;
+```
+
+This says "get everything from the `characters` table". The `*` means 'all the fields'.
+
+To "create" records in SQL, we use the `INSERT` command. The template for creating entries is the following:
+
+```sql
+INSERT INTO table_name (column_name1, column_name2) VALUES (value1, value2);
+```
+
+Let's create some characters!
+
+```sql
+-- star_wars.sql
+-- REMEMBER SEMI COLONS!
+-- We're going for prequel-era Star Wars here
+INSERT INTO characters (name, darkside, age) VALUES ('Obi-Wan Kenobi', false,  27);
+INSERT INTO characters (name, darkside, age) VALUES ('Anakin Skywalker', false, 19);
+INSERT INTO characters (name, darkside, age) VALUES ('Darth Maul', true, 32);
+
+SELECT * FROM characters;
+```
+
+```bash
+# terminal
+psql -d star_wars -f star_wars.sql
+```
+<br>
+<div class='emphasis'>
+We call this process of inserting lots of records at once **seeding** the database. 
+</div>
+
+<br>
+A few points on what we just did:
+
+* Note that the `INSERT 1 0` is telling us that 1 row was inserted with an id of 0 (more on id later).
+* We need to be careful with quotation marks in PostgreSQL - we should always use single quotes. Single quotes behave in the sensible way we'd expect - they define text. Double quotes are reserved for system operations. Try not to worry too much about this, just remember to use single quotes when dealing with data.
+* If we ever need to use a quotation mark or apostrophe in our inserted text, we need to escape it with a backslash or use two of them.
+* We stick to the usual convention and use uppercase for SQL keywords and lowercase for our own terms. It's not mandatory but it makes it easier to read.
+* If we had omitted a column in the `INSERT`, e.g.<br>
+```
+INSERT INTO characters (name, darkside) VALUES ('Boba Fett', false);
+```<br>
+the missing column will contain a `NULL` value. In this case Boba Fett's age would be `NULL`.
+
+<hr>
+
+# Reading (C-**R**-UD)
+
+
+This is the R in CRUD. We give only a brief introduction here, as a more detailed lesson is coming up!
+
+We have been 'reading' records with the `SELECT` command.
+
+```sql
+-- star_wars.sql
+SELECT * FROM characters;
+```
+
+The star tells PostgreSQL that we want **all** of the fields returned. If we instead said:
+
+```sql
+-- star_wars.sql
+SELECT name FROM characters;
+```
+
+then only the `name`s will be returned by the query.
+
+<hr>
+
+# Updating (CR-**U**-D)
+
+This is the U in CRUD.
+
+We use the `UPDATE` command to change the values in existing records. 
+
+Template:
+```sql
+UPDATE table_name SET column_name1 = new_value1;
+```
+
+Let's update the darkside column to true!
+
+```sql
+-- star_wars.sql
+UPDATE characters SET darkside = true;
+```
+
+```bash
+# terminal
+psql -d star_wars -f star_wars.sql
+```
+
+Note that it says `UPDATE 3` - what does this mean?
+
+This has updated all our records (3 of them). But what if we want to update only certain records? We can use a `WHERE` clause to achieve this.
+
+```sql
+-- star_wars.sql
+UPDATE characters SET darkside = true WHERE name = 'Anakin Skywalker';
+```
+
+```bash
+# terminal
+psql -d star_wars -f star_wars.sql
+```
+
+Here's the full template if we want to update more than one column at once:
+```sql
+UPDATE table_name SET (column_name1, column_name2) = (new_value1, new_value2) WHERE column_name = target_value;
+```
+
+<hr>
+
+# Deleting (CRU-**D**)
+
+This is the D in CRUD.
+
+To delete records we use the `DELETE` clause. But **be careful**, there's no undo! When a record is deleted from a DB it's gone for ever. "Undelete" in the database world is "restore from last night's backup" (if there *was* a backup...)
+
+Template:
+```sql
+DELETE FROM table_name WHERE column_name = target_value;
+```
+
+**SPOILERS** Let's delete Darth Maul
+
+```sql
+-- star_wars.sql
+DELETE FROM characters WHERE name = 'Darth Maul';
+SELECT * FROM characters;
+```
+
+**WARNING**: If you don't specify the row(s) with a WHERE clause, it will delete *everything* in that table!
+
+```sql
+DELETE FROM characters; -- DELETES EVERYTHING FROM CHARACTERS
+```
+
+```bash
+# terminal
+psql -d star_wars -f star_wars.sql;
+```
+
+# Uniquely identifying rows
+
+Very often, as we saw above in the `zoo` example, we will want each row to have a unique identifying number. We can use the unique `id`s of the rows in `WHERE` clauses to make sure that SQL commmands above will affect only a **single row** of the table. 
+
+PostgreSQL can create `id`s automatically for us via a special data type: `SERIAL`. You can think of a `SERIAL` as an integer which **increases in value by one** every time a record is inserted into the table. 
+
+If we also mark the `id` column with the SQL keyword `PRIMARY KEY`, we will prevent any **duplicate values**: this is what makes this column into a **unique** identifier.
+
+Let's see this in action:
+
+```sql
+-- star_wars.sql
+CREATE TABLE characters(
+  id SERIAL8 PRIMARY KEY,
+  name VARCHAR(255),
+  darkside BOOLEAN,
+  age INT
+);
+```
+
+```bash
+# terminal
+psql -d star_wars -f star_wars.sql;
+```
+
+So, now we see every character has a unique `id` provided automatically by PostgreSQL. We can use these `id`s in `WHERE` clauses, as needed, to correctly target SQL commands.
+
+# Recap
+
+* What is the broad structure of a relational database?
+<details>
+<summary>**Answer**</summary>
+A **database** is made up of one or more **tables**. Each table typically has multiple **columns** (AKA 'fields') and **rows** (AKA 'records'). Each record typically corresponds to one stored 'entity', and the columns, to the variables detailing each entity.
+</details>
+
+<br>
+
+* What does 'relational' refer to?
+<details>
+<summary>**Answer**</summary>
+Relational means we have **relationships** between tables. For example, one customer (a record in a 'customers' table) may have many orders (records in an 'orders' table). Relationships are specified using **keys**.
+</details>
+
+<br>
+
+* What is SQL?
+<details>
+<summary>**Answer**</summary>
+SQL stands for 'structured query language'. It is an ANSI standard language for database querying, updating and structuring, with a variety of commercial and open source implementations offering specialised functionality.
+</details>
+
+<br>
+
+* What are the 'CRUD' actions?
+<details>
+<summary>**Answer**</summary>
+This stands for **C**reate, **R**ead, **U**pdate and **D**elete. These are the four main tasks a user performs when interacting with a database. Create inserts a record, Read queries the database, Update changes record(s) and Delete removes record(s). 
+</details>
+
+<br>
+
+* What is PostgreSQL
+<details>
+<summary>**Answer**</summary>
+PostgreSQL is an open ware implementation of SQL.
+</details>
+
+<br>
+
+* What is `psql`?
+<details>
+<summary>**Answer**</summary>
+`psql` is the PostgreSQL **command line interface (CLI)**.
+</details>
+
+<br>
+
+* How do we uniquely identify rows in a relational DB?
+<details>
+<summary>**Answer**</summary>
+Typically by specifying a column as a **primary key**, conventionally an integer named `id`.
+</details>
+

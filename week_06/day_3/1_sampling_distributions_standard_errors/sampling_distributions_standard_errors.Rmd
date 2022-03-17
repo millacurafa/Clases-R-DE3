@@ -1,0 +1,621 @@
+---
+title: "Sampling distributions"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# Learning objectives
+
+* Understand the concepts of:
+  - sampling distribution 
+  - standard error
+* Broadly understand why the central limit theorem is important
+
+
+**Duration - 90 minutes**<br>
+
+<hr>
+
+# Sampling distributions: means
+
+Earlier we mentioned the terms *population* and *sample*, the related concepts of *population parameter* and *sample statistic*, and understood that a statistic is an estimate of a population parameter calculated from a sample.
+
+<div class='emphasis'>
+**Population**: **all** the objects, elements or entities conceivably of interest for a investigative study. We will very rarely have access to data for an entire population.
+
+**Parameters**: properties of the **population**, such as the mean or standard deviation.
+
+**Sample**: a part or subset of the population chosen for the purpose of the study. We sample because it is often impractical or impossible to gather data for entire populations.
+
+**Statistics**: properties of a **sample**, such as the mean or standard deviation.
+</div>
+
+<br>
+
+We're going to look in more detail at the concept of a sampling distribution, i.e. the distribution built up by repeated sampling of a population, calculating some statistic of interest for each sample. 
+
+We're going to use a dataset on customer churn in the telecomms sector. It's pretty rich in variables and contains many observations: this will help us to justify treating this data as a population from which we'll draw smaller samples.
+
+<br>
+<div class='emphasis'>
+**Important note**
+
+We're going to take a data set and **sample** it - i.e. keep a random small fraction of it and throw away the rest. We're doing this purely for teaching purposes: in real life data analysis, **you wouldn't do this**! You would use **all available data**, as this maximises the accuracy of any subsequent analysis. Keep this in mind throughout this and the next few lessons.
+</div>
+<br>
+
+Let's load and explore the data:
+
+```{r, message = FALSE}
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+telco <- read_csv("data/telecomms_churn.csv")
+telco <- clean_names(telco)
+glimpse(telco)
+```
+
+Now, let's get the population parameters for
+
+* the mean of `monthly_charges`
+* the mean `tenure`
+* the proportion of contracts that `churn`
+
+Again, we will be treating the full dataset as if it were our 'population'
+
+```{r}
+summary_popn <- telco %>%
+  summarise(
+    mean_monthly_charges = mean(monthly_charges), 
+    mean_tenure = mean(tenure),
+    prop_churn = mean(churn == "Yes")
+  ) 
+summary_popn
+```
+
+Let's focus on a few variables of interest. We'll visualise the distributions of `monthly_charges` and `tenure`, and the counts of both levels of `churn`
+
+```{r}
+telco %>%
+  ggplot(aes(x = monthly_charges, fill = churn)) + 
+  geom_histogram(col = "white", alpha = 0.7)
+
+telco %>%
+  ggplot(aes(x = tenure, fill = churn)) + 
+  geom_histogram(col = "white", alpha = 0.7)
+
+telco %>%
+  ggplot(aes(x = churn, fill = churn)) + 
+  geom_bar()
+```
+
+We see that `monthly_charges` is bimodal (we have a broad range of charges from approximately €$40$ up to €$115$ and a narrow peak of charges below €$25$). 
+
+Meanwhile `tenure` is not even near normal: it dips downward in the centre of the distribution, indicating that short and long tenures of contract are more probable than intermediate values.
+
+We also see the `churn` proportion is imbalanced: "No" predominates over "Yes" in the dataset.
+
+Now we'll start sampling!  Note that this example is **fictional**. If we had the required details of all the customers in the telecomms sector (i.e. we had knowledge of the complete population), then we wouldn’t need to sample and do statistics! Statistics is a means to let us go 'backward' here: it's saying *'we don't have knowledge of the full population and likely never will, but how reliably can we infer the properties of the population from a much smaller sample?'*
+
+Let's take a random sample of $100$ from the 'population'. We are going to use the **simple random sampling** method (but there are other methods which we will touch on in the next lesson). 
+
+<div class='emphasis'>
+**Simple random sampling (SRS)** - a sampling method in which **every** element of the population has **an equal** probability of being selected into the sample.
+</div>
+<br>
+
+We'll use the `rep_sample_n()` function from the `infer` package to do this.
+
+```{r}
+library(infer)
+sample_100 <- telco %>%
+  rep_sample_n(size = 100, reps = 1)
+sample_100
+```
+
+We have $100$ random rows sampled from `telco`. Note that the sampling function adds a `replicate` column, and this just contains value `1` to indicate that all of these rows belong to the same 'replicate': more on this shortly. The function also `groups` by the `replicate` variable. To see this, use the `dplyr` `groups()` function!
+
+```{r}
+groups(sample_100)
+```
+
+Let's summarise this sample focussing on our three variables of interest.
+
+```{r}
+summary_sample_100 <- sample_100 %>%
+  ungroup() %>%
+  summarise(
+    mean_monthly_charges = mean(monthly_charges), 
+    mean_tenure = mean(tenure),
+    prop_churn = mean(churn == "Yes")
+  ) 
+summary_sample_100
+```
+
+We also call the statistics obtained from the sample **point estimates** of the population parameters: 'point' because they are just one estimate calculated from a single sample. 
+
+Given this sample and these point estimates, let's get the **sampling errors** for `mean_monthly_charges`, `mean_tenure` and `prop_churn` (these are just the differences between the point estimates and the population parameters)
+
+```{r}
+summary_sample_100 - summary_popn
+```
+
+<hr>
+
+# Central limit theorem
+
+Now what happens if we sample the population repeatedly?  
+
+Let's take $1,000$ samples, each of size $100$, calculating values of the `mean_monthly_charges`, `mean_tenure` and `prop_churn` point estimates for each sample. In this way, we'll build up sampling distributions for each of these statistics. Remember that this is a fictional example: in reality it is highly unlikely we would have the time or money resources to be able to do $1,000$ samples!
+
+<br>
+<div class='emphasis'>
+We call this process **resampling** in general.
+
+Here we're in the somewhat 'fake' situation of already having a larger set of data ($7043$ observations in `telco`) from which we are sampling $100$ observations. 
+
+But, imagine we had just a single sample of $100$ observations from the data gathering phase of our analysis. It turns out that there would still be some benefit and insight to be gained from **resampling the sample observations with replacement**: we call this **bootstrapping**, it's one of the most interesting developments in modern statistics! We will discuss this further this afternoon. So, while we said it's highly unlikely we would be able to do $1,000$ resamples, lets imagine we can, because we will use bootstrapping to mimic this situation later today!
+</div>
+<br>
+
+```{r}
+rep_sample_100 <- telco %>%
+  rep_sample_n(size = 100, reps = 1000) %>%
+  group_by(replicate) %>%
+  summarise(
+    mean_monthly_charges = mean(monthly_charges), 
+    mean_tenure = mean(tenure),
+    prop_churn = mean(churn == "Yes")
+  ) 
+rep_sample_100
+```
+
+Each of the `mean_monthly_charges`, `mean_tenure` and `prop_churn` columns contain statistics calculated from the sample labelled by `replicate`. These columns are the **sampling distributions** of the statistics.
+
+<br>
+<div class='emphasis'>
+Be clear in your own mind as to what we did here:
+
+* We drew $1,000$ samples each of size $100$ from our `telco` population
+* For **each sample (replicate)** we calculated the `mean(monthly_charges)`, `mean(tenure)` and `prop_churn`. These are our **statistics** (or **point estimates**).
+* Each sample leads to slightly different point estimates: the collection of these 1,000 estimates we call the **sampling distribution** of the statistic. 
+* Finally we will take the sampling distribution:
+    - we'll visualise it on a histogram
+    - we'll also calculate the mean, variance and standard deviation of the sampling distribution, this will tell us something about the **spread** in the sample statistics.
+
+</div>
+<br>
+
+Let's plot the sampling distributions as probability densities
+
+```{r}
+monthly_charges_plot <- rep_sample_100 %>%
+  ggplot(aes(x = mean_monthly_charges)) + 
+  geom_histogram(aes(y = ..density..), col = "white") +
+  labs(x = "mean monthly_charges from each sample")
+monthly_charges_plot
+```
+
+This looks pretty normal: let's check this by overlaying a normal density with the parameters calculated from the `mean_monthly_charges` column of `rep_sample_100`.
+
+```{r}
+monthly_charges_plot <- monthly_charges_plot +
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      mean = mean(rep_sample_100$mean_monthly_charges), 
+      sd = sd(rep_sample_100$mean_monthly_charges)
+    ),
+    col = "red"
+  )
+monthly_charges_plot
+```
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins**  
+
+Plot similar visualisations of the `mean_tenure` and `prop_churn` sampling distributions also held in `rep_sample_100`  
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+tenure_plot <- rep_sample_100 %>%
+  ggplot(aes(x = mean_tenure)) +
+  geom_histogram(aes(y = ..density..), col = "white") +
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      mean = mean(rep_sample_100$mean_tenure), 
+      sd = sd(rep_sample_100$mean_tenure)
+    ),
+    col = "red"
+  )
+tenure_plot
+
+churn_plot <- rep_sample_100 %>%
+  ggplot(aes(x = prop_churn)) +
+  geom_histogram(aes(y = ..density..), col = "white") +
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      mean = mean(rep_sample_100$prop_churn), 
+      sd = sd(rep_sample_100$prop_churn)
+    ),
+    colour = "red"
+  )
+churn_plot
+```
+</details>
+</blockquote>
+<br>
+
+We have an interesting finding: even though the distribution of the mean churn in the population was not normal, the sampling distribution of the mean churn is normal (if we take large enough samples)! This is true of the vast majority of sampling distributions. This fantastically useful fact underlies this area of statistics! 
+
+This is a consequence of a really important statistical principle known as the **central limit theorem**. 
+
+<br>
+<div class='emphasis'>
+**The central limit theorem**<br><br>
+
+The central limit theorem says that the sampling distributions of means and proportions **tend to be normal** if we draw **a large enough number of sufficiently large samples**. Notionally, this is true regardless of the shape of the underlying distribution from which the statistics are calculated, but we'll see some conditions on this below.
+</div>
+<br>
+
+<hr>
+
+# What is a large enough sample? The 'n = 30' rule of thumb
+
+This is just a very rough rule of thumb, but sampling distributions tend to be normal for samples of size $30$ and above. 
+
+If the underlying distribution is symmetric and unimodal, we might be able to get away with smaller sample sizes, but if it is strongly skewed and/or bimodal and/or has distant outliers, we need sample sizes larger than 30.
+
+There is an extra pair of conditions to achieve a normal sampling distribution for a **proportion**, known as the **success/failure criteria**: 
+
+<br>
+<center>
+If the **population proportion** is $p$, and the sample size is $n$, we can expect a normal sampling distribution of the proportion if $n \times p \ge 10$ and $n \times (1-p) \ge 10$. The first of these is just the expected number of 'successes', and the latter, the expected number of 'failures', hence the name. 
+</center>
+<br>
+
+This means that it's easier to achieve a normal sampling distribution of a proportion if $p$ is around $0.5$. Conversely, $p$ values close to $0$ or $1$ will require larger samples to achieve normality.
+
+<br>
+<blockquote class='task'>
+**Task - 2 mins**<br><br>
+Roughly what size of sample do we need to achieve a normal sampling distribution for a proportion $p=0.01$ (i.e. one in a hundred)?
+<details>
+<summary>**Solution**</summary>
+We need $0.01 \times n \ge 10$ and $0.99 \times n \ge 10$. Here, the 'limiting' condition to satisfy will be the first: $0.01 \times n \ge 10$. We can rewrite this as $n \ge \frac{10}{0.01}$, i.e. $n \ge 1000$.
+</details>
+</blockquote>
+<br>
+
+<hr>
+
+# Great, sampling distributions look normal. So what...?
+
+The central limit theorem tells us **more** than that the sampling distributions are normal. If you work through the maths (which we won't do here), it also gives estimates for the standard deviations of the sampling distributions. In short, it tells us **how wide** the sampling distributions will be.
+
+Confusingly, the standard deviation of a sampling distribution is called a **standard error** in statistics. Just go with it...
+
+Below are the formulae to calculate standard errors for means or proportions:
+
+<br>
+
+| Sampling distribution | Standard error |
+| --- | --- |
+| Mean $\bar{x}$ | $\sigma_{\bar{x}} = \sqrt{\frac{N-n}{N-1}} \times \frac{\sigma}{\sqrt{n}}$ |
+| Proportion $\bar{p}$ | $\sigma_{\bar{p}} = \sqrt{\frac{N-n}{N-1}} \times \sqrt{\frac{p \times (1-p)}{n}}$ |
+
+<br>
+
+In the formulae above, $\sigma$ and $p$ are **population parameters**, $N$ is the size of the population, and $n$ is the sample size. We'll see later what to do when we don't have access to population parameters. In fact, this will actually be the typical situation because, again, if we knew the population distribution ahead of time, there would be no need to do any statistics, we would just look at the population data we had! 
+
+Factor $\sqrt{\frac{N-n}{N-1}}$ is called the **finite population correction**. It becomes significant in general if your sample is a large proportion of your population, typically $\frac{n}{N} \ge 0.05$. For smaller samples, the correction goes to $1$.
+
+<br>
+<center>
+**Keep in your mind that these formulae are built on the understanding that sampling distributions are nearly normal.** i.e. these formulae will 'work' well if the central limit theorem is obeyed. 
+</center>
+<br>
+
+We can calculate the standard errors in the sampling distributions directly from `rep_sample_100` and compare with what we get from the formulae above. The standard errors are just the standard deviations of the values held in each column of the dataframe. 
+
+```{r}
+sd <- rep_sample_100 %>%
+  summarise(
+    sd_mean_monthly_charges = sd(mean_monthly_charges),
+    sd_mean_tenure = sd(mean_tenure),
+    sd_prop_churn = sd(prop_churn)
+  )
+sd
+```
+
+Now lets calculate standard errors using the formulae from the central limit theorem and compare with what we got above. First, here are some helper functions to calculate the standard errors.
+
+```{r}
+# SLACK THIS OUT
+# first, write a helper function to compute finite population correction
+finite_correction <- function(n, N){
+  return(sqrt((N-n)/(N-1)))
+}
+
+standard_error_mean <- function(n, N, popn_stdev){
+  se_mean <- finite_correction(n, N) * popn_stdev / sqrt(n)
+  return(se_mean)
+}
+
+standard_error_proportion <- function(n, N, popn_prop){
+  se_proportion <- finite_correction(n, N) * sqrt(popn_prop * (1 - popn_prop) / n)
+  return(se_proportion)
+}
+```
+
+Now apply our homebrew `standard_error_mean()` function to `monthly_charges` 
+
+```{r}
+# sample size
+n <- 100
+# population size
+N <- nrow(telco)
+# need standard deviation from the population
+sd_monthly_charges <- sd(telco$monthly_charges)
+
+stderr_mean_monthly_charges <- standard_error_mean(n = n, N = N, popn_stdev =  sd_monthly_charges)
+stderr_mean_monthly_charges
+```
+
+The formula for $\sigma_{\textrm{mean_monthly_charges}}$ gives a standard error for samples of size $100$ in excellent agreement with what we calculate directly by running `sd()` on the sampling distribution of `mean_monthly_charges` held in `rep_sample_100`. This should hopefully increase your confidence that the formula for the standard error of the mean is correct.
+
+<br>
+<div class='emphasis'>
+**A plain language description**
+
+Let's state in plain language what we've calculated. The standard error of a sampling distribution gives us a sort of 'short cut'. It says: 'You probably can't do this for practical reasons (time, money etc), but if you were able to draw lots of samples of size $n$ from a population, and calculate a point estimate from each sample, here's what the standard deviation of the distribution of all those point estimates would be'.
+
+The rule of thumb from the central limit theorem tells us that we need samples of more than roughly $30$ observation for this to work reliably (perhaps significantly higher in the presence of skew or outliers, and with extra conditions if we're interested in the sampling distribution of a proportion).
+
+Normally, though, we never see sampling distributions at all. We have a single sample, with a single point estimate of a population parameter. But, the formulae for standard error from the central limit theorem tell us what the sampling distribution would look like **if we could** collect enough samples and visualise the distribution of point estimates from those samples.
+</div>
+<br>
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins**
+
+Try the same thing for the sampling distributions of `mean_tenure` and `prop_churn`: calculate the standard error using the correct function from above and compare with the `sd()` of the sampling distribution. 
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+sd_tenure <- sd(telco$tenure)
+stderr_mean_tenure <- standard_error_mean(n = n, N = N, popn_stdev =  sd_tenure)
+stderr_mean_tenure
+
+popn_churn_prop <- mean(telco$churn == "Yes")
+stderr_prop_churn <- standard_error_proportion(n = n, N = N, popn_prop = popn_churn_prop)
+stderr_prop_churn
+```
+Both values are pretty close to what we calculate directly by taking the `sd()` of sampling distributions!
+</details>
+</blockquote>
+<br>
+
+Let's see what we expect the sampling distributions of mean `monthly_charges` to look like for differently sized samples:
+
+```{r}
+# SLACK THIS OUT OR JUST SHOW
+# what do we expect the sampling distributions of mean monthly_charges to look like for
+# sample sizes of 100, 30 and 5?
+stderr_mean_monthly_charges_sample100 <- standard_error_mean(n = 100, N = N, popn_stdev = sd_monthly_charges)
+stderr_mean_monthly_charges_sample30 <- standard_error_mean(n = 30, N = N, popn_stdev = sd_monthly_charges)
+stderr_mean_monthly_charges_sample5 <- standard_error_mean(n = 5, N = N, popn_stdev = sd_monthly_charges)
+
+min_monthly_charges <- min(telco$monthly_charges)
+max_monthly_charges <- max(telco$monthly_charges)
+mean_monthly_charges <- mean(telco$monthly_charges)
+
+ggplot(tibble(x = c(min_monthly_charges, max_monthly_charges)), aes(x)) +
+
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      mean = mean_monthly_charges, 
+      sd = stderr_mean_monthly_charges_sample100
+    ), 
+    col = "black") + 
+
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      mean = mean_monthly_charges, 
+      sd = stderr_mean_monthly_charges_sample30), 
+    col = "red") +
+
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      mean = mean_monthly_charges, 
+      sd = stderr_mean_monthly_charges_sample5), 
+    col = "blue") +
+  
+  labs(x = "mean_monthly_charges")
+```
+
+The standard deviation of sampling distribution of the means (i.e the standard error) tells us something about the precision with which we can infer the true population mean from the sample statistic:
+
+<br>
+<div class='emphasis'>
+<center>
+As the sample size gets smaller the sampling distribution gets broader. The larger our samples, the greater the certainty/precision in the statistics we calculate from them!
+</center>
+</div>
+<br>
+
+We can calculate a value called the standard error **from a single sample**, and this standard error will guide us as to how precise a sampled statistic is.
+<hr>
+
+# Putting it all together: sampling distributions, standard errors and probabilities
+
+The standard error tells us how broad the sampling distribution will be, and the central limit theorem tells us that the sampling distribution will be normal for big enough samples. 
+
+If we put these together, we are in a position to start to estimate the probabilities of obtaining statistics in a given range around the population parameter.
+
+Let's try to answer this question:
+
+<br>
+<center>
+Given what we know about `monthly_charges`, if we draw a $100$-observation sample, what is the probability that the mean `monthly_charges` calculated from this sample will be in the range from $60$ to $70$ Euros?
+</center>
+<br>
+
+We know that the sampling distribution of mean `monthly_charges` will be:
+
+* normal
+* centred at `mean(monthly_charges)`
+* with a width equal to the standard error in `mean(monthly_charges)`, and that this depends upon sample size
+
+```{r, message=FALSE}
+# fastGraph gives us the shadeDist() function
+library(fastGraph)
+```
+
+```{r}
+# we need the mean(monthly_charges) in the population
+# and the n = 100 standard error in the mean
+# shadeDist can shade regions on a prob dist and give us shaded probabilities
+# parm1 is mean
+# parm2 is sd
+shadeDist(
+  xshade = c(60, 70), 
+  lower.tail = FALSE, 
+  ddist = "dnorm", 
+  parm1 = mean(telco$monthly_charges), 
+  parm2 = stderr_mean_monthly_charges_sample100, 
+  xlab = "mean_monthly_charges"
+)
+```
+
+How do we interpret this? As follows: $90.5\%$ of the $100$-observation samples of `monthly_charges` we draw from `telco` will have a mean `monthly_charges` in the range from $60$ to $70$ Euros.
+
+<br>
+<blockquote class='task'>
+**Task - 10 mins**
+
+Try similar shaded plots of sampling distributions to answer the following:
+
+* what percentage of $100$-observation samples of `monthly_charges` will have a mean in the range $64$ to $66$ Euros?
+* what percentage of $30$-observation samples of `monthly_charges` will have a mean in the range $60$ to $70$ Euros? <br>[**Hint** remember we calculated `stderr_mean_monthly_charges_sample30` earlier]
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+shadeDist(
+  xshade = c(64, 66), 
+  lower.tail = FALSE, 
+  ddist = "dnorm", 
+  parm1 = mean(telco$monthly_charges), 
+  parm2 = stderr_mean_monthly_charges_sample100, 
+  xlab = "mean_monthly_charges"
+)
+```
+Only $26.1\%$ of $100$-observation samples have a mean `monthly_charges` in the range $64$ to $66$ Euros.
+
+```{r}
+shadeDist(
+  xshade = c(60, 70), 
+  lower.tail = FALSE, 
+  ddist = "dnorm", 
+  parm1 = mean(telco$monthly_charges), 
+  parm2 = stderr_mean_monthly_charges_sample30, 
+  xlab = "mean_monthly_charges"
+)
+```
+With samples of size $30$, only $63.8\%$ of them will have a mean `monthly_charges` in the range from $60$ to $70$ Euros.
+</details>
+</blockquote>
+<br>
+
+We could also answer the original question ('what proportion of $100$-observation samples have a mean `monthly_charges` in the range from $60$ to $70$ months?') using the sampled means in `rep_sample_100`:
+
+```{r}
+filtered <- rep_sample_100 %>%
+  filter(mean_monthly_charges >= 60 & mean_monthly_charges <= 70) %>%
+  tally()
+filtered$n / 1000
+```
+
+This is pretty close to the proportion $90.5\%$ we calculated above by assuming a normal sampling distribution.
+
+<hr>
+
+# Standard errors in statistical tests
+
+The standard error plays a key role in statistics because most test statistics take the form
+
+<br>
+$$\textrm{test statistic} = \frac{\textrm{observed effect size}}{\textrm{standard error}}$$
+<br>
+
+The standard error models 'uncertainty' or 'natural variation' in this use. We are basically asking **is the effect size _large enough_ that it is unlikely to have occurred by chance?**. To answer this, a test compares the test statistic to a critical value that depends upon how confident we want to be in our assertion
+
+<br>
+$$\textrm{test statistic} = \frac{\textrm{observed effect size}}{\textrm{standard error}} \ge \textrm{critical value}$$
+<br>
+
+<hr>
+
+# Recap
+
+* What is a sampling distribution?
+<details>
+<summary>**Answer**</summary>
+The distribution of an observation we get by **repeatedly sampling** a population and calculating that observation for each resample.
+</details>
+
+<br>
+
+* Why are sampling distributions important?
+<details>
+<summary>**Answer**</summary>
+The width of the sampling distribution tells us how much certainty we can have in a calculated statistic. Wide sampling distribution means we only know the statistic with low precision. 
+</details>
+
+<br>
+
+* What is the standard error?
+<details>
+<summary>**Answer**</summary>
+The standard error is the `sd()` of the sampling distribution.
+</details>
+
+<br>
+
+* What does the central limit theorem tell us? Why is it important?
+<details>
+<summary>**Answer**</summary>
+
+  * That the sampling distribution of a statistic will be normal for a large enough number of large enough resamples of a population.
+  * It also provides equations for the standard errors of the mean and a proportion.
+  * It's important because, often, we will just have a **single sample** drawn from a population. We won't be in a position to draw lots of samples and build up the sampling distribution of the statistic we are interested in. The central limit theorem tells us that this unknown sampling distribution would be normal (if sample size is over $30$) and also tells us the standard error, i.e. the width of the distribution.
+
+</details>
+
+
+
+

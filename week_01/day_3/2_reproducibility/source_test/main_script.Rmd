@@ -1,0 +1,16 @@
+---
+title: "main_script"
+output: html_document
+---
+
+```{r}
+source("01_multiply_function.R")
+source("02_add_function.R")
+```
+
+```{r}
+a <- multiply_by_n(2, 4)
+b <- add_two(a)
+b
+```
+

@@ -1,0 +1,469 @@
+---
+title: "Modeling in `Spark` with `sparklyr`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+# Learning Objectives
+
+* Get more experience of data wrangling in `Spark`
+* Experience basic feature engineering in `Spark`, including `ft_` objects from `MLlib`
+* Deploy train-test splitting
+* Fit a logistic regression model in `Spark`
+* Test the model on the test set
+
+**Lesson Duration: 90 mins**
+
+# Loading and exploring data
+
+## Connecting and loading
+
+You know the drill by now! Let's load `sparklyr` and connect to the local `Spark` installation:
+
+```{r}
+library(sparklyr)
+sc <- spark_connect(master = "local")
+```
+
+The dataset we're going to be working on in this lesson comes from the `OkCupid` website and comprises a reasonably large range of user profiles. Our modeling aim is to use the data to build a predictive model of whether a user `not_working`: we are going to have to create this variable ourselves. Let's load the data into `Spark`: 
+
+```{r}
+library(tidyverse)
+profiles <- spark_read_csv(
+  sc, 
+  "data/profiles.csv",
+  escape = "\"",
+  memory = FALSE,
+  options = list(multiline = TRUE)
+)
+
+glimpse(profiles)
+```
+
+We set `memory = FALSE, options = list(multiline = TRUE)` to deal with the parts of the essays, which have been loaded in 10 fields `essay0` to `essay9`.
+
+## Checking for `NA`s and other odd values
+
+Let's see how many `NA`s we have in the various columns:
+
+```{r}
+profiles %>%
+  summarise_all(.funs = ~ sum(as.integer(is.na(.))))
+```
+
+Note here we had to use `as.integer()` because of the **statically typed** nature of `Spark`. If we ran `show_query()` on the pipe above we we would find parts of the form `SUM(CAST(((age) IS NULL) AS INT)) AS age`, which make clear we are type-converting logical type to integer. If we try to leave out `as.integer()` we will get a typing error:  
+
+```{r, error=TRUE}
+profiles %>%
+  summarise_all(.funs = ~ sum(is.na(.)))
+```
+
+We see that the majority of the columns have a significant number of `NA`s. We also saw from the `glimpse()` of the data set above that we had some negative incomes. Let's see how many:
+
+```{r}
+profiles %>%
+  summarise(num_neg_income = sum(as.integer(income < 0)))
+```
+
+We'll clean up our data. Some `Spark` operations are easier if missing values in categorical columns are explicitly labelled as missing, so let's split our `profiles` into `character` and `numeric` sections and deal with them separately. First, the `character` section: 
+
+```{r}
+profiles_char <- profiles %>%
+  select(-c(age, income, height)) %>%
+  mutate_all(~ ifelse(is.na(.), "missing", .))
+```
+
+and now we'll deal with the numeric part, converting `age` and `height` to `numeric` (which `Spark` will see as `DoubleType`), and inserting proper `NA`s into `income` in place of negative values:
+
+```{r}
+profiles_num <- profiles %>%
+  select(age, income, height) %>%
+  mutate(
+    age = as.numeric(age),
+    income = ifelse(income == "-1", NA, as.numeric(income)),
+    height = as.numeric(height)
+  )
+```
+
+Finally, we bind the columns of the two sections together and `compute()` the result:
+
+```{r}
+profiles <- sdf_bind_cols(profiles_char, profiles_num) %>%
+  compute("profiles") %>%
+  glimpse()
+```
+
+Now let's check again for the troublesome values we found earlier:
+
+```{r}
+profiles %>%
+  summarise_all(~sum(as.integer(is.na(.))))
+
+profiles %>%
+  summarise(num_neg_income = sum(as.integer(income < 0)))
+```
+
+This looks better! The `NA`s in `income` have to remain for now, if we wanted to use this variable later, we would either need to drop these rows or use imputation. Finally, let's check the schema of `profiles`:
+
+```{r}
+schema <- sdf_schema(profiles)
+
+schema <- schema %>%
+  transpose() %>%
+  as_tibble() %>%
+  unnest(cols = c(name, type))
+
+schema
+```
+## Exploring categoricals: cross-tabulation
+
+We suspect that people less likely to regularly drink are also less likely to regularly use drugs, let's confirm this with a cross-tabulation (also known as a contingency table):
+
+```{r}
+contingency <- profiles %>%
+  sdf_crosstab("drinks", "drugs") %>%
+  collect()
+
+contingency
+```
+
+The contingency table is nice, but it would be better to order the levels of `drinks` and `drugs` to aid comparisons. Now that we've collected the `contingency` tibble, we can do this using standard `dplyr` operations:
+
+```{r}
+contingency %>%
+  rename(drinks = drinks_drugs) %>%
+  mutate(
+    drinks = as_factor(drinks) %>% 
+      fct_relevel("missing", "not at all", "rarely", "socially", "often",
+                  "very often", "desperately")
+  ) %>% 
+  arrange(drinks) %>%
+  select(drinks, missing, never, sometimes, often)
+```
+
+## Adding the response variable
+
+Now we add in the `not_working` response variable:
+
+```{r}
+profiles <- profiles %>%
+  mutate(
+    not_working = as.integer(ifelse(job %in% c("student", "unemployed", "retired"), 1, 0))
+  )
+
+profiles %>%
+  count(not_working)
+```
+
+So we have a fairly imbalanced data set, but that's OK, we just need to keep it in mind.
+
+Finally, if we want to see enhanced information for the `numerical` variables, we can use the `sdf_describe()` function:
+
+```{r}
+sdf_describe(profiles, cols = c("age", "height", "income", "not_working"))
+```
+
+# Feature engineering
+
+Let's see some examples of basic feature engineering in `Spark`. To be honest, this process is very similar 
+
+## Religion: extracting words
+
+Let's see the distinct levels of the `religion` variable:
+
+```{r}
+profiles %>%
+  distinct(religion)
+```
+Hmm, 46 levels is likely too many, but on scanning the results above, we could make `religion` more useful by wrangling the first word out of the levels. Let's do that vi a `regex` and the `Spark SQL` `regexp_extract()` function:
+
+```{r}
+profiles <- profiles %>%
+  mutate(religion = regexp_extract(religion, "[a-zA-Z]+", 0)) %>%
+  compute("profiles") %>%
+  glimpse()
+```
+
+Now let's see if the proportion of users `not_working` varies significantly with our simplified `religion` variable:
+
+```{r}
+profiles %>%
+  count(religion, not_working) %>%
+  group_by(religion) %>%
+  summarise(
+    count = sum(n),
+    prop_not_working = sum(not_working * n) / sum(n)
+  )
+```
+## Essays: extracting total length
+
+Let's also get the length of the essays written by the users. We're going to use a little bit of **tidy evaluation** to do this. We haven't really had a chance to cover this on the course, as it is an advanced topic, but it is very useful. We recommend following the tutorial [here](https://rstudio.com/resources/webinars/tidy-evaluation-is-one-of-the-major-feature-of-the-latest-versions-of-dplyr-and-tidyr/) to find out more!
+
+We use the `syms()` function and `!!!` operator from `tidy eval` to do this:
+
+```{r}
+profiles <- profiles %>%
+  mutate(
+    essay_length = char_length(paste(!!!syms(paste0("essay", 0:9))))
+  ) %>% 
+  compute("profiles") %>%
+  glimpse()
+```
+
+## Converting categoricals to dummies
+
+Imagine we decide that our model is going to involve categorical variables `drinks`, `drugs` and `status`. We can use a number of `ft_` functions to convert each categorical variable to dummy columns. The pattern is always the same: we 'index' each variable and then 'encode' it: 
+
+```{r}
+profiles <- profiles %>%
+    ft_string_indexer(
+    input_col = "drinks",
+    output_col = "drinks_indexed"
+  ) %>%
+  ft_one_hot_encoder(
+    input_cols = "drinks_indexed",
+    output_cols = "drinks_encoded"
+  ) %>%
+  ft_string_indexer(
+    input_col = "drugs",
+    output_col = "drugs_indexed"
+  ) %>%
+  ft_one_hot_encoder(
+    input_cols = "drugs_indexed",
+    output_cols = "drugs_encoded"
+  ) %>%
+  ft_string_indexer(
+    input_col = "status",
+    output_col = "status_indexed"
+  ) %>%
+  ft_one_hot_encoder(
+    input_cols = "status_indexed",
+    output_cols = "status_encoded"
+  ) %>%
+  compute("profiles")
+```
+
+But what do these functions `ft_string_indexer()` and `ft_one_hot_encoder()` do? Let's find out:
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins**
+
+We're going to look at the `drinks` related columns we now have in `profiles`. Select the original `drinks` column, together with the `drinks_indexed` and `drinks_encoded` columns we added above and look at a few rows (`glimpse()` or `head()`):
+
+* Can you see how the columns are related? 
+* What is stored in the `drinks_encoded` column?
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+profiles %>% 
+  select(starts_with("drinks")) %>%
+  glimpse()
+```
+
+* `drinks_indexed` takes the levels of `drinks` and maps them to an index number (0 being the most common level, 1 the next most common, and so on). `drinks_encoded` takes the `drinks_indexed` values and maps them to dummy columns (dropping the last level).
+* `drinks_encoded` is in the form of a **vector column** - i.e. a column containing vectors.
+
+</details>
+</blockquote>
+<br>
+
+## Train-test splitting
+
+Let's use `sdf_random_split()` to partition `profiles` into `training` and `testing` sets:
+
+```{r}
+# For reproducibility purposes we're using a seed here. Don't do this in real applications.
+partitioned <- profiles %>%
+  sdf_random_split(training = 0.7, testing = 0.3, seed = 42)
+
+training <- partitioned$training %>%
+  compute("training")
+
+testing <- partitioned$testing %>%
+  compute("testing")
+```
+
+```{r}
+profiles %>%
+  sdf_describe("not_working")
+```
+
+We can use the `sdf_describe()` function to check the relative proportions of `not_working` in `profiles`, `training` and `testing` for consistency:
+
+```{r}
+training %>%
+  sdf_describe("not_working")
+```
+```{r}
+testing %>%
+  sdf_describe("not_working")
+```
+
+These look reasonably similar.
+
+## Age and essay length: manual variable scaling
+
+Finally, let's see how to scale variables manually. We're going to scale the `age` and `essay_length` variables. First we get the means and standard deviations:
+
+```{r}
+scaling_values <- training %>%
+  summarize(
+    mean_age = mean(age),
+    sd_age = sd(age),
+    mean_essay_length = mean(essay_length),
+    sd_essay_length = sd(essay_length)
+  ) %>%
+  collect()
+
+scaling_values
+```
+
+Next we mutate to create `scaled_age` and `scaled_essay_length` features. Now, if we try the following:
+
+```{r, error=TRUE}
+training %>%
+  mutate(
+    scaled_age = (age - scaling_values$mean_age) / scaling_values$sd_age,
+    scaled_essay_length = (essay_length - scaling_values$mean_essay_length ) / scaling_values$sd_essay_length
+  ) %>%
+  glimpse()
+```
+
+we'll see an error telling us we need to pass in the values from `scaling_values` by placing a `!!` in front of them:
+
+```{r}
+training <- training %>%
+  mutate(
+    scaled_age = (age - !!scaling_values$mean_age) / !!scaling_values$sd_age,
+    scaled_essay_length = (essay_length - !!scaling_values$mean_essay_length ) / !!scaling_values$sd_essay_length
+  )
+```
+
+Let's check it worked:
+
+```{r}
+training %>%
+  select(age, scaled_age, essay_length, scaled_essay_length) %>%
+  glimpse()
+```
+
+# Fitting a model on the `training` set
+
+Finally, let's try fitting a model! Somewhat randomly, our model is going to be `not_working ~ scaled_age + scaled_essay_length + drinks + drugs + status`. We have already scaled the numerical variables and converted the categorical variables to dummies, but we need to perform one final operation on the `training` data:
+
+```{r}
+training <- training %>%
+  ft_vector_assembler(
+    input_cols = c("scaled_age", "scaled_essay_length", "drinks_encoded", "drugs_encoded", "status_encoded"),
+    output_col = "features"
+  )
+```
+
+Most machine learning models in `MLlib` expect the incoming features to be in a **single vector column**. Function `ft_vector_assembler()` takes the `input_cols` you specify and 'assembles' them together, row-by-row, into vectors it stores in the single `output_col` (which tends to be called `features` by convention). 
+
+```{r}
+training %>%
+  select(features) %>%
+  glimpse()
+```
+
+Now we're ready to fit our model. We pass in the data, specifying `label_col` (i.e. the response variable) and `features_col` (the single vector column containing all the assembled features):
+
+```{r}
+logreg_model <- training %>%
+  ml_logistic_regression(
+    label_col = "not_working",
+    features_col = "features"
+  )
+```
+
+We get validation information as follows:
+
+```{r}
+validation_info <- ml_evaluate(logreg_model, training)
+validation_info
+```
+
+We see there is a wide range of available performance metrics, all present in this object as functions. Let's get the ROC curve data:
+
+```{r}
+roc <- validation_info$roc() %>% 
+  collect() %>%
+  glimpse()
+```
+
+Yay, this looks straightforward to use! Let's plot it:
+
+```{r}
+ggplot(roc, aes(x = FPR, y = TPR)) +
+  geom_line() + 
+  geom_abline(lty = "dashed") +
+  coord_fixed()
+```
+
+And now we get the AUC value:
+
+```{r}
+validation_info$area_under_roc()
+```
+
+# Checking the model on the `testing` set
+
+<br>
+<blockquote class='task'>
+**Task - 15 mins**
+
+Alright, over to you, let's apply our fitted logistic regression model `logreg_model` to the `testing` data to see how it performs on unseen data! You will need to:
+
+* add `scaled_age` and `scaled_essay_length` variables to `testing` (NB use the `scaling_values` computed above from `training` for this, as this would be part of the specification of the model in production)
+* assemble the features together into a single `features` vector column
+* get validation information using `logreg_model` on `testing`
+* plot the ROC curve
+* get the AUC value
+
+From this limited comparison (cross-validation would be better), do you find any evidence of overfitting?
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+testing <- testing %>%
+  mutate(
+    scaled_age = (age - !!scaling_values$mean_age) / !!scaling_values$sd_age,
+    scaled_essay_length = (essay_length - !!scaling_values$mean_essay_length ) / !!scaling_values$sd_essay_length
+  ) %>%
+  compute("testing")
+
+testing <- testing %>%
+  ft_vector_assembler(
+    input_cols = c("scaled_age", "scaled_essay_length", "drinks_encoded", "drugs_encoded", "status_encoded"),
+    output_col = "features"
+  ) %>%
+  compute("training")
+
+validation_info_test <- ml_evaluate(logreg_model, testing)
+validation_info_test
+
+roc <- validation_info_test$roc() %>% 
+  collect()
+
+ggplot(roc, aes(x = FPR, y = TPR)) +
+  geom_line() + geom_abline(lty = "dashed") +
+  coord_fixed()
+
+validation_info_test$area_under_roc()
+```
+
+The AUC value is reasonably close to that obtained from `training`, so there's no evidence of overfitting.
+</details>
+<blockquote>
+
+
+

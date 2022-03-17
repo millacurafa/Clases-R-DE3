@@ -1,0 +1,237 @@
+---
+title: "Cleaning data"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+library(tidyverse)
+```
+
+
+# Learning objectives
+
+* Understand the importance of cleaning data before any analysis
+* Know the common errors that crop up
+* Be able to deal with common errors (apart from outliers and missing values - covered next)
+
+
+# Data Cleaning 
+
+It is said that the average data analyst spends about 80% of their time cleaning their data. That's a long time! And it highlights how important it is to understand data cleaning. Today's lessons will teach you how to do some important data cleaning in R. 
+
+<br>
+<center>
+![](http://blog.appliedinformaticsinc.com/wp-content/uploads/2015/08/Screen-Shot-2015-08-13-at-4.43.50-PM-225x300.png)
+</center>
+<br>
+
+
+
+Exactly what data cleaning entails depends a lot on what the data you’ve got looks like, and what you’re trying to do with it. But often, you’ll need to look through it to remove irrelevant or erroneous data points. You may need to create new variables, or join multiple data sets together to get what you need for your analysis. And you’ll also have to determine how to handle missing values, as very few real-world datasets are going to be 100% complete. You'll then have to get it into the right format, sort it, and summarise it. Lots of steps along the way!
+
+
+In this first section, we will begin with the data cleaning you do as you load your data in, BEFORE you start looking at any odd values or analysing anything. The next sections will cover the more complex data cleaning issues of outliers and missing values are more complex to deal with. 
+
+
+Today we will be working with a sample dataset from the gaming company steam, which you've seen briefly before. The `video_game` dataset contains information on what games some Steam users bought and how many hours they spent playing them. 
+
+This dataset is a list of user behaviors, with columns:   
+
+*  `customer id`: player id    
+*  `game name`: game name    
+*  `what`: what activity were they playing   
+*  `value`: hours of game play   
+*  `bought online`: 1 if the user bought the game online, and a 0 if they didn't.  
+
+[You can find the full dataset here](https://www.kaggle.com/tamber/steam-video-games/downloads/steam-video-games.zip/3)
+
+
+# Removing Metadata
+
+Metadata is data about data. Often this will be listed in an accompanying file. However, sometimes you'll find that there is metadata within the data file as well, and you don't want it to be there. In our example dataset, there are 4 rows at the top, which just describe what the data is, and when it was last modified. What happens when you try and load this? 
+
+```{r, eval = FALSE}
+# load in the csv file without removing metadata
+video_games <- read_csv("data/steam-200k-sample.csv")
+
+```
+<br>
+You get an error...   
+`Error in make.names(x) : invalid multibyte string at '<b4><8e><e8>"<44>ata Source"'`  
+<br>
+
+This is because it can't read the metadata at the top. As a recap from week 1, you can do this to remove the metadata:  
+
+
+```{r}
+# load in the video games data, and remove the metadata 
+video_games <- read_csv("data/steam-200k-sample.csv",skip = 4)
+```
+
+The solution here is too add the `skip` option into your `read_csv` call, and this will allow you to remove the metadata at the top. 
+
+# Checking variable types
+
+We touched briefly on ensuring that R reads in our variables correctly. Look at your column specification above. Has R read in all your data correctly?
+
+We can see that the `bought online` column has been read in as a numeric, but from our data description we know this should be a logical. Let's fix that just now. 
+
+```{r}
+video_games <- read_csv("data/steam-200k-sample.csv", skip = 4, col_types = cols( 'bought online' = col_logical() ))
+
+video_games
+```
+
+Ok great, we now know we've got the right data coming in!
+
+
+# Adding and fixing variable names
+
+In an ideal world, you'll recieve data that is properly labelled. However in the real world, this isn't always the case. Let's look at what variable names we have in our dataset.   
+
+```{r}
+names(video_games)
+```
+
+These values aren't ideal. First and foremost, the names don't really explain what is in each column. Secondly, there are spaces within the column headers, which we don't want. There are a couple of ways we can deal with this. 
+
+
+One way we can do this is by using the `clean_names()` function from the package `janitor`. This converts the variable names into usable names.
+
+```{r, warning = FALSE, message = FALSE}
+library(janitor)
+
+# lets first save a copy to compare
+video_games_save <- video_games
+
+# now let's use the clean_names() function
+video_games_clean <- clean_names(video_games_save)
+```
+
+What's the difference? 
+
+The other way we can do this is by just renaming the variables ourselves.    
+
+```{r}
+
+# add column names
+names(video_games) <- c("user_id", "game_title", "activity", "playing_hours", "bought_online") 
+names(video_games)
+```
+
+
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Note the difference between the two approaches. What are the differences? Which method do you think is best for renaming column names?
+
+<details>
+<summary>**Answer**</summary>
+
+Both have their benefits and downsides.   
+
+For the first method, the benefit is that it is quick and harder to make errors. The downside is that you don't have control over the naming like you do if you rename everything manually. 
+
+For the second method, the benefit is you have total control over what you are naming the columns. However, this method only really works effectively if you have few variables. There is also the danger that you'll miss out a column and rename a column incorrectly.   
+
+</details>
+</blockquote>
+
+
+# Checking string variables 
+
+Another common problem you will come across in data is string consistency. That is, when you have character variables, which represent categories, it is important that they are all coded the same. For example, let's look at the games **Assassin's Creed II** and **Left 4 Dead 2**.   
+
+```{r}
+video_games_clean %>%
+  select(game_name) %>%
+  filter(game_name %in% c("Assassin's Creed II", "Left 4 Dead 2", "assassin's creed II", "left 4 dead 2"))
+```
+
+Here you can see that we have the same game, listed with different case letters. One way of dealing with this is to make your string data all lowercase or uppercase. This is known as 'defensive' programming - if you code in to always make string variables one case, then your code will usually run with conditional statements set. 
+
+```{r}
+
+# set strings to upcase across all
+video_games_upcase <- mutate_all(video_games, .funs=toupper)
+head(video_games_upcase)
+
+# set a column (but this probably isn't what we want right now)
+library(stringr)
+video_games_lowcase <- video_games_upcase %>%
+  mutate(game_title = str_to_lower(game_title))
+
+
+
+```
+
+Great. Now we know that if we end up summarising the data by categories, there won't be any case issues. 
+
+
+# Removing useless columns 
+
+The final common issue we will cover is redundant columns. Sometimes you receive variables which don't contain any useful data. For example, in our dataset we have the `activity` variable, which contains the entry `play`. 
+
+We can check whether the column contains only one value by using the `unique` function. 
+
+```{r}
+# check for unique values in what we think is a redundant column
+unique(video_games_upcase$activity)
+```
+
+In this case, we have only one value in the actvity column, and it isn't really adding anything to the data. So let's drop it.   
+
+```{r}
+# remove the activity column 
+video_games_less <- video_games_upcase %>% 
+  select(-activity)
+head(video_games_less)
+```
+
+
+And there we go. We've covered the inital data cleaning process! Next, we will learn more about outliers and missing data points. 
+
+
+# Recap 
+
+What are the main data cleaning tasks you might perform before analysis?
+<details>
+<summary>**Answer**</summary>
+Checking the data is loaded in correctly, checking variable names, checking variable types, checking strings are consistent, and removing redundant columns.   
+</details>
+<br>
+
+Which of the following is an example of a preferred variable name?
+
+* user id   
+* user_id  
+* User_Id  
+  
+<details>
+<summary>**Answer**</summary>
+The second one, user_id would be preferred. It is all one case, and there are no spaces. This means it is easier to read, and less prone to errors in capitalisation (as R is case sensitive)  
+</details>
+
+
+
+# More Resources
+
+[Data Cleaning in R](https://cran.r-project.org/doc/contrib/de_Jonge+van_der_Loo-Introduction_to_data_cleaning_with_R.pdf)  
+
+[What is data cleaning?](https://www.dataquest.io/blog/learn-r-data-cleaning/)  
+
+[Useful functions for data cleaning in R](https://medium.com/grinding-gears/dealing-with-dirty-data-useful-functions-for-data-cleaning-in-r-bcead6fd6ee6)  
+
+
+
+
+

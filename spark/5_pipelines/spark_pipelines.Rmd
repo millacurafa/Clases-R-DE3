@@ -1,0 +1,474 @@
+---
+title: "`Spark` pipelines"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+# Learning Objectives
+
+* Understand that `Spark Pipelines` are made up of 'stages', each of type `Estimator` or `Transformer`
+* See how we can tune the hyperparameters of a `Pipeline` model using cross-validation
+* Save a `Pipeline` model to disk
+* See a basic deployment of a `Pipeline` model as an API
+
+**Lesson Duration: 90 mins**
+
+# Setup
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins**
+
+Load `sparklyr`, connect to your local `Spark` installation, and then load the `Parquet` data stored in directory `parquet_training_data` into a `Spark DataFrame` called `training` (save the local reference to the `DataFrame` in an object also named `training`).
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+library(sparklyr)
+sc <- spark_connect(master = "local")
+```
+
+```{r}
+training <- spark_read_parquet(sc, name = "training", "parquet_training_data")
+```
+
+</details>
+</blockquote>
+<br>
+
+# Introduction to `Spark` pipelines
+
+We're going to look at more robust techniques for fitting and deploying machine learning models and data wrangling processes in `Spark`. Chief amongst these is probably the `Spark` `Pipeline`: this is a predefined series of operations that can be deployed to deal with incoming data. The main advantage of a `Pipeline` is that the details of the operations applied are self-contained within them: no more rummaging through code you wrote perhaps a considerable time before to find details of feature transformations, model hyperparameters etc, a `Pipeline` keeps them all together. Best of all, `Pipelines` can easily be shared with other `Spark` developers.
+
+## Estimators and Transformers
+
+A `Pipeline` is composed of one or more 'stages' (think of these as being like 'machines' on a production line, the concept of `magrittr` pipes in `R` is very close to `Spark` `Pipelines`). The 'stages' of a `Pipeline` come in two types: `Transformer`s  and  `Estimator`s. 
+
+As an example, first, we define a `Spark` `StandardScaler` object: we see that this is labeled as an `Estimator`. Think of it as being like a 'recipe' that will be ready to go once given 'ingredients'.
+
+```{r}
+scaler <- ft_standard_scaler(
+  x = sc, 
+  input_col = "features", 
+  output_col = "features_scaled", 
+  with_mean = TRUE,
+  with_std = TRUE
+)
+
+scaler
+```
+
+So this `Estimator` is ready to go! We've set it up to take in features stored in a column `features` (a *vector column* like we saw in the last lesson) and output the scaled versions in a column `features_scaled` (another vector column).
+
+Now let's create some 'ingredients'. We'll create a `tibble` with two example features: `value1` and `value2`, and copy this data into our `Spark` session:
+
+```{r}
+library(tidyverse)
+
+train_df <- tibble(
+  value1 = rnorm(n = 100000, mean = 2, sd = 3),
+  value2 = runif(n = 100000, min = 100, max = 200)
+)
+
+train_df <- copy_to(sc, train_df, overwrite = TRUE)
+glimpse(train_df)
+```
+
+Now we need to assemble our features `value1` and `value2` into a single vectors column . As we said in the last lesson, this is a common pattern in machine learning in `Spark`: many of the `MLlib` functions rely on having incoming data in vector column format. As before, we will use the `ft_vector_assembler()` function to do this for us:   
+
+```{r}
+train_df_assembled <- train_df %>% 
+  ft_vector_assembler(
+    input_cols = c("value1", "value2"), 
+    output_col = "features"
+  )
+
+glimpse(train_df_assembled)
+```
+
+This matches up with the `scaler` object, which expects incoming data to be in a `features` column. Now, let's 'train' `scaler`, i.e. feed `train_df` into the `scaler`:
+
+```{r}
+scaler_model <- ml_fit(scaler, train_df_assembled)
+scaler_model
+```
+
+Note that `scaler_model` is now a `Transformer` object - it has calculated the `mean()` and `std()` of both `value1` and `value2` and stored them in the object, and so it's ready to transform any conforming data it receives. The means and standard deviations are approximately what we expect for the normal and uniform distributions we specified (the standard deviation of a uniform distribution is $s = \frac{max - min}{\sqrt{12}} = \frac{200-100}{\sqrt{12}} = 28.868 $).
+
+Let's use `scaler_model` on some new data: imagine this is incoming batch data in production, i.e. after `scaler_model` has been fitted. Importantly, this data comes from a population similar to that used in training, i.e. the model hasn't yet drifted:
+
+```{r}
+new_df <- tibble(
+  value1 = rnorm(n = 10000, mean = 2, sd = 3),
+  value2 = runif(n = 10000, min = 100, max = 200)
+)
+
+new_df <- copy_to(sc, new_df, overwrite = TRUE)
+
+new_df_assembled <- new_df %>%
+  ft_vector_assembler(
+    input_cols = c("value1", "value2"), 
+    output_col = "features"
+  )
+```
+
+Now let's run the transform on this new data and check that the scaling has worked as expected: we expect the scaled variables to have means near zero, and standard deviations near one. 
+
+```{r}
+stats <- ml_transform(scaler_model, new_df_assembled) %>%
+  sdf_separate_column(
+    column = "features_scaled",
+    into = c("f1_scaled", "f2_scaled")
+  ) %>%
+  summarise(
+    mean_f1_scaled = mean(f1_scaled),
+    std_f1_scaled = sd(f1_scaled),
+    mean_f2_scaled = mean(f2_scaled),
+    std_f2_scaled = sd(f2_scaled)
+  )
+
+stats
+```
+
+This seems reasonable! Now we've seen examples of `Estimator`s and `Transformer`s, let's look at how to combine them together in a `Pipeline`
+
+## Creating a `Pipeline`
+
+We can create a `Pipeline` with the `ml_pipeline()` function, passing in our `SparkConnection` object `sc`
+
+```{r}
+pipeline <- ml_pipeline(sc)
+pipeline
+```
+
+Now let's add a stage, a `VectorAssembler`:
+
+```{r}
+pipeline <- pipeline %>%
+  ft_vector_assembler(
+    input_cols = c("value1", "value2"),
+    output_col = "features"
+  )
+
+pipeline
+```
+
+And now we'll add a `StandardScaler` stage:
+
+```{r}
+pipeline <- pipeline %>%
+  ft_standard_scaler(
+    input_col = "features",
+    output_col = "features_scaled",
+    with_mean = TRUE,
+    with_std = TRUE
+  )
+
+pipeline
+```
+
+We fit a `Pipeline` just as we would an `Estimator` (notice above that whole `Pipeline` is labelled as an `Estimator`):
+
+```{r}
+assembler_scaler_model <- ml_fit(pipeline, train_df)
+assembler_scaler_model
+```
+
+By design, all `Pipeline`s in `Spark` are `Estimator` objects, even if they contain only `Transformer` objects. What this means is that you will always have to run `ml_fit()` on a `Pipeline` to turn it into a `Transformer` capable of running on data. 
+
+# A more realistic `Pipeline`...
+
+Let's see a more realistic example of a `Pipeline` that combines some simple feature engineering, followed by a fit of a logistic regression model:
+
+```{r}
+pipeline <- ml_pipeline(sc) %>%
+  ft_string_indexer(
+    input_col = "sex",
+    output_col = "sex_indexed",
+    handle_invalid = "skip"
+  ) %>%
+  ft_string_indexer(
+    input_col = "drinks",
+    output_col = "drinks_indexed",
+    handle_invalid = "skip"
+  ) %>%
+  ft_string_indexer(
+    input_col = "drugs",
+    output_col = "drugs_indexed",
+    handle_invalid = "skip"
+  ) %>%
+  ft_vector_assembler(
+    input_cols = c("age", "essay_length"),
+    output_col = "numerical_features"
+  ) %>%
+  ft_standard_scaler(
+    input_col = "numerical_features", 
+    output_col = "numerical_features_scaled", 
+    with_mean = TRUE,
+    with_std = TRUE
+  ) %>%
+  ft_r_formula(
+    not_working ~ numerical_features_scaled + sex_indexed + drinks_indexed + drugs_indexed
+  ) %>%
+  ml_logistic_regression()
+
+pipeline
+```
+
+So, the `Pipeline`:
+
+* Indexes the three categorical variables `sex`, `drinks` and `drugs` (with `handle_invalid = "keep"`) and then scales the two numerical variables `age` and `essay_length`. 
+
+* Uses `fit_r_formula()` to accept a Patsy-style formula which automatically creates the appropriate features for the logistic regression model (in particular, it handles the categorical features `sex_indexed`, `drinks_indexed` and `drugs_indexed`). This is pretty convenient for us, as we are used to dealing with such formulae.
+
+* Finally, pipes the transformed features together with the response variable into `ml_logistic_regression()`. 
+
+Now let's use `pipeline` to fit some real data. First, let's trim `training` down so it contains only the features of interest and the response `not_working`: 
+
+```{r}
+training <- training %>%
+  select(sex, drinks, drugs, age, essay_length, not_working) %>%
+  compute("training")
+```
+
+`Spark` can be memory intensive, and we are running this locally on our laptops and not on a cluster, so let's free up memory by dropping our demo tables from earlier:
+
+```{r}
+db_drop_table(sc, "new_df")
+db_drop_table(sc, "train_df")
+```
+
+Now, we are going to use cross-validation to **tune** our logistic regression pipeline and select the best performing of the models it finds based on $AUC$ value. Various **hyperparameters** can be adjusted to try to find the best performing model (this is called 'tuning' the model). The `ml_cross_validator()` function lets you tune by searching over essentially any of the adjustable parameters that can be passed in to the various stages of the pipeline. You need to specify parameters and values to tune over yourself (you can select any of the parameters listed in the `(Parameters)` blocks of the pipeline shown above). 
+
+Let's demonstrate this by asking `ml_cross_validator()` to test whether adjusting the `with_mean = ` hyperparameter of `ft_standard_scaler()` improves the model, along with two hyperparameters in the `ml_logistic_regression()` function (we will not go into details here on what the `elastic_net_param =` and `reg_param =` parameters do, save to say they are related to regularised regression). We need to pass in `evaluator = ml_binary_classification_evaluator(sc)` to tell it how to measure the performance of the models.
+
+Finally, we select $3$-fold cross-validation (you would probably wish to increase this for production runs, we set it a bit lower here so this runs in reasonable time).
+
+```{r}
+cv <- ml_cross_validator(
+  x = sc,
+  estimator = pipeline,
+  estimator_param_maps = list(
+    standard_scaler = list(
+      with_mean = c(TRUE, FALSE)
+    ),
+    logistic_regression = list(
+      elastic_net_param = c(0.1, 0.9),
+      reg_param = c(1e-1, 1e-2, 1e-3)
+    )
+  ),
+  evaluator = ml_binary_classification_evaluator(sc),
+  num_folds = 3)
+```
+
+Let's see what the `cv` object reports:
+
+```{r}
+cv
+````
+
+As we saw above, the `cv` object is an `Estimator`. We turn it into a `Transformer` by running `ml_fit()` on it with our `training` data:
+
+```{r}
+# this will take a few minutes to run
+cv_model <- ml_fit(cv, training)
+cv_model
+```
+
+Let's have a look at the validation metric (the $AUC$ values) produced by model tuning. We use `ml_validation_metrics()` for this, passing in the fitted model:
+
+```{r}
+ml_validation_metrics(cv_model) %>%
+  arrange(desc(areaUnderROC))
+```
+We used a pretty coarse set of hyperparameters here: in real production runs, you would likely want to consider a larger number of hyperparameters on a finer scale. Let's see the best model found by tuning:
+
+```{r}
+cv_model$best_model
+```
+
+We can see the means and standard deviations of `age` and `essay_length` stored in the `StandardScalerModel` stage, the fitted formula stored in the `RFormulaModel` stage, and the regression coefficients stored in the `LogisticRegressionModel` stage. If you're now thinking "Hmm, this pipeline is ready to be used in production", you're right, so let's save it:
+
+```{r}
+ml_save(x = cv_model$best_model, path = "logreg_model", overwrite = TRUE)
+```
+
+This is super convenient! The model is saved in a way that is **'language-agnostic'**, so if you develop a pipeline working in `R` `sparklyr`, you can then easily hand it over to another person working in `pyspark` (the Python `Spark` interface), or even to a developer working natively in `Scala` (the language that `Spark` is written in). This helps to overcome many of the barriers that have historically existed between data scientists, data engineers and software developers, and have meant that deployment of machine learning models can be a lengthy and complex process.
+
+# Deployment (AKA 'productionisation')
+
+The outputs of most modern data science projects outputs are not limited to reports on and insights gathered from the data held by an organisation. Often there is a need to **deploy** a machine learning model, i.e. put the model to use in a **production** environment, perhaps responding rapidly to incoming data, or processing larger **batches** of data.
+
+We're going to look at a simple example of deploying the logistic regression `pipeline` model we saved above as a service. Remember that the purpose of this model was to predict whether an individual is likely to be working or not, and so we are going to create our own very simple **API** that accepts **requests** containing data conforming to the model (i.e. values for `age`, `essay_length`, `sex`, `drinks` and `drugs`), and provides **responses** with prediction as to whether that individual is `not_working` or working.
+
+First, let's disconnect from `Spark` and clear the environment to ensure that we're starting from scratch:
+
+```{r}
+spark_disconnect(sc)
+rm(list = ls()) 
+```
+
+Next, in creating and deploying our API, we're going to use the following packages:
+
+```{r}
+library(plumber)
+library(callr)
+library(httr)
+```
+
+* The `plumber` package lets us define a **router** - a program that runs continuously and 
+  (i) listens for an incoming `request` with a particular `HTTP verb` (`POST` in our case) directed at a particular endpoint (`/working_prob` in our case) 
+  (ii) runs a function when it detects a matching incoming `request`; in our case, the function strips the incoming data from the `request`, loads it into `Spark`, runs it through the `pipeline` and saves the probability.
+  (iii) returns a `response` containing the requested probability
+
+* The `callr` package runs `R` processes in the background - we'll use this to run our router on port 8000
+
+* The `httr` package lets us send `HTTP` requests - we'll use this to `POST` data to our API and see what response we get back
+
+Let's create the router file! Save the following in an `R` script file called `working_router.R` (slack this out)
+
+```{r, eval=FALSE}
+# SLACK THIS OUT!!
+library(sparklyr)
+library(tidyverse)
+
+sc <- spark_connect(master = "local")
+logreg_model <- ml_load(sc, "logreg_model")
+
+# the following line tells `plumber` that function get_working_prob() will be triggered
+# when the router detects an incoming POST request directed at endpoint /working_prob
+#* @post /working_prob
+get_working_prob <- function(age, essay_length, sex, drinks, drugs) {
+  
+  incoming_data <- tibble(
+    age = age,
+    essay_length = essay_length,
+    sex = sex,
+    drinks = drinks,
+    drugs = drugs
+  )
+  
+  incoming_data <- copy_to(sc, incoming_data, overwrite = TRUE)
+  
+  prob <- ml_transform(logreg_model, incoming_data) %>%
+    dplyr::pull(probability)
+  
+  return(
+    paste("probability not_working = (FALSE, TRUE):", prob)
+  )
+}
+```
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins**
+
+Have a look at the code in `working_router.R`. Can you see or guess what each part of it is doing?
+
+<details>
+<summary>**Solution**</summary>
+* Load packages
+
+* Start up a `Spark` connection
+
+* Load the `logreg_model` we saved earlier into `Spark`
+
+* Define a function `get_working_prob()` that will run when the router detects a `POST` `request` to endpoint `/working_prob`
+
+* The function strips user data `age`, `essay_length`, `sex`, `drinks` and `drugs` from the `request` and loads it into `Spark`
+
+* It uses `ml_transform()` to pass this data through `logreg_model` and retrieve the probability
+
+* It returns the probability as part of a phrase
+</details>
+</blockquote
+<br>
+
+Now we'll use `plumber` to create a router from the code saved in `working_router.R`, and `callr` to run the router in the background
+
+```{r}
+# the r_bg() function from callr runs another R session in the background and runs whatever code is
+# passed into the function in that R session
+service <- callr::r_bg(
+  function() {
+    # the plumb() function from plumber says 'take the code in the file passed into it and use
+    # it to start a router
+    router <- plumber::plumb("working_router.R")
+    # run the router on port 8000
+    router$run(port = 8000)
+  }
+)
+```
+
+Run `lsof -i tcp:8000` in the `Terminal` and wait until you see a process listed: this means that the router has started up and is listening to port 8000 on your laptop.
+
+```{r}
+# setting this to give time when knitting for the router to start up
+Sys.sleep(180)
+httr::content(httr::POST(
+  url = "http://127.0.0.1:8000/working_prob",
+  body = '{
+    "age": 40, 
+    "sex": "m", 
+    "drinks": "socially", 
+    "drugs": "never", 
+    "essay_length": 100
+  }'
+))
+```
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins**
+
+Try playing around with different variable values above and see how the probabilities change! For a bit more challenge, try:
+
+* Sending the request from `Insomnia` rather than `R`, just to prove there is no `R` trickery here - we have genuinely set up and run a router
+* Passing in a value of `drinks` or `drugs` not in the original `training` data (e.g. `"drugs": "aspirin"`). What is returned by the service? Where in the original `Pipeline` do you think we specified this behaviour?
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+httr::content(httr::POST(
+  url = "http://127.0.0.1:8000/working_prob",
+  body = '{
+    "age": 18, 
+    "sex": "m", 
+    "drinks": "not at all", 
+    "drugs": "never", 
+    "essay_length": 400
+  }'
+))
+```
+
+When we pass `"drugs": "aspirin"` in the request, we get no probability back at all. Thie behaviour is caused by the parameter `handle_invalid = "skip"` in the `ft_string_indexer()` handling `drinks`. This tells the `StringIndexer` to skip any data rows in which a value of `drinks` not in the original training set occurs.
+
+```{r}
+httr::content(httr::POST(
+  url = "http://127.0.0.1:8000/working_prob",
+  body = '{
+    "age": 18, 
+    "sex": "m", 
+    "drinks": "not at all", 
+    "drugs": "aspirin", 
+    "essay_length": 400
+  }'
+))
+```
+
+</details>
+</blockquote>
+<br>
+
+Finally, let's shutdown the service:
+
+```{r}
+service$kill()
+```
+

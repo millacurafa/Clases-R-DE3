@@ -1,0 +1,392 @@
+---
+title: "Advanced query syntax part 1 - WHERE"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+  author: "Del Middlemiss"<br>
+  date: "9th June 2019"
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives<br>
+
+* Be able to use additional comparison operators, and `AND` and `OR` combinations
+* Write queries using `BETWEEN`, `NOT` and `IN`
+* Understand and be able to use inexact comparisons with `LIKE` and wildcards
+* Understand `IS NULL`
+
+**Duration - 45 minutes**<br>
+
+As stated earlier, data analysts more often read records in databases than create, update or delete them (recall CRUD). So, it makes sense to focus effort on learning `SELECT` syntax beyond simple `WHERE` clauses. We'll work through a series of examples, continuing to use the `omni_employees` local PostgreSQL database we set up in the last lesson. 
+
+We'll come back later in the week to look at how we manipulate the returned data from a query.
+
+<hr>
+
+# Setup
+
+First, we need to re-establish the `R` connection to the database.
+
+```{r}
+library(keyring)
+library(RPostgreSQL)
+
+keyring_unlock("local")
+username <- key_get("postgresql_username", keyring = "local") 
+password <- key_get("postgresql_password", keyring = "local")
+keyring_lock("local")
+db_connect <- dbConnect(drv = PostgreSQL(), user = username, password = password, dbname = "omni_employees", host = "localhost")
+rm(username, password)
+```
+
+Just so we don't forget, add in the disconnect statement at the end of the file, and then put our code in between
+
+```{r, eval = FALSE, echo = TRUE}
+# keep moving this down, put code in between
+dbDisconnect(db_connect)
+```
+
+<hr>
+
+# Simple `WHERE` clauses
+
+So far we've seen pretty simple `WHERE` clauses, e.g. find the employee with `id` equal to 3.
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE id = 3")
+```
+
+<hr>
+
+# Additional comparison operators
+
+OK, but what about this problem:<br>
+
+<div class='emphasis'>
+"Find all the employees working 0.5 full-time equivalent hours or greater."
+</div>
+
+<br>
+We can solve this using operators other than `=`
+<br>
+
+| operator | meaning |
+| --- | --- |
+| != | not equal to |
+| > | greater than |
+| < | less than |
+| >= | greater than or equal to |
+| <= | less than or equal to |
+
+<br>
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE fte_hours >= 0.5")
+```
+
+<blockquote class='task'>
+**Task - 2 mins** Write and execute a query answering this problem:
+<center>"Find all the employees not based in Brazil."</center>
+<details>
+<summary>**Solution**</summary>
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE country != 'Brazil'")
+```
+</details>
+</blockquote>
+
+<hr>
+
+# `AND` and `OR` 
+
+If required, we can create more complex clauses using the `AND` and `OR` operators
+
+<div class='emphasis'>
+"Find all employees in China who started working for OmniCorp this year".
+</div><br>
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE country = 'China' AND start_date >= '2019-01-01'")
+```
+
+Sometimes we have to be careful with the **order of evaluation** of conditions. Consider the following example
+
+<br>
+<div class='emphasis'>
+"Find all employees in China who either started working for OmniCorp this year or who are enrolled in the pension scheme".
+</div><br>
+
+The logic of this as written is fairly clear. All the returned employees should be based in China **and** they should either have started work for OmniCorp this year **or** be enrolled in the pension scheme. Let's have a first go at writing this!
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE country = 'China' AND start_date >= '2019-01-01' OR pension_enrol = TRUE")
+```
+
+Argh! We get employees from countries other than China! What's gone wrong? We need to worry about the order of evaluation. We want the `OR` operation to execute **before** the `AND` operation, and we enforce this by use of parentheses!
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE country = 'China' AND (start_date >= '2019-01-01' OR pension_enrol = TRUE)")
+```
+
+That's better! Let's see a few more examples using `AND` and `OR`
+
+<br>
+<div class='emphasis'>
+"Find all employees who work between 0.25 and 0.5 full-time equivalent hours inclusive".
+</div><br>
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE fte_hours >= 0.25 AND fte_hours <= 0.5")
+```
+
+<br>
+<div class='emphasis'>
+"Find all employees who started working for OmniCorp in years other than 2017".
+</div><br>
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE start_date < '2017-01-01' OR start_date > '2017-12-31'")
+```
+
+<hr>
+
+# `BETWEEN`, `NOT` and `IN`
+
+The syntax in the last two examples is clumsy: it would be better to be able to define a range and then `SELECT` for records with fields in/not in that range. The `BETWEEN` keyword lets us do just that! 
+
+Let's rewrite the previous two queries using `BETWEEN`:
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE fte_hours BETWEEN 0.25 AND 0.5")
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE start_date NOT BETWEEN '2017-01-01' AND '2017-12-31'")
+```
+
+Note these two points:
+
+* the range defined by `BETWEEN` is **inclusive** of the end points. So, in the first example, records with `fte_hours` of exactly 0.2 or 0.5 will be selected
+* we use the `NOT BETWEEN` combination in the second example to select all records with `start_date` not in the range (where, again, the end points are included in the range).
+
+<blockquote class='task'>
+**Task - 5 mins** See if you can work out the query syntax to answer this problem:
+<center>"Find all employees who started work at OmniCorp in 2016<br> who work 0.5 full time equivalent hours or greater."</center>
+
+<details>
+<summary>**Hint**</summary>
+You need an `AND` combination of two conditions, one of which involves `BETWEEN`
+</details>
+<details>
+<summary>**Solution**</summary>
+```{r}
+# parentheses might help you to see different logical 'levels' of the conditions
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE (start_date BETWEEN '2016-01-01' AND '2016-12-31') AND (fte_hours >= 0.5)")
+```
+</details>
+</blockquote>
+<hr>
+
+The `IN` operator helps us deal with discrete valued fields more efficiently. Consider:
+
+<div class='emphasis'>
+"Find all employees based in Spain, South Africa, Ireland or Germany."
+</div>
+
+The long-winded way to write this is
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE country = 'Spain' OR country = 'South Africa' OR country = 'Ireland' OR country = 'Germany'")
+```
+
+or using `IN`
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE country IN ('Spain', 'South Africa', 'Ireland', 'Germany')")
+```
+
+We can also use `NOT` with `IN`
+
+<div class='emphasis'>
+"Find all employees based in countries other than Finland, Argentina or Canada."
+</div>
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE country NOT IN ('Finland', 'Argentina', 'Canada')")
+```
+
+<hr>
+
+# `LIKE` and wildcards
+
+Your manager comes to you and says <br>
+
+<div class='emphasis'>
+"I was talking with a colleague from Greece last month, I can't remember their last name exactly, I think it began 'Mc...' something. Can you find them?"
+</div><br>
+
+You can see we're dealing with an **inexact comparison** here. How do we do this? Using the `LIKE` operator with a **wildcard**.
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE country = 'Greece' AND last_name LIKE 'Mc%'")
+```
+<br>
+
+Here are the wildcards we can use: <br>
+
+| wildcard | meaning |
+| --- | --- |
+| _ | a single character |
+| % | a collection of characters |
+
+<br>
+
+We can place wildcards **anywhere** inside the string in the condition:<br>
+
+<div class='emphasis'>
+"Find all employees with last names containing the phrase 'ere' anywhere"
+</div>
+
+<br>
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE last_name LIKE '%ere%'")
+```
+
+<br>
+<div class='emphasis'>
+"Find all employees in the Legal department with a last name beginning with 'D'" 
+</div>
+
+<br>
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE department = 'Legal' AND last_name LIKE 'D%'")
+```
+
+<blockquote class='task'>
+**Task - 2 mins** Write a query using `LIKE` and wildcards to answer:
+<center>"Find all employees having 'a' as the second letter of their first names."</center> 
+
+<details>
+<summary>**Hint**</summary>
+You can use a '_' wildcard for the first letter of `first_name`.
+</details>
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE first_name LIKE '_a%'")
+```
+</details>
+</blockquote>
+
+`LIKE` distinguishes between capital and lower case letters. If we need a case-insensitive version, we can use `ILIKE`.
+
+<hr>
+
+# `IS NULL`
+
+<br>
+<div class='emphasis'>
+"We need to ensure our employee records are up-to-date. Find all the employees who do not have a listed email address."
+</div>
+
+<br>
+We can use the `IS NULL` condition to fulfill this request.
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE email IS NULL")
+```
+
+We can also use the `NOT` operator here too: `IS NOT NULL` is a valid condition!
+
+<hr>
+
+# Recap - Full query syntax
+
+In summary, here are the different keyword components of a `SELECT` query, the order in which they must appear, and whether they are required or optional <br>
+
+This table shows where we've got to:<br>
+
+| Order | Keyword | Specifies | Required? |
+| --- | --- |--- | --- |
+| 1 | SELECT | Column to query | Yes |
+| 2 | FROM | Table to query |  Yes |
+| 3 | WHERE | Row-level filter | No |
+
+<br>
+while here's a look ahead at what's still to come:<br>
+
+| Order | Keyword | Specifies | Required? |
+| --- | --- |--- | --- |
+| 5 | GROUP BY| Grouping for aggregates | No |
+| 6 | HAVING | Group-level filter | No |
+| 7 | ORDER BY | Sort order | No |
+| 8 | LIMIT | How many records to return | No |
+
+
+
+
+
+

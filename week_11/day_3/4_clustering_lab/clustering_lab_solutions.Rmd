@@ -1,0 +1,184 @@
+---
+title: "Clustering Lab"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. We will be looking at the `avocado` dataset used for the week 11 weekend homework. 
+2. Build a decision tree to model the likelihood of a sale being of an organic avocado.
+3.  Use k-means clustering to investigate potential relationships in the `USArrests` dataset we looked at in the hierarchical clustering lesson? 
+  * Explore the data - do you think it looks potentially suitable for clustering?
+  * Chose a value of k
+  * Create clusters with chosen value of k - pull out the sizes of the clusters and the average of each variable in the dataset for each cluster.
+  * Visualise the clusters (Hint - there is more than 2 variables in the dataset so refer to the classnotes about how to visualise). 
+
+
+
+## Decision Tree
+
+```{r, message = FALSE, warning = FALSE}
+library(janitor)
+library(yardstick)
+library(modelr)
+library(fastDummies)
+library(broom)
+library(rpart)
+library(rpart.plot)
+library(tidyverse)
+library(factoextra)
+```
+
+Load in the data 
+```{r}
+avocados <- read_csv("data/avocado.csv")
+```
+
+Clean up names and remove variables to match our model:
+
+```{r}
+avocados_tidy <- avocados %>% 
+                clean_names() %>%
+                select(-c("x1", "small_bags", "large_bags", "x_large_bags"))
+                
+glimpse(avocados_tidy)
+```
+
+Create train/test datasets:
+
+```{r}
+n_data <- nrow(avocados_tidy)
+test_index <- sample(1:n_data, size = n_data*0.2)
+
+avo_test  <- slice(avocados_tidy, test_index)
+avo_train <- slice(avocados_tidy, -test_index)
+```
+
+
+Check the type proportions for each set:
+
+```{r}
+avo_test %>%
+ tabyl(type)
+
+avo_test %>%
+ tabyl(type)
+```
+
+Build the tree
+```{r}
+avo_fit <- rpart(type ~ ., data = avo_train, method = 'class')
+rpart.plot(avo_fit)
+```
+
+Use trained model to create predictions on test dataset
+
+```{r}
+avo_test_pred <- avo_test %>%
+                 add_predictions(avo_fit, type = 'class') 
+                
+
+head(avo_test_pred)
+```
+
+Build confidence matrix and check accuracy:
+
+```{r}
+#type has come through as a charcter so need to change to a factor for the conf_mat() and accuracy()
+#also need to reorder 'the factor 'type' so comes through in the same level orders as 'pred'
+avo_test_pred <- avo_test_pred %>%
+    mutate(type = as_factor(type)) %>%
+    mutate(type = fct_relevel(type, "conventional", "organic"))
+
+avo_test_pred %>%
+              conf_mat(truth = type, estimate = pred)
+
+avo_test_pred %>%
+ accuracy(truth = type, estimate = pred)
+```
+
+
+## Clustering
+
+Load data and perform same cleaning as in hierarchical clustering lesson: 
+
+```{r}
+arrests <- USArrests %>%
+              janitor::clean_names() 
+
+head(arrests)
+```
+
+Scale and check
+
+```{r}
+arrests_scale <- arrests %>% 
+                      mutate_all(scale)
+
+summary(arrests_scale)
+```
+
+Explore the data 
+
+```{r}
+plot(arrests_scale)
+```
+
+Although some condensed overlap there is also some dispersion in the data so potential for meaningful clusters so let's cluster and see what we get
+
+Check sum of squares within clusters
+
+```{r}
+# Set min & max number of clusters want to look at 
+max_k <- 20 
+
+k_clusters_arrests <- tibble(k = 2:max_k) %>%
+  mutate(
+    kclust = map(k, ~ kmeans(arrests_scale, .x, nstart = 25),), 
+   tidied = map(kclust, tidy),
+    glanced = map(kclust, glance),
+  augmented = map(kclust, augment, arrests_scale )
+  )
+
+k_clusters_arrests
+```
+
+
+We can also look at the silhouette method. 
+
+```{r}
+fviz_nbclust(arrests_scale, kmeans, method = "wss", nstart = 25)
+fviz_nbclust(arrests_scale, kmeans, method = "silhouette", nstart = 25)
+fviz_nbclust(arrests_scale, kmeans, method = "gap_stat", nstart = 25)
+```
+
+Elbow gives a result of 4 and 4 is close to the maximum for both the other methods.
+
+```{r}
+k4_clusters_arrests <- kmeans(arrests_scale, 4, nstart = 25)
+
+k4_clusters_arrests
+```
+
+Pull out the cluster means and sizes for your chosen number of clusters. 
+
+```{r}
+k4_clusters_arrests$size
+k4_clusters_arrests$centers
+```
+
+Visualise the clusters. 
+
+As mentioned in the classnotes going to use `fviz_cluster()` to perform PCA and visualise the data. 
+
+```{r}
+#add rownames back on 
+rownames(arrests_scale) <- rownames(arrests)
+
+fviz_cluster(k4_clusters_arrests, arrests_scale)
+```
+
+
+

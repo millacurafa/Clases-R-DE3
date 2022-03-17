@@ -1,0 +1,606 @@
+---
+title: "Scales and Coordinates"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+    pdf_document: default
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = "center")
+```
+
+# Learning Objectives<br>
+
+* Be able to transform the scale of an axis
+* Be able to move between different coordinate systems including logarithm and polar
+* Be able to limit the plotted axes
+
+
+**Duration - 2 hours **<br>
+
+In this lesson we're going to look at scales and coordinates. You will learn how to make cosmetic adjustments to the axes on your plots, how to alter the scale used, how to zoom in on your plot, and how to switch the coordinate system used. 
+
+
+# Scales
+
+Scales give the details of the mapping from the data to the aesthetic qualities. In ggplot2 in R, scales control the way your data gets mapped to your geom. In this way, your data is mapped to something you can see (for example, lines, points, colors, position, or shapes).
+
+The `ggplot2` package is extremely good at selecting sensible default values for your scales. In most cases, you don’t have to do much to customize your scales. However, `ggplot2` has a wide range of very sophisticated functions and settings to give you fine-grained control over your scale behavior and appearance.
+
+For example, if the aesthetic mapping is `aes(colour = sex)` then it's the scale that defines which colours are assigned to which sex:
+
+| Sex        | Colour     |
+|:-----------|-----------:|
+| Male       |  Blue      |
+| Female     |  Pink      |
+
+<hr>
+
+If the aesthetic mapping is `aes(x = age)` then it the x-coordinates that determine the position of the geometric object(s). ggplot2 will create default scales for you.
+
+```{r}
+library(ggplot2)
+library(CodeClanData)
+```
+
+```{r}
+ggplot(pets) +
+  aes(age, weight, colour = sex) +
+  geom_point() 
+```
+<br>
+
+This is all fine, but sometimes you need to define your own scale. 
+
+* Perhaps you want different colours for sex. 
+* Perhaps you want to change how the legend is formatted.  
+* Perhaps you want to show weights on a log-scale instead. 
+
+Either way, you need to understand how to adjust scales. We will start with the axis.
+
+
+# Axes 
+
+## Relabelling
+
+So let's look at the scatter plot above.
+
+```{r}
+ggplot(pets) +
+  aes(age, weight, colour = sex) +
+  geom_point()
+```
+
+Now, the x-axis shows tick marks and labels every 2.5 years - it's an odd choice for age. Let's switch these to be every year. For this, we can use the function `scale_x_continuous()` function. With this function, you can include `breaks` to tell `ggplot()` how frequently you want to show a tick value on the axis.   
+
+```{r}
+ggplot(pets) +
+  aes(age, weight, colour = sex) +
+  geom_point() +
+  scale_x_continuous(breaks = 1:13) # adjust breaks here
+```  
+<br> 
+
+This looks a bit clearer. 
+
+Now we can work on our y axis. Let's relabel the tick-marks on this as well to make it clearer what each weight stands for.  
+
+```{r}
+ggplot(pets) +
+  aes(age, weight, colour = sex) +
+  geom_point()  +
+  scale_x_continuous(breaks = seq(13)) +
+  scale_y_continuous(breaks = c(6, 8, 10), labels = c("6" = "Small","8" = "Medium","10" = "Big"))
+```
+<br> 
+Much better!
+
+
+<blockquote class='task'>
+**Task - 2 mins** 
+Redo the pets scatter plot you created earlier on. On the x-axis show a tick mark for every year, but omit labels for all except the following ages:
+
+Age 1: Baby
+Age 6: All grown up
+Age 10: Over the hill
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+x_labels <- c("1" = "Baby", "6" = "All grown-up", "10" = "Over \n the hill")
+y_labels <- c("6" = "Small", "8" = "Medium", "10" = "Big")
+
+ggplot(pets) +
+  aes(age, weight, colour = sex) +
+  geom_point() +
+  scale_x_continuous(breaks = c(1, 6, 10),labels = x_labels) +
+  scale_y_continuous(breaks = c(6, 8, 10),labels = y_labels)
+```
+</details>
+</blockquote>
+
+
+# Relabelling with `scales`
+
+You can also relabel axes by giving a function that converts between the current values to the labels you want. The package `scales` has lots of functions that help with relabelling scales.
+
+For example, let's look at the `flatPrices` data from the `CodeClanData` package, and plot the average flat price over the years. 
+
+```{r}
+ggplot(flatPrices) +
+   geom_line(aes(x = Date, y = AvgFlatPrice)) + 
+   ylab("average flat price\n")
+```
+<br>
+One way we could make this better is to make the flat price look like currency to make it clearer what units we are plotting. The function `comma`, puts commas in the the thousands place.
+
+```{r}
+ggplot(flatPrices) +
+   geom_line(aes(x = Date, y = AvgFlatPrice)) +
+   scale_y_continuous(labels = scales::comma) + 
+     ylab("average flat price (£) \n")
+```
+
+The corresponding function `dollar` write prices as a dollar amount.
+
+```{r}
+ggplot(flatPrices) +
+   geom_line(aes(x = Date, y = AvgFlatPrice)) +
+   scale_y_continuous(labels = scales::dollar) + 
+   ylab("average flat price \n")
+```
+*Just be careful what currency you're actually plotting in! This isn't correct here*
+<br>
+
+So let's say we want to have our currency symbol in the tick marks, but it's not in US dollars. You can format your scales too, so you can get round this. The functions `comma_format` and `dollar_format` allow you to do this, and let you specify exactly how to do these conversions. For example:  
+
+
+```{r}
+ggplot(flatPrices) +
+   geom_line(aes(x = Date, y = AvgFlatPrice)) +
+   scale_y_continuous(labels = scales::dollar_format(prefix = "£")) + 
+  ylab("average flat price \n")
+```
+<br> 
+
+
+Finally, the function `percent` converts decimal numbers to percentages.
+
+```{r}
+library(dplyr)
+
+# create the percent column
+flatPrices <- flatPrices %>%
+  mutate(percent_change = AvgFlatPrice/AvgFlatPrice[1])
+
+ggplot(flatPrices) +
+   geom_line(aes(x = Date, y = percent_change)) +
+   scale_y_continuous(labels = scales::percent) +
+  ylab("percent change relative to start\n")
+```
+<br> 
+
+
+
+
+## Scale Limits
+
+Suppose, we only want to look at animals of a set age range. This is a straightforward addition to the arguments of the scale function using the `limits()` function. Here, we take animals that are within the range 1-8.  
+
+```{r}
+ggplot(pets, aes(age, weight)) +
+  geom_point(aes(colour = sex), size = 4) +
+  scale_x_continuous(
+    name = "Age",
+    breaks = seq(13),
+    limits = c(1, 8)
+  ) + 
+  scale_y_continuous(
+    name = "Weight",
+    breaks = c(6, 8, 10),
+    labels = c(
+      "6" = "Light",
+      "8" = "Normal",
+      "10" = "Heavy"
+    )
+  ) +
+  scale_color_discrete(name = "Sex")
+```
+
+*Side: You can use `NA` for the lower (or upper) limit if you don't want to apply a lower (or upper) limit.*  
+
+
+<blockquote class='task'>
+**Task - 2 mins** 
+Eliminate the animals who weight more than 8kg from the plot.
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+ggplot(pets, aes(age, weight)) +
+  geom_point(aes(colour = sex), size = 4) +
+  scale_x_continuous(
+    name = "Age",
+    breaks = seq(13),
+    limits = c(1, 8)
+  ) + 
+  scale_y_continuous(
+    name = "Weight",
+    breaks = c(6, 8, 10),
+    labels = c(
+      "6" = "Light",
+      "8" = "Normal",
+      "10" = "Heavy"
+    ),
+    limits = c(NA, 8)
+  ) +
+  scale_color_discrete(name = "Sex")
+```
+
+</details>
+
+</blockquote>
+
+
+This is a pretty common application of scales - there are shortcuts `+xlim()` or `ylim()` if that's all you want to do.
+
+```{r}
+ggplot(pets, aes(age, weight)) +
+  geom_point(aes(color = sex), size = 4) +
+  scale_y_continuous(
+    name = "Weight",
+    breaks = c(6, 8, 10),
+    labels = c(
+      "6" = "Light",
+      "8" = "Normal",
+      "10" = "Heavy"
+    )
+  ) +
+  scale_color_discrete(name = "Sex") +
+  xlim(1, 8)
+```
+
+If your axis is being used for a discrete variable, you can also apply a limit. You simply specify a list of the permitted (discrete) values. For example, let's take our `pets` data and plot animal by sex. 
+
+```{r}
+ggplot(pets) +
+  aes(x = animal, fill = sex) +
+  geom_bar() 
+```
+<br> 
+
+Now let's just take one category: 
+
+```{r}
+ggplot(pets) +
+  aes(x = animal, fill = sex) +
+  geom_bar() +
+  xlim(c("Cat")) 
+```
+
+Note when we limit the scale in this way we're actually eliminating these points from the plot, and you'll get a warning each time. We'll see later how to zoom in without eliminating points (and why that distinction matters).
+
+
+## Changing the Scale
+
+Let's look at more dramatic changes now. Suppose we want to alter the scale in a more fundamental way. Maybe we want to make the x-axis read from high to low (instead of low to high), or adjust the y-axis to be on a log-scale so each subsequent tick mark represents a multiplicative increase e.g. (1,10,100,1000,....). To do this, we need to apply a **transformation**. Many of these exist, and they are just a mathematically different way of expressing your data.  
+<br>
+
+
+| Name                | Function $f(x)$ | Inverse $f^{-1}(z)$ |
+|---------------------|-----------------|---------------------|
+| `exp`               | $e^{x}$         | $log(z)$            |
+| `identity`          | $x$             | $z$                 |
+| `log10`             | $log_{10}(x)$   | $10^{z}$            |
+| `log2`              | $log_{2}(x)$    | $2^{z}$             |
+| `reverse`           | $-x$            | $-z$                |
+| `reciprocal`        | $1/x$           | $1/z$               |
+
+<hr>
+
+Let's start with a relatively small change: let's reverse the x-axis. For this, let's use the `whisky` dataset from the `CodeClanData` package. We can plot it first to see what we're dealing with.  
+
+```{r}
+ggplot(whisky) +
+  geom_point(aes(x = YearFound, y = Capacity, colour = Region))
+```
+
+Let's see what happens when I reverse the x-axis:
+<br> 
+
+```{r}
+ggplot(whisky) +
+  geom_point(aes(x = YearFound, y = Capacity, colour = Region)) +
+  scale_x_reverse()
+```
+<br>
+Not as clear in this case, but it's handy to know we can do it.   
+
+
+Another common change is to use a log scale, instead of a standard scale. The log transformation can be used to make highly skewed distributions less skewed. This can be valuable both for making patterns in the data more interpretable and for helping to meet the assumptions of inferential statistics. We can change the y axis to a log scale with `scale_y_log10`, and the x axis with `scale_x_log10`. Let's see it in action, and then we'll discuss how it works. 
+<br>
+
+If we apply the log transform now, we can see how this affects the y axis.  
+
+The log transform works as follows:
+
+* The variable has the transform $f(x)$ applied to it.
+* A conventional set of equally spaced break points $(z_0,z_1,z_2,z_3,z_4)$ are generated based on the transformed values $z = f(x)$.
+* However the labels generated $(f^{-1}(z_0),f^{-1}((z_1),f^{-1}(z_2),f^{-1}(z_3),f^{-1}(z_4))$ are based on the original variables $x = f^{-1}(z)$.   
+
+
+```{r}
+ggplot(whisky) +
+  geom_point(aes(x = YearFound, y = Capacity, colour = Region)) +
+  scale_y_continuous(trans = "log10")
+```
+<br>
+
+Typically you use a log-scale when you have a small number of outliers (exceptionally large or exceptionally small observations) or when you want to show a relationship characterised by orders of magnitude (here powers of 10) rather than the raw amounts.
+
+
+<br>
+
+
+<blockquote class='task'>
+**Task - 2 mins** 
+
+Let's look at the `guerry` data. For more information on this data, look up the help file.
+
+```{r}
+library(janitor)
+guerry <- clean_names(Guerry)
+
+ggplot(guerry, aes(x = crime_pers, y = crime_prop)) +
+  geom_point() +
+  facet_wrap(~region)
+```
+
+Now apply a log-scale (base 10) to the x and y coordinates. What does it show?
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+ggplot(guerry, aes(x = crime_pers, y = crime_prop)) +
+  geom_point() +
+  scale_x_continuous(trans = "log10") +
+  scale_y_continuous(trans = "log10") +
+  facet_wrap(~region)
+```
+
+</details>
+</blockquote>
+
+
+<br>
+          
+        
+          
+# Coordinates
+
+So scales control the values that appear on our axes. What if we want to alter the shape of our axes? This is where coordinates become relevant.
+
+The coordinate system controls how the location variables, e.g. (x,y), are actually displayed on the screen. We can choose to interpret these as the traditional 2d Cartesian coordinates, but other options are possible, e.g. polar coordinates where we interpret our two location variables distance from origin and angle.
+
+Naturally, a change in the coordinate system will also change the guide.
+
+It is easy to confuse scale and coordinate system. Indeed the two are interlinked and it's difficult to separate them clearly. 
+
+A useful distinction is that changes to the scale will only affect the location of your geoms, whereas a change in the coordinate system can affect the shape of your geoms as well, e.g. 
+
+* altering the scale on a bar chart will change the heights of your bars. 
+* switching to polar coordinates can turn them into "pie sections." 
+
+To change the coordinate system of a plot, once again you just add extra elements to the plot using the `+` operator. 
+
+Changing the coordinates to polar coordinates is useful for making pie charts.
+
+You start with a filled bar chart:
+
+```{r}
+ggplot(whisky) +
+  geom_histogram(aes(x = YearFound, fill = Region), bins = 30)
+```
+
+
+
+## Linear Coordinates
+
+There are two alternatives referred to as linear coordinates:
+
+The first `coord_flip()`
+
+```{r}
+ggplot(whisky) +
+  geom_histogram(aes(x = YearFound, fill = Region), bins = 30) +
+  coord_flip()
+```
+
+simply swaps the x and y coordinates. The second `coord_fixed` 
+
+```{r}
+ggplot(whisky) +
+  geom_histogram(aes(x = YearFound, fill = Region), bins = 30) +
+  coord_fixed()
+```
+
+imposes a fixed aspect ratio on the `(x, y)` axes (note the grid goes from rectangles to squares). This isn't actually great at all here, but it works better on other plots (e.g. a scatterplot).  
+<br>
+
+
+## Non-Linear Coordinates
+
+There are more exotic options, referred to as non-linear coordinates.
+
+Polar coordinates convert one of the variables to an angle, here `y` (whilst the other is mapped to radius), allowing us to create pie charts, or a whole range of new types of plot (most of them terrible).
+
+Here's an example of a stacked bar chart.
+
+```{r}
+snacks <- data.frame(
+  group = c("Cakes", "Biscuits", "Jaffa Cakes"),
+  count = c(30, 50, 20)
+)
+
+ggplot(snacks) + 
+  aes(x = " ", y = count, fill = group) +
+  geom_bar(width = 0.5, stat = "identity") + 
+  xlab("biscuits")
+
+```
+<br> 
+
+Now we can convert it to polar coordinates. We do this with caution, because it essentially makes us a pie chart, and pie charts are not actually very useful data visualisation tools. 
+
+```{r}
+ggplot(snacks) + 
+  aes(x = " ", y = count, fill = group) +
+  geom_bar(width = 0.5, stat = "identity") + 
+  xlab("biscuits") +
+  coord_polar("y")
+```
+<br>
+
+<blockquote class='task'>
+**Task - 2 mins** 
+
+Why are pie charts bad?!
+
+<details>
+<summary>**Answers**</summary>
+
+Despite what people think, it's actually really difficult to get proper information from a pie chart unless you superimpose the data values on it. Human beings aren't actually very good at judging angles, and it is quite difficult to get an accurate judgement from them without looking at the numbers. For example, is it easy to see that Jaffa Cakes make up 20% of the entire biscuit count from the above pie chart?
+
+</details>
+</blockquote>
+<br> 
+
+For reference polar coordinates (as implemented in ggplot2) will determine the minimum and maximum value of the coordinate assigned to be the angle. The minimum value is situated at 0 degrees, the maximum value at 360 degrees. It might help you understand the strange shapes polar coordinates create if your distort a line for yourself...
+
+	
+## Zooming into a plot using coord_cartesian
+
+When we looked at scale we noted we set the range of an axis, and eliminate points outside that range. The alternative is to zoom into an area of a graph using coordinates.
+
+```{r}
+ggplot(whisky) +
+  geom_point(aes(x = YearFound, y = Capacity, colour = Region)) +
+  coord_cartesian(xlim = c(1940, 2000))
+```
+
+but we can already do this
+
+```{r}
+ggplot(whisky) +
+  geom_point(aes(x = YearFound, y = Capacity, colour = Region)) +
+  xlim(1940, 2000)
+```
+
+Why do we need two ways of doing this? The scale method eliminates points, whereas the coordinate method doesn't show them. Is this a distinction without a difference? 
+
+The issue arises in respect of statistics. Let's look at an example.
+
+```{r}
+ggplot(whisky, aes(x = YearFound, y = Capacity)) +
+  geom_point(aes(colour = Region)) +
+  geom_smooth()
+```
+
+We have a best fit line and error ribbon. Let's zoom in using coordinates.
+
+```{r}
+ggplot(whisky, aes(x = YearFound, y = Capacity)) +
+  geom_point(aes(colour = Region)) +
+  geom_smooth() +
+  coord_cartesian(xlim = c(1940, 2000))
+```
+
+Fine. Job done. Let's try to zoom in using scales.
+
+```{r}
+ggplot(whisky, aes(x = YearFound, y = Capacity)) +
+  geom_point(aes(colour = Region)) +
+  geom_smooth() +
+  xlim(1940, 2000)
+```
+
+Very different, because applying `xlim()` eliminates points outside this range so they no longer contribute to the shape of the best fit line. Note the line doesn't even extend beyond the leftmost point on display.
+
+The correct option depends on what you want - do you want your model to be fitted to all of the points, or just those shown? There is no "right" option again - it depends why you're producing this model.
+
+
+# Recap
+
+* How we transform the scale of an axis?
+
+<details>
+
+<summary>**Answer**</summary>
+
+* We use `+ scale_x_continuous(trans="<transformer>")` or for common transforms
+a shortcut such as `scale_x_log10`.
+  
+</details>
+
+* How do we limit the plotted axes?
+
+<details>
+
+<summary>**Answer**</summary>
+
+We can apply this through the coordinate system:
+
+* `coord_cartesian(xlim=c(1940,2000))` 
+
+or the scale:
+
+* `+xlim(1940,2000)`
+  
+</details>
+
+* What's the difference between limiting axes via the scale or the coordinate system?
+
+<details>
+
+<summary>**Answer**</summary>
+
+Limiting axes via the scale eliminates points outside of the displayed range which can impact on calculated statistics used in the plot.
+  
+</details>
+
+* How do we move from conventional Cartesian coordinates to polar coordinates?
+
+<details>
+
+<summary>**Answer**</summary>
+
+We used `+ coord_polar("x")` or `coord_polar("y")` depending on whether we want `x` or `y` to be the angle coordinate.
+  
+</details>
+
+
+
+<hr>  
+
+# Additional Resources
+
+Links of where else to look
+
+* [ggplot2 home page](https://ggplot2.tidyverse.org)
+
+ 
+
+
+
+
+
+
+

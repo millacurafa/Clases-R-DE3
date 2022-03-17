@@ -1,0 +1,481 @@
+---
+title: "SQL lab - solutions"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "16th June 2019"
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+**Duration - 120 minutes**
+
+In this lab we'll return again to the `omni_employees` database, but now looking at all tables and the relationships between them.
+
+The `psql` command line interface offers a number of commands to get further information on databases and the tables within them. All `psql` commands start with a backslash `\`.
+<br>
+
+| command | output |
+| --- | --- |
+| `\l` | list databases|
+| `\c db_name` | connect to database *db_name* |
+| `\dt` | list tables in a database |
+| `\d+ table_name` | get detailed information on table *table_name* |
+
+<br>
+```bash
+# connect to local server
+psql 
+# list all databases
+\l
+# connect to omni_employees
+\c omni_employees
+# list all tables in omni_employees
+\dt
+# get detailed information on the committees table
+\d+ committees
+```
+<br>
+
+<hr>
+
+# Preparation
+
+* In `psql`, connect to `omni_employees`, list all the tables, and get detailed information on each of the tables using the `\d+` command. 
+  - primary keys are shown in the 'Indexes' section.
+  - foreign keys are shown in the 'Foreign-key constraints' section.
+  - the 'Referenced by' section indicates if the table is the *target* of a foreign key in another table.
+
+* Investigate table relationships: look for primary keys and foreign keys, see if you can spot any one-to-one, one-to-many or many-to-many relationships.
+
+Solution (PK is 'primary key', FK is 'foreign key'):
+
+* `committees`: PK `id`, no FKs, referenced by `employees_committees`.
+* `employees`: PK `id`, FKs `pay_detail_id` and `team_id`, referenced by `employees_committees`.
+* `employees_committees`: PK `id`, FKs `committee_id` and `employee_id`, not reference by any other table.
+* `pay_details`: PK `id`, no FKs, referenced by `employees`.
+* `teams`: PK `id`, referenced by `employees`.
+<br>
+Relationships: 
+
+* one employee has one pay_detail
+* one team has many employees, one employee has one team
+* one committee has many employees, one employee has many committees
+
+# MVP
+
+Setup a connection from R to your local `omni_employees` database, then write **a single query** to solve each of the following problems:
+
+```{r}
+library(keyring)
+library(RPostgreSQL)
+
+keyring_unlock("local")
+username <- key_get("postgresql_username", keyring = "local") 
+password <- key_get("postgresql_password", keyring = "local")
+keyring_lock("local")
+db_connect <- dbConnect(drv = PostgreSQL(), user = username, password = password, dbname = "omni_employees", host = "localhost")
+```
+
+<br>
+
+1. Find all the `employees` who work in the 'Human Resources' department.
+```{r}
+dbGetQuery(db_connect, 
+          "SELECT * 
+          FROM employees
+          WHERE department = 'Human Resources'")
+```
+
+<br>
+
+2. Get the first name, last name, and country of the `employees` who work in the 'Legal' department
+```{r}
+dbGetQuery(db_connect, 
+          "SELECT first_name, last_name, country 
+          FROM employees
+          WHERE department = 'Legal'")
+```
+
+<br>
+
+3. Count the number of `employees` based in Portugal.
+```{r}
+dbGetQuery(db_connect, 
+          "SELECT COUNT(id)
+          FROM employees
+          WHERE country = 'Portugal'")
+```
+
+<br>
+
+4. Count the number of `employees` based in either Portugal or Spain.
+```{r}
+dbGetQuery(db_connect, 
+          "SELECT COUNT(id)
+          FROM employees
+          WHERE country IN ('Portugal', 'Spain')")
+```
+
+<br>
+
+5. Count the number of `pay_details` records lacking a `local_account_no`
+```{r}
+dbGetQuery(db_connect, 
+          "SELECT COUNT(id)
+          FROM pay_details
+          WHERE local_account_no IS NULL")
+```
+
+<br>
+
+6. Are there any `pay_details` record lacking both a `local_account_no` and `iban` number?
+```{r}
+dbGetQuery(db_connect, 
+          "SELECT COUNT(id)
+          FROM pay_details
+          WHERE local_account_no IS NULL AND iban IS NULL")
+# count is zero, so no
+```
+
+<br>
+
+7. Get a list of `employees` first names and last names ordered alphabetically by their last name (put any nulls last).
+```{r}
+dbGetQuery(db_connect,
+           "SELECT first_name, last_name
+           FROM employees
+           ORDER BY last_name ASC NULLS LAST")
+```
+
+<br> 
+
+8. Get a list of `employees` first names, last names and countries, ordered alphabetically first by their country and second by their last name (put any nulls last).
+```{r}
+dbGetQuery(db_connect,
+           "SELECT first_name, last_name, country
+           FROM employees
+           ORDER BY country ASC NULLS LAST, last_name ASC NULLS LAST")
+```
+
+<br>
+
+9. Find the top ten highest paid `employees` in the corporation.
+```{r}
+dbGetQuery(db_connect,
+           "SELECT *
+           FROM employees
+           ORDER BY salary DESC NULLS LAST
+           LIMIT 10")
+```
+
+<br>
+
+10. Find the first name, last name and salary of the lowest paid of the `employees` in Hungary 
+```{r}
+dbGetQuery(db_connect,
+           "SELECT first_name, last_name, salary
+           FROM employees
+           WHERE country = 'Hungary'
+           ORDER BY salary ASC NULLS LAST
+           LIMIT 1")
+```
+
+<br>
+
+11. How many `employees` have a first name beginning with 'F'?
+```{r}
+dbGetQuery(db_connect,
+           "SELECT COUNT(id)
+           FROM employees
+           WHERE first_name ILIKE 'F%'")
+```
+
+<br>
+
+12. Find all the details of any `employees` with a 'yahoo' e-mail address?
+```{r}
+dbGetQuery(db_connect,
+           "SELECT *
+           FROM employees
+           WHERE email ILIKE '%yahoo%'")
+```
+
+<br>
+
+13. Count the number of pension enrolled `employees` not based in either France or Germany.
+```{r}
+dbGetQuery(db_connect,
+           "SELECT COUNT(id)
+           FROM employees
+           WHERE pension_enrol IS TRUE AND country NOT IN ('France', 'Germany')")
+```
+
+<br>
+
+14. Breakdown the numbers of `employees` enrolled, not enrolled and whose enrollment status is unknown in the corporation pension scheme.
+<details>
+<summary>**Hint**</summary>
+'Breakdown the numbers' indicates a `GROUP BY` operator is needed.
+</details>
+```{r}
+dbGetQuery(db_connect,
+           "SELECT pension_enrol, COUNT(id)
+           FROM employees
+           GROUP BY pension_enrol")
+```
+
+<br>
+
+15. What is the maximum salary among `employees` in the Engineering department who work 1.0 full-time equivalent hours?
+```{r}
+dbGetQuery(db_connect,
+           "SELECT MAX(salary)
+           FROM employees
+           WHERE department = 'Engineering' AND fte_hours = 1.0")
+```
+
+<br>
+
+16. Obtain a count by department of the `employees` who started work with the corporation in 2003.
+```{r}
+dbGetQuery(db_connect,
+           "SELECT department, COUNT(id) AS num_employees
+           FROM employees
+           WHERE start_date BETWEEN '2003-01-01' AND '2003-12-31'
+           GROUP BY department")
+```
+
+<hr>
+
+# Extensions
+
+Some of these problems may need you to do some online research on SQL statements we haven't seen in lessons... Don't worry, we'll give you pointers and it's good practice!
+
+<br>
+
+1. Show the average salary in any countries in which more than 30 `employees` are based. Order the list descending by average salary.
+<details>
+<summary>**Hints**</summary>
+    * A `HAVING` clause is needed to filter using an aggregate function.
+    * You can pass a column alias to `ORDER BY`
+</details>
+```{r}
+dbGetQuery(db_connect,
+           "SELECT country, count(id) AS num_employees, AVG(salary) AS average_salary
+           FROM employees
+           GROUP BY country
+           HAVING COUNT(id) > 30
+           ORDER BY average_salary DESC")
+```
+
+<br>
+
+2. Find the first name and last name of all `employees` who lack a `local_tax_code`.
+<details>
+<summary>**Hint**</summary>
+`local_tax_code` is a field in table `pay_details`, and `first_name` and `last_name` are fields in table `employees`, so this query requires a `JOIN`!
+</details>
+```{r}
+dbGetQuery(db_connect,
+           "SELECT first_name, last_name
+           FROM employees AS e INNER JOIN pay_details AS pd
+           ON e.pay_detail_id = pd.id
+           WHERE pd.local_tax_code IS NULL")
+```
+
+<br>
+
+3. Find the first name, last name and team name of `employees` who are members of `teams` for which the charge cost is greater than 80. Order the `employees` alphabetically by last name.
+<details>
+<summary>**Hint**</summary>
+`charge_cost` may be the wrong type to compare with value `80`. Can you find a way to convert it **without changing** the database?<br>
+This query will require a `JOIN`, with a `WHERE` clause on a field in `teams`.
+</details>
+```{r}
+dbGetQuery(db_connect,
+           "SELECT e.first_name, e.last_name, t.name AS team_name
+           FROM employees AS e INNER JOIN teams AS t
+           ON e.team_id = t.id
+           WHERE CAST(t.charge_cost AS INT) > 80
+           ORDER BY e.last_name  ASC NULLS LAST")
+```
+
+<br>
+
+4. Breakdown the number of `employees` in each of the `teams`, including any `teams` without members. Order the list by increasing size of team.
+<details>
+<summary>**Hints**</summary>
+    * Two tables involved here, so a `JOIN` is necessary.
+    * We want to include **all teams** (not just those with member employees), so an `INNER JOIN` won't work...
+    * We need to `GROUP BY` team name and count the number of employees in each team.
+</details>
+```{r}
+dbGetQuery(db_connect,
+           "SELECT t.name AS team_name, COUNT(e.id) AS num_employees
+           FROM employees AS e RIGHT JOIN teams AS t
+           ON e.team_id = t.id
+           GROUP BY t.name
+           ORDER BY num_employees ASC")
+```
+
+<br>
+
+5. Do a count by year of the start dates of all employees, ordered most recent year last. <br>
+[Investigate how to use the SQL `EXTRACT()` function to get the year from a date]
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT EXTRACT(YEAR FROM start_date) AS year, COUNT(id) 
+           FROM employees 
+           GROUP BY year 
+           ORDER BY year ASC NULLS LAST")
+```
+
+<br>
+
+6. Return the first name, last name and salary of all `employees` together with a new column called `salary_class` with value `'low'` where salary is less than 40,000 and value `'high'` where salary is greater than or equal to 40,000.<br>
+[Investigate how to use the SQL `CASE()` function to return the required values `'low'` and `'high'` based on the value of salary]
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT first_name, last_name, 
+           CASE 
+             WHEN salary < 40000 THEN 'low' 
+             ELSE 'high' 
+           END AS salary_class
+           FROM employees")
+```
+
+7. Only return first names where more than 1 person has the first name.
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT first_name, count(*) AS name_count
+           FROM employees
+           GROUP BY first_name 
+           HAVING count(*) > 1
+           ORDER BY name_count desc")
+```
+
+# Extensions - many-to-many problems
+
+The following problems require joining over three tables: `employees`, `committees` and the join table `employees_committees`. Again, don't worry, take it slow and think of the join of the first two tables producing a table that we **then** join to the third table. 
+
+<br>
+
+1. **[Break-in problem, doesn't require any `JOIN`s]** How many of the corporation's `employees` serve in `committees`?
+<details>
+<summary>**Hint**</summary>
+All of the details of membership of `committees` is held in a single table: `employees_committees`.
+</details>
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT COUNT(DISTINCT(employee_id))
+           FROM employees_committees")
+```
+
+<br>
+
+2. Get the full details (including committee name) of any committee members based in China.
+<details>
+<summary>**Hints**</summary>
+    * We need both joins for the many-to-many relationship with a join table.
+    * We need to filter based upon the country of employees 
+</details>
+```{r}
+dbGetQuery(db_connect,
+           "SELECT e.*, c.name AS committee_name
+           FROM (employees AS e INNER JOIN employees_committees AS ec
+           ON e.id = ec.employee_id)
+           INNER JOIN committees AS c
+           ON ec.committee_id = c.id
+           WHERE e.country = 'China'")
+```
+
+<br>
+
+3. Find the first name, last name, email address and start date of all the `employees` who are members of the 'Equality and Diversity' committee. Order the member `employees` by their length of service in the company, longest first.
+```{r}
+dbGetQuery(db_connect,
+           "SELECT e.first_name, e.last_name, e.email, e.start_date
+           FROM (employees AS e INNER JOIN employees_committees AS ec
+           ON e.id = ec.employee_id)
+           INNER JOIN committees AS c
+           ON ec.committee_id = c.id
+           WHERE c.name = 'Equality and Diversity'
+           ORDER BY e.start_date ASC NULLS LAST")
+```
+
+<br>
+
+4. **[Very tough!]** Re-use the `CASE()` operator from question 6 above to group `employees` who are members of `committees` into `salary_class` `'low'` or `'high'`. Count the number of committee members in each class.
+```{r}
+dbGetQuery(db_connect,
+           "SELECT 
+           CASE 
+             WHEN salary < 40000 THEN 'low' 
+             ELSE 'high' 
+           END AS salary_class,
+           COUNT(e.id) AS num_committee_members
+           FROM (employees AS e INNER JOIN employees_committees AS ec
+           ON e.id = ec.employee_id)
+           INNER JOIN committees AS c
+           ON ec.committee_id = c.id
+           GROUP BY salary_class")
+```
+
+<br>
+
+5. **[Very tough!]** Group committee members into the `teams` in which they work, counting the number of committee members in each team (including teams with no committee members). Order the list by the number of committee members, highest first.
+<details>
+<summary>**Hints**</summary>
+    * This requires **three** joins: two joins for the many-to-many relationship as usual, followed by a third join to `teams`!
+    * 'including teams with no committee members' - what type of join should we create to `teams`?
+</details>
+```{r}
+dbGetQuery(db_connect,
+           "SELECT t.name AS team_name, COUNT(e.id) AS num_committee_members
+           FROM (employees AS e INNER JOIN employees_committees AS ec
+           ON e.id = ec.employee_id)
+           INNER JOIN committees AS c
+           ON ec.committee_id = c.id
+           RIGHT JOIN teams AS t
+           ON e.team_id = t.id
+           GROUP BY t.name
+           ORDER BY num_committee_members DESC NULLS LAST")
+```
+
+
+6. How many employees are not in a committee? (This requires joining over only 2 tables)
+<details>
+<summary>**Hints**</summary>
+    * Could you use a join and find rows without a match in the join?
+</details>
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT count(*)
+           FROM employees e
+           LEFT JOIN employees_committees ec
+           ON e.id = ec.employee_id 
+           WHERE ec.employee_id IS NULL")
+```
+
+
+           
+<hr>
+
+```{r}
+dbDisconnect(db_connect)
+```

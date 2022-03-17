@@ -1,0 +1,75 @@
+---
+title: "Logistic regression lab"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "19th Jan 2020"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives
+
+* Practice performing logistic regression
+* Extract and interpret fitted coefficients
+* Calculate and plot ROC curves and the AUC
+* Compare classifiers based on different logistic regressions
+
+**Duration - 120 minutes**
+
+<hr>
+
+# MVP
+
+You're given sample data for the customers of a telecomms company, and asked to use the data to build a classifier to predict which customers are likely to 'churn' (i.e. decline to renew their service contract and move to another supplier) over the next 12 months.  Your clients intend to use your classifier to send targeted offers to customers likely to churn.
+
+The sample data given in file `telecomms_churn.xlsx` contains a number of columns, including a `Churn` column stating whether each customer churned during the previous 12 months.
+
+<br>
+1. Read in the `telecomms_churn.xlsx` dataset, do initial data tidying and then explore its contents (try the `readxl` ppackage). Examine the relationships between the `churn` variable and other possible predictor variables, looking for significant relationships.
+
+
+<br>
+2. Convert all character columns to factor columns (**hint** consider `mutate_if()` for this). Convert `senior_citizen` to a meaningful factor column as well.
+
+<br>
+3. Let's perform logistic regression using the `churn` column as the binary dependent variable. Create **three separate single predictor logistic regression models** choosing from amongst the promising predictor columns you found in your analysis above. Try to have at least one continuous predictor, and at least one categorical predictor. Check that the coefficient of the single predictor in each model is statistically significant.
+
+<br>
+4. So far so good! Now we'll treat the logistic regression models as potential classifiers. Plot ROC curves for each classifier (it would be nice to put these on the same axes). Obtain AUC values for each of your classifiers and say which of them is likely to be the best classifier.
+
+<br>
+5. So far we've used all our data for both training and testing. Let's perform cross validation to check how representative the AUC values you calculated above will be for unseen data
+
+<br>
+6. Take the model generating the best classifier (highest AUC value) from amongst your three and interpret the fitted coefficient of the particular predictor in that model in a meaningful way. Think in terms of **odds ratio**, i.e. how does changing the predictor value affect the odds that a customer will churn?
+
+# Extensions
+
+<br>
+7. Now try fitting a logistic regression model with **all** potential predictors. Are any predictors statistically insignificant? Keep any insignificant predictors in the model. How does the classifier perform in terms of AUC value? Does cross validation reveal any evidence of overfitting? 
+
+<br>
+8. Use the classifier you created in the last question for this question. We wish to perform a expected value calculation to set an optimal threshold for the classifier. The targeted campaign consists of giving selected customers deemed likely to churn a loyalty incentive of £100 to remain with the company for the next year. A positive case is a customer deemed likely to churn
+
+Here are the established profits per customer passed through the classifier depending upon outcome:
+
+* TPP will equal the mean `total_charges` of customers who did not churn in the last year less the £100 loyalty incentive
+* TNP no profit, as no incentive offered.
+* FPP will be a negative profit equal to the £100 loyalty incentive
+* FNP no profit, as no incentive offered
+
+[Note, this is not a particularly accurate financial model, real analysis of churn classifiers should take in information about each customer!]
+
+Use these values to establish an optimal threshold for the 'all predictors' classifier you generated in the last question.
+

@@ -1,0 +1,240 @@
+---
+title: "SQL lab"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "16th June 2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+**Duration - 120 minutes**<br>
+
+In this lab we'll return again to the `omni_employees` database, but now looking at all tables and the relationships between them.
+
+The `psql` command line interface offers a number of commands to get further information on databases and the tables within them. All `psql` commands start with a backslash `\`.
+<br>
+
+| command | output |
+| --- | --- |
+| `\l` | list databases|
+| `\c db_name` | connect to database *db_name* |
+| `\dt` | list tables in a database |
+| `\d+ table_name` | get detailed information on table *table_name* |
+
+<br>
+```bash
+# connect to local server
+psql 
+# list all databases
+\l
+# connect to omni_employees
+\c omni_employees
+# list all tables in omni_employees
+\dt
+# get detailed information on the committees table
+\d+ committees
+```
+<br>
+
+<hr>
+
+# Preparation
+
+* In `psql`, connect to `omni_employees`, list all the tables, and get detailed information on each of the tables using the `\d+` command. 
+  - primary keys are shown in the 'Indexes' section.
+  - foreign keys are shown in the 'Foreign-key constraints' section.
+  - the 'Referenced by' section indicates if the table is the *target* of a foreign key in another table.
+
+* Investigate table relationships: look for primary keys and foreign keys, see if you can spot any one-to-one, one-to-many or many-to-many relationships.
+
+# MVP
+
+Setup a connection from R to your local `omni_employees` database, then write **a single query** to solve each of the following problems:
+
+<br>
+
+1. Find all the `employees` who work in the 'Human Resources' department.
+
+<br>
+
+2. Get the first name, last name, and country of the `employees` who work in the 'Legal' department
+
+<br>
+
+3. Count the number of `employees` based in Portugal.
+
+<br>
+
+4. Count the number of `employees` based in either Portugal or Spain.
+
+<br>
+
+5. Count the number of `pay_details` records lacking a `local_account_no`
+
+<br>
+
+6. Are there any `pay_details` record lacking both a `local_account_no` and `iban` number?
+
+<br>
+
+7. Get a list of `employees` first names and last names ordered alphabetically by their last name (put any nulls last).
+
+<br> 
+
+8. Get a list of `employees` first names, last names and countries, ordered alphabetically first by their country and second by their last name (put any nulls last).
+
+<br>
+
+9. Find the top ten highest paid `employees` in the corporation.
+
+<br>
+
+10. Find the first name, last name and salary of the lowest paid of the `employees` in Hungary 
+
+<br>
+
+11. How many `employees` have a first name beginning with 'F'?
+
+<br>
+
+12. Find all the details of any `employees` with a 'yahoo' e-mail address?
+
+<br>
+
+13. Count the number of pension enrolled `employees` not based in either France or Germany.
+
+<br>
+
+14. Breakdown the numbers of `employees` enrolled, not enrolled and whose enrollment status is unknown in the corporation pension scheme.
+<details>
+<summary>**Hint**</summary>
+'Breakdown the numbers' indicates a `GROUP BY` operator is needed.
+</details>
+
+<br>
+
+15. What is the maximum salary among `employees` in the Engineering department who work 1.0 full-time equivalent hours?
+
+<br>
+
+16. Obtain a count by department of the `employees` who started work with the corporation in 2003.
+
+<hr>
+
+# Extensions
+
+Some of these problems may need you to do some online research on SQL statements we haven't seen in lessons... Don't worry, we'll give you pointers and it's good practice!
+
+<br>
+
+1. Show the average salary in any countries in which more than 30 `employees` are based. Order the list descending by average salary.
+<details>
+<summary>**Hints**</summary>
+    * A `HAVING` clause is needed to filter using an aggregate function.
+    * You can pass a column alias to `ORDER BY`
+</details>
+
+<br>
+
+2. Find the first name and last name of all `employees` who lack a `local_tax_code`.
+<details>
+<summary>**Hint**</summary>
+`local_tax_code` is a field in table `pay_details`, and `first_name` and `last_name` are fields in table `employees`, so this query requires a `JOIN`!
+</details>
+
+<br>
+
+3. Find the first name, last name and team name of `employees` who are members of `teams` for which the charge cost is greater than 80. Order the `employees` alphabetically by last name.
+<details>
+<summary>**Hint**</summary>
+This query will require a `JOIN`, with a `WHERE` clause on a field in `teams`.
+</details>
+
+<br>
+
+4. Breakdown the number of `employees` in each of the `teams`, including any `teams` without members. Order the list by increasing size of team.
+<details>
+<summary>**Hints**</summary>
+    * Two tables involved here, so a `JOIN` is necessary.
+    * We want to include **all teams** (not just those with member employees), so an `INNER JOIN` won't work...
+    * We need to `GROUP BY` team name and count the number of employees in each team.
+</details>
+
+<br>
+
+5. Do a count by year of the start dates of all employees, ordered most recent year last. <br>
+[Investigate how to use the SQL `EXTRACT()` function to get the year from a date]
+
+<br>
+
+6. Return the first name, last name and salary of all `employees` together with a new column called `salary_class` with value `'low'` where salary is less than 40,000 and value `'high'` where salary is greater than or equal to 40,000.<br>
+[Investigate how to use the SQL `CASE()` function to return the required values `'low'` and `'high'` based on the value of salary]
+
+<br>
+
+7. Only return first names where more than 1 person has the first name.
+
+# Extensions - many-to-many problems
+
+The following problems require joining over three tables: `employees`, `committees` and the join table `employees_committees`. Again, don't worry, take it slow and think of the join of the first two tables producing a table that we **then** join to the third table. 
+
+<br>
+
+1. **[Break-in problem, doesn't require any `JOIN`s]** How many of the corporation's `employees` serve in `committees`?
+<details>
+<summary>**Hint**</summary>
+All of the details of membership of `committees` is held in a single table: `employees_committees`.
+</details>
+
+<br>
+
+2. Get the full details (including committee name) of any committee members based in China.
+<details>
+<summary>**Hints**</summary>
+    * We need both joins for the many-to-many relationship with a join table.
+    * We need to filter based upon the country of employees 
+</details>
+
+<br>
+
+3. Find the first name, last name, email address and start date of all the `employees` who are members of the 'Equality and Diversity' committee. Order the member `employees` by their length of service in the company, longest first.
+
+<br>
+
+4. **[Very tough!]** Re-use the `CASE()` operator from question 6 above to group `employees` who are members of `committees` into `salary_class` `'low'` or `'high'`. Count the number of committee members in each class.
+
+<br>
+
+5. **[Very tough!]** Group committee members into the `teams` in which they work, counting the number of committee members in each team (including teams with no committee members). Order the list by the number of committee members, highest first.
+<details>
+<summary>**Hints**</summary>
+    * This requires **three** joins: two joins for the many-to-many relationship as usual, followed by a third join to `teams`!
+    * 'including teams with no committee members' - what type of join should we create to `teams`?
+</details>
+
+<br>
+
+6. How many employees are not in a committee? (This only requires joining over 2 tables)
+<details>
+<summary>**Hints**</summary>
+    * Could you use a join and find rows without a match in the join?
+</details>
+
+
+<hr>
+
+
+
+

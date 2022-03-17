@@ -1,0 +1,163 @@
+---
+title: "Data Preparation Practice Lab"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: false
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, eval= FALSE, fig.align = 'center')
+library(tidyverse)
+```
+
+
+
+# Learning Objectives 
+
+* Be able to identify the correct verbs and steps to take to transform a dataset(s) from one structure to another
+* Be able to tidy a dataset using some of the verbs we've learnt this week
+* Be able to use your tidy data skills to make some simple initial observations from your reshaped, tidy data. 
+
+
+Your task is to read in the input csv file, and use the verbs you have learned this week to get it into a workable dataset for analysis. 
+
+
+The data we're going to use for this lab comes from a data bank of facial recognition data ratings. In this dataset, people were shown faces and asked to rated different characteristcs about them. People were free to respond however they wanted, and data was collected from many different people. You can start to imagine that the incoming dataset might be a little messy... 
+
+
+### Question 1 
+
+Let's start by loading the tidyverse library and reading the data in. You learned earlier this week how to get a feel for your data when you first load it in. Find out the dimenions, variable names, and print the first 10 rows. 
+<br>
+
+***
+### Question 2
+
+Do these variable names look tidy to you? What format is your data in (long or wide)? 
+<br>
+
+*** 
+
+### Question 3
+
+Being faced with such complex data can be daunting, we may feel overwhelmed and ask ourselves:
+
+* How can I organise this data?
+* How can I make this data meaningful?
+* How can I make this data tidy?
+
+The first problem you can always tackle is to get your data in an appropriate format. What format do you need?
+
+Once you have figured that out, reshape the data into the appropriate format. 
+
+<details>
+<summary>**Hint**</summary>
+Use the `pivot_longer()` function to gather the data into long format. You'll need to put all columns beginning with t into one column. 
+</details>
+<br>
+
+
+*** 
+
+### Question 4  
+
+But wait! Some people have given lengthy descriptions of the faces, some have only given one word. This can be problematic for analysis, if you eventually want to summarise key descriptions. 
+
+Some people have split the description of the faces using a slash. Use the separate function to split apart the descriptions column so that if people have given more than one answer (i.e. if the data is separated by a /) it is moved into a new row. 
+
+First, you'll need to decide a cut off for how many responses you want to accept from people. Is one enough? Two? Three? Once you've decided how many descriptions you want to code, you'll have to separate your description columns into that many columns. 
+
+
+*** 
+
+
+### Question 5
+
+However, people also used other separators like ';' or ', '. Can you extend the code to account for these separators too?
+
+<details>
+<summary>**Hint**</summary>
+You can use `separate` multiple times, but you will need to change the `extra` argument and the `remove` argument; have a look at help file.
+</details>
+
+
+### Question 6 
+
+We've now split the data, and have three description variables. But is this data ACTUALLY tidy? Isn't one of the rules that we need to have only one column per variable? And now we have more than one description variables... 
+
+What do we need to do here so our description variables follow the rules of tidy data?
+
+<details>
+<summary>**Hint**</summary>
+Use the `pivot_longer()` function to create a new description column, which will identify which description number it is (1,2,3, etc), and to create one single variable called `description` which contains the actual description. Save it all in a new tibble called `all_descriptions`.
+<summary>
+</details>
+<br>
+
+*** 
+
+
+### Question 7
+
+But, wait... another problem arises... not everyone provided three descriptions! So, if you look at the data, we have some missing values (NAs). We also have some nonsense descriptions (e.g. “f” and “.”). Let's now sort these out. 
+
+Use the `filter` function to get rid of NA's and useless descriptions.
+<br>
+<details>
+<summary>**Hint**</summary>
+Hint: look back at the previous sections where we dealt with null values (i.e. the `is.na()` function. If you want to keep everything that is not equal to NA, what would you need to do? If you wanted to make sure you kept everything where the `description` variable had more than one character, is there a function you could use? This is a task extension - you haven't used this function before, but try googling for a function that counts the **number of characters** in a variable. You can then use a logical operator (which we also learned about this week), to ensure you only select where there is more than 1 character present. 
+</details>
+<br>
+
+This data is starting to look better! We have taken some not so tidy data, and moved all the way through to tidy data!  
+
+*** 
+
+
+### Question 8
+
+Now we can actually find something out about our data. Let's find out what the most common description of each face is. Earlier in the week you learnt how to pipe functions together to create summary stats. 
+
+Group the data by `description`, and summarise the data by generating a count for each group.   
+<br>
+
+***
+
+### Question 9
+
+Finally, arrange the output so that we have the most common description at the top, and the least common at the bottom. *Hint: do you need ascending or descending order for this?*   
+Create a tibble called `top_10_descriptions`, which filters your arranged data so that it only takes the top 10 answers. 
+*Hint: you can use the `row_number()` function and a logical operator which takes row numbers <11 * 
+
+This will help us answer the question: what are the most common descriptions of faces given?
+<br>
+
+
+Congrats! You have successfully gone from messy data to summary stats - exactly what you've been learning to do over the past couple of days. Well done. 
+
+*** 
+
+
+### Question 10 : Extension
+
+So from that messy dataset, we now have a nice summary table of the 10 most common descriptions of faces. And we did it quickly! But one of the most useful things we learnt this week was how to create a pipe. Try your hand at changing the code above into a pipe. Start from the very beginning, where you load in the data. Save it all in a tibble called `faces`. 
+<br>
+
+
+*** 
+
+
+### Question 11: Extension
+
+Now we have reshaped our data, tidied it, and summarised it, and we've even made our code more efficient by turning it into a pipe! The output table is nice, but it would be better if we could present the results in a graph rather than a table. If you're finished, you can take on this finally piece of analysis.
+
+Google and see if you can find out how to use ggplot. Make a bar chart which shows the number of responses of your top 10 descriptions. Make sure you give it appropriate x and y labels, and an informative title. Be as creative as you like. 
+
+
+
+

@@ -1,0 +1,145 @@
+---
+title: "Python Analysis - Homework"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r, echo = FALSE}
+library(reticulate)
+use_python("/anaconda3/bin/python")
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+```
+
+
+
+# Analysis tasks
+
+In the following analysis tasks, we are going to use a data set on incidences of forest fires in the north east of Portugal. You can find a description of the dataset [here](https://archive.ics.uci.edu/ml/datasets/forest+fires).
+
+## Read data
+
+* Import the `pandas` and `numpy` packages.
+
+```{python}
+import pandas as pd
+import numpy as np
+```
+
+* Now read the file `forestfires.csv` and look at the first few rows.
+
+```{python}
+fires = pd.read_csv("forestfires.csv")
+fires.head()
+```
+
+* Have a look at the methods available on a `pandas` dataframe. 
+  - We've already seen `describe()`, so run that on the dataframe you loaded above. 
+  - Run another method providing general information on the stored data. 
+
+```{python}
+fires.describe(include = "all")
+# info() provides general summary information on the stored data
+fires.info(verbose = True, null_counts =True)
+```
+
+## Missing data
+
+* Which variables having missing data in this data frame?
+  - Replace all the missing values in `area` with 0
+  - Remove the rows that have missing values in other columns
+
+```{python}
+fires.isnull().sum()
+# area, temp and wind all have missing data
+```
+
+```{python}
+fires = fires.fillna({"area": 0})
+
+fires.dropna(inplace = True)
+```
+
+
+## Using the "Verbs"
+
+### Select
+
+* Change your data frame so that columns `X` and `Y` are dropped.
+
+```{python}
+#fires = fires[['month', 'day', 'temp', 'wind', 'rain', 'area']]
+# or 
+fires = fires.drop(columns = ["X", "Y"], axis = 1)
+fires.head()
+```
+
+### Arrange
+
+* Change your data frame so that it is arranged by `area`, so that the highest `area` fires are first
+
+```{python}
+fires = fires.sort_values('area', ascending = False)
+```
+
+### Filter
+
+* Change your data frame so that it contains no rows where `area` is zero.
+
+```{python}
+fires = fires[fires['area'] != 0]
+```
+
+### Mutate
+
+* Create a new column `is_rain`, which is equal to `True` whenever `rain` is greater than zero and `False` otherwise.
+
+```{python}
+fires['is_rain'] = fires['rain'] > 0
+```
+
+### Group by and summarise
+
+* Find the average `area` of fire:
+  - In each `month` of the year
+  - In each `day` of the week
+  - When there is rain, and when there isn't rain
+
+```{python}
+fires.groupby('month')['area'].mean()
+```
+```{python}
+fires.groupby('day')['area'].mean()
+```
+```{python}
+fires.groupby('is_rain')['area'].mean()
+```
+
+## Plotting
+
+* Use `matplotlib` to create a histogram of `area`
+* Use `seaborn` to create a histogram of `area`
+* Use seaborn to create a scatter plot of `temp` vs. `area`
+
+```{python, eval = FALSE}
+%matplotlib inline
+```
+```{python}
+import matplotlib as plt
+import seaborn as sns
+
+fires["area"].plot(kind="hist")
+```
+```{python}
+sns.distplot(fires['area'])
+```
+
+```{python}
+sns.regplot(x = 'temp', y = 'area', data = fires)
+```

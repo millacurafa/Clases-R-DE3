@@ -1,0 +1,1089 @@
+---
+title: "Python Basics"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r, echo = FALSE}
+library(reticulate)
+use_python("/anaconda3/bin/python")
+```
+
+
+# Learning Objectives
+
+* Be able to use Jupyter notebooks
+* Get exposed to the basics of Python
+* Understand the differences between Python and R
+* Be able to use Python packages
+
+**Lesson Duration: 3 hours**
+
+# Jupyter Notebook
+
+The Jupyter Notebook is an open-source web application that allows you to create and share documents that contain live code, equations, visualisations and narrative text. Uses include: data cleaning and transformation, numerical simulation, statistical modelling, data visualisation, machine learning, and much more.
+
+There are two versions of Python available: Python 2 and Python 3. Python 3 was an update to Python 2 that isn't backwards compatible. So code written in Python 2 won't necessarily run in Python 3. Python 2 is no longer supported (as of January 2020!) so if you have the choice you should avoid using it.
+
+We have installed Jupyter Notebook via the Anaconda Distribution - This includes everything we need, from Python 3.7 to all data science related packages.
+
+>"The open-source Anaconda Distribution is the easiest way to perform Python/R data science and machine learning on Linux, Windows, and Mac OS X."
+
+You can start up Jupyter Notebook by typing
+
+```
+jupyter notebook
+```
+
+in your terminal. 
+
+This will start a notebook server in your current location in terminal. If you want to make your notebooks somewhere other than your home directory, you will want to use `cd` to move to the directory you want. 
+
+- Note that if the terminal drops a "command not found" error, you have to add the following to your bash profile:
+
+```
+PATH=$PATH:$HOME/anaconda3/bin
+```
+
+Once you have Jupyter Notebook up and running in your browser, we can create a new notebook by clicking on `New -> Notebook/Python 3`
+
+In Jupyter, we are going to work in cells - each cell can hold programming logic, graphs, descriptive text and many more. This is similar to RMarkdown, where we could either write markdown or R code.
+
+Keyboard shortcuts work a little differently in Jupyter Notebooks. There are two modes: an editing mode and a command mode. 
+
+* Press `esc` to enter command mode.
+* Press `enter` enter editing mode.
+
+In editing mode you can write code or markdown and you can run the cell by pressing `shift + enter`.
+In command mode you have access to a huge range of keyboard shortcuts, including:
+
+* The arrow keys will move you between cells
+* `a` : create a new cell above
+* `b` : create a new cell below
+* `dd` : pressing `d` twice, quickly will delete your current cell
+* `m` : change a code cell into a markdown cell
+* `y`: change a markdown cell into a code cell
+
+[Here are some more handy shortcuts](https://www.cheatography.com/weidadeyue/cheat-sheets/jupyter-notebook/)
+
+# Basics
+
+One of the main differences between R and Python is that R was originally a language developed for statistical computing and data science that gradually started moving towards a generic purpose programming language. Python meanwhile was intended to be a general purpose purpose programming language that gradually built up its usefulness for data science with a strong community behind it who built extensions and packages for this purpose.
+
+Both have their strengths and weaknesses, neither is overall any 'better' than the other. The more tools you know the easier it is to pick one that fits the end goal perfectly!
+
+## Variable assignment
+
+In Python variable assignment is fairly straightforward: The only option we have is the `=` sign.
+
+```{python}
+x = 3
+print(x)
+```
+
+You could use `print()` to print out values from variables, but in Jupyter Notebook, the result of the last expression will be printed out:
+
+```{python}
+x = 3
+x
+```
+
+- Note that anything you declare in a cell will be available in the global scope. If you intend to hide something from being exposed, you have to place it into a function.
+
+## Primitive Datatypes
+
+Let's compare the different primitive datatypes in both languages!
+
+R's `character` equivalent is called strings, can be both double-, or single quoted:
+
+```{python}
+"Hello world!"
+```
+
+The `logical` datatype is called `bool`, standing for boolean - `True` or `False`. This will be returned from logical operations:
+
+```{python}
+3 > 5
+4 == 5
+```
+
+- Note that only the first letter is capitalised.
+
+Logical operations are much the same as in R. You can use `>`, `<`, `>=`, `<=`, `==` `%`. The latter `%` is the remainder after integer division, also known as modulo. 
+
+```{python}
+10 % 3
+```
+
+One difference from R is that you can use the keywords `and` and `or` to link logical operations, and this is quite characteristic of Python: it is widely regarded as a very 'human readable' language.
+
+The `NULL` datatype is called `None`, and behaves in a similar fashion to R - it indicates a lack of value.
+
+```{python}
+x = None
+```
+
+Again with the `numeric` datatype, we differentiate between integers (`int`) and floating point numbers (`float`). These are equivalent to integers and doubles in R.
+
+- Note that dividing 2 `int`s with each other might result in a `float`
+
+```{python}
+2 / 3
+0.6666666666666666
+```
+
+You can figure out the datatype of a value by using the `type()` function. This is the equivalent of `class()` in R.
+
+```{python}
+type("Hello!")
+```
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Fill in the table below, showing the equivalent name or function in Python:
+
+| R               | Python          |
+|-----------------|-----------------|
+| `<-`            |                 |
+| character       |                 |
+| integer         |                 |
+| double          |                 |
+| logical         |                 |
+| `TRUE`, `FALSE` |                 |
+| `NULL`          |                 |
+| `class`         |                 |
+
+<details>
+<summary>**Solution**</summary>
+
+
+| R               | Python          |
+|-----------------|-----------------|
+| `<-`            | `=`             |
+| character       | string          |
+| integer         | integer         |
+| double          | float           |
+| logical         | bool            |
+| `TRUE`, `FALSE` | `True`, `False` |
+| `NULL`          | `None`          |
+| `class`         | `type`          |
+
+</summary>
+</blockquote>
+
+
+## Lists
+
+The equivalent of R's `vector` is called a `list`. 
+
+Python `list`s are indicated by square brackets:
+
+```{python}
+my_items = ["key chain", "wallet", "phone", 4]
+my_items
+```
+
+Python lists are nothing like R's `list`: they are much more similar to vectors. By default you can add any type of data to a python list, so you need to be careful to add either heterogeneous or homogeneous data. Also, in R everything is a vector: a single number is just a one-element numeric vector. However Python distinguishes between a primitive variable and a one-element list. You can see this below.
+
+```{python}
+5 == [5]
+```
+
+However, in R:
+
+```{r}
+5 == c(5)
+```
+
+As Python is a general purpose programming language, `list`s are **0-indexed**, whereas in R vectors are **1-indexed**. All this means is that in Python you start counting list entries at zero (so, the )
+
+To access an item from a `list`, just use the item's index in square brackets after the variable it's stored in:
+
+```{python}
+my_items[0]
+```
+
+A great feature of Python is that using negative indices makes it possible to access elements from the end of a list, making it easy to access the last item:
+
+```{python}
+my_items[-1]
+```
+
+Note than in R, this would give you everything **except** the last item.
+
+Slicing a `list` is another useful feature, giving us a chance to get a subset of data from it, this can be done using indices separated by a colon:
+
+```{python}
+my_items[0:2]
+```
+
+- Note that when you slice, it is left-inclusive, but right-exclusive, so the item at index `0` above will be in the output, but the item at index `2` will not. You can also leave out either the first or the second index to start from the beginning or the list, or to include everything through to the end, respectively:
+
+```{python}
+my_items[:2]
+
+my_items[2:]
+```
+
+To make a list of numbers, use the function `range()`. The two numbers you give `range()` will define the start and end. Just like slicing this is left-inclusive and right-exclusive. 
+
+```{python}
+range(5, 10)
+```
+
+The function `range()` actually produces an object of type 'range'. Don't worry just now about what 'range' objects are, but just realise that you may need to use `list()` to convert them to lists. 
+
+```{python}
+type(range(5, 10))
+```
+```{python}
+list(range(5, 10))
+```
+
+If you provide only the end point, `range()` will automatically start at zero.
+
+```{python}
+list(range(5))
+```
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+1. Create a list with the following data, and assign it to a variable named `things`:
+
+'Apple'
+'Grape'
+101
+'Onion'
+False
+
+Make sure that you don't use quotes around 101 and False.
+
+2. Extract the first element of the list.
+
+3. Extract the last element of the list.
+
+4. Extract everything except the last element of the list.
+
+5. What is the type of:
+
+a. the 3rd element?
+b. the 4th element?
+c. the 5th element?
+
+6. Create a list with the following data, using the `range()` function.
+
+11
+12
+13
+14
+15
+
+<details>
+<summary>**Solution**</summary>
+
+1.
+```{python}
+things = ["Apple", "Grape", 101, "Onion", False]
+```
+
+2.
+```{python}
+things[0]
+```
+
+3.
+```{python}
+things[-1]
+```
+
+4.
+
+```{python}
+things[:4]
+```
+
+Or:
+
+```{python}
+things[:-1]
+```
+
+5.
+```{python}
+type(things[2])
+```
+
+```{python}
+type(things[3])
+```
+
+```{python}
+type(things[4])
+```
+
+6.
+```{python}
+list(range(11, 16))
+```
+
+</summary>
+</blockquote>
+
+## Dictionaries
+
+The equivalent of a `list` in R, is a `dictionary` in Python.
+
+In other languages this is often called a `hash`, or a `hashmap`, or an `associative array`.
+
+A `dict` is just a set of key-value pairs, where the keys must be unique. We create a `dict` using curly brackets, like so:
+
+```{python}
+person = {
+	"name": "Zsolt",
+	"age": 30
+}
+person
+```
+
+What do you think will happen in the following case? 
+
+```{python}
+person2 = {
+	"name": "Del",
+	"name": "Middlemiss",
+	"age": 43
+}
+person2
+```
+
+The second use of a key `"name"` *overwrites* the first key value pair!
+
+- Note that keys should be strings, as this ensures that you can easily create unique keys for every value.
+
+You can access items in the same way as with lists: namely by using square brackets and referencing the relevant key.
+
+```{python}
+person["name"]
+```
+
+To find out how many items there are in a `list`, or key-value pairs in a `dict`, we can use the `len()` function:
+
+```{python}
+len(person)
+```
+
+```{python}
+len(my_items)
+```
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Recreate the following R code in Python.
+
+```{r}
+student_info <- list(
+  Agnes = 68,
+  Bobby = 45,
+  Charlie = list(age = 33, gender = "Female")
+)
+
+student_info$Charlie$age
+
+length(student_info)
+```
+
+<details>
+<summary>**Solution**</summary>
+
+```{python}
+student_info = {
+  "Agnes" : 68,
+  "Bobby" : 45,
+  "Charlie" : {"age" : 33, "gender" : "Female"}
+}
+
+student_info["Charlie"]["age"]
+
+len(student_info)
+```
+
+</summary>
+</blockquote>
+
+## Using built-in functions
+
+Functions in Python work very similarly to those in R. We call a function by putting brackets after the function name (along with any required or desired arguments):
+
+```{python}
+sum([1, 2, 3])
+```
+
+One major difference is that Python is a very object-oriented language - almost everything is an object in Python. This means that, on occassion, functions are not called in a 'functional' way ('functional' programming is the paradigm we've mostly been using up to now in the R lessons). In Python, we often call functions that 'live' on an object. These functions are called **methods**: methods are functions that live on objects.
+
+Here's a 'real world' example! Imagine we have two `Dog` objects: `fido` and `rex`. Both of these 'Dog' objects have a `bark()` method, because all `Dog`s can bark! In Python we call a method on an object by a syntax like `fido.bark()` - this will make `fido` bark. Similarly `rex.bark()` will make `rex` bark. Each of the `Dog` objects has it's own `bark()` method 'living' on the object.
+
+Let's see a more useful example:
+
+```{python}
+numbers = [19, 4, 33, 6]
+numbers.sort()
+numbers
+```
+
+Here, the `sort()` method 'lives' on the `numbers` list. Think of all Python lists as coming equipped with this method, along with many others.
+
+You might have noticed another major difference in the code above. In Python methods often act **in-place** i.e. they change the origional object and don't create a copy.
+
+In R, if you used `sort()` on a vector of numbers you'd get the sorted set immediately returned.
+
+```{r}
+numbers <- c(19, 4, 33, 6)
+sort(numbers)
+```
+
+If you wanted to change `numbers`, you'd need to explicitly overwrite it:
+
+```{r}
+numbers <- sort(numbers)
+```
+
+However, when we use `sort()` in Python, nothing is returned.
+
+```{python}
+numbers = [19, 4, 33, 6]
+numbers.sort()
+```
+
+And `numbers` has been changed without us having to overwrite it.
+
+```{python}
+numbers
+```
+
+Adding or removing items from a list is done with the following methods:
+
+* `pop()` : remove last, and return it
+* `remove()` : remove a specified item
+* `append()` : add an element to a list
+* `extend()` : merge elements into a list
+
+All of these operate in-place.
+
+```{python}
+numbers.pop()
+# removes last item 33)
+numbers
+```
+
+```{python}
+numbers.append(5)
+# adds number 5 to list
+numbers
+```
+
+```{python}
+numbers.remove(5)
+# removes number 5 from list
+numbers
+```
+
+`append()` and `extend()` behave differently when given a list.
+
+`append()` directly adds the list as an element:
+
+```{python}
+numbers.append([7, 3, 99])
+numbers
+```
+
+While `extend()` adds the elements of the list, into the list.
+
+```{python}
+numbers.remove([7, 3, 99])
+numbers.extend([7, 3, 99])
+numbers
+```
+
+Adding or removing key-values pairs to dicts can be done using the `update({"existing key": "updated value", "new key": "new value"})` or `pop(keyname)` methods respectively.
+
+```{python}
+person.update({"name": "Del", "preferred jokes": ["dad jokes", "puns"]})
+person.pop("age")
+person
+```
+
+- Note that even though the method `pop()` exists on both collection types, they behave differently, and most methods will be datatype-exclusive. Refer to the documentation for help with this.
+
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Below is a vector containing the first 5 prime numbers
+
+```{python}
+primes = [1, 2, 3, 5, 7]
+```
+
+1. Oops, 1 isn't prime. Remove it from the list.
+
+2. Now add the next 3 prime numbers (11, 13, 17).
+
+3. Now use the method `reverse()` to reverse the list. Print out the reversed list.
+
+<details>
+<summary>**Solution**</summary>
+
+1.
+```{python}
+primes.remove(1)
+```
+
+2.
+```{python}
+primes.extend([11, 13, 17])
+```
+
+3.
+```{python}
+primes.reverse()
+primes
+```
+
+</summary>
+</blockquote>
+
+## Importing
+
+Even though Jupyter Notebook comes with hundreds of packages installed, most of their functionality can only be accessed by importing selected packages. You can import and use packages as follows:
+
+```{python, eval = FALSE}
+import pandas as pd
+data_frame = pd.read_csv('my_dataset.csv')
+```
+
+If you want to install a new package, you use the following command **in the terminal**.
+
+```
+conda install <package-name>
+```
+
+For example
+
+```
+conda install requests
+```
+
+`conda` is the Anaconda package manager. Note, that unlike R, you do not install packages from inside Python. You must do it from the command line.
+
+# Control flow and loops
+
+## Control flow
+
+When using control flow in Python, it's important to understand one of the biggest differences between Python and R: Python is _indentation sensitive_. This simply means that white space matters - that's what Python uses to structure code and to indicate the end of code blocks. R uses curly brackets for the same purpose.
+
+You also have to indicate the end of an expression with a colon `:`.
+
+```{python}
+temperature = 28
+if temperature > 20:
+	print("Heatwave warning!")
+```
+
+For comparison, let's see the same thing in R
+
+```{r}
+temperature <- 28
+if (temperature > 20){
+  print("Heatwave warning!")
+}
+```
+
+Note how R uses curly brackets to denote a code block, while Python uses indentation.
+
+You can structure an if-else statement in Python via the `if`, `elif` and `else` statements:
+
+```{python}
+temperature = 16
+if temperature > 20:
+	print("Heatwave warning!")
+elif temperature < 10:
+	print("The usual")
+else:
+	print("Perfect")
+```
+
+Just for interest, let's see the error Python produces if we mis-indent code
+
+```{python, eval=FALSE}
+phrase = "Jinx"
+if phrase == "Jinx":
+print("Double jinx!")
+```
+
+We see `Error: expected an indented block`. You can expect to see this quite often if you work in Python!
+
+## Loops
+
+Looping through a list is easy and straightforward:
+
+```{python}
+numbers = [1, 2, 3, 4]
+
+for number in numbers:
+	print(number * 2)
+```
+
+You can also get the values out from a dict and loop through that if necessary:
+
+```{python}
+person = {
+	"name": "Zsolt",
+	"age": 30,
+	"languages": ["Hungarian", "English"]
+}
+
+for value in person.values():
+	print(value)
+```
+
+
+<blockquote class = 'task'>
+**Task - 10 minutes**
+
+We're going to do FizzBuzz again, but this time in Python. As a reminder:
+
+Write a program that prints the numbers from 1 to 100. But for multiples of three print "Fizz" instead of the number, and for multiples of five print "Buzz". For numbers which are multiples of both three and five print "FizzBuzz".
+
+Try your code out on numbers in the `range()` from 1 to 101
+
+<details>
+<summary>**Solution**</summary>
+
+```{python}
+numbers = range(1, 101)
+for number in numbers:
+  if number % 3 == 0 and number % 5 == 0:
+    print("FizzBuzz")
+  elif number % 3 == 0:
+    print("Fizz")
+  elif number % 5 == 0:
+    print("Buzz")
+  else:
+    print(number)
+```
+</summary>
+</blockquote>
+
+## List comprehensions
+
+Quite often we would like to create new lists based upon some modification of the elements in another list. This can be done in multiple ways, but one that's very relevant to loops is a **list comprehension**.
+
+By default, creating a new list with modified elements would look like this:
+
+```{python}
+numbers = [1, 2, 3, 4]
+numbers_squared = []
+
+for number in numbers:
+	numbers_squared.append(number * number)
+
+numbers_squared
+```
+
+You can see this is a bit long-winded. However, there is a very easy way to replicate this with less code:
+
+```
+[expression for item in list]
+```
+
+For example:
+
+```{python}
+numbers = [1, 2, 3, 4]
+numbers_squared = [number * number for number in numbers]
+
+numbers_squared
+```
+
+List comprehensions will always return a new list with the modified elements. They are particularly useful when you would normally write a loop which adds elements into a list.
+
+Below is a loop that creates a list of numbers which are divisible by 12 using an `if` statement.
+
+```{python}
+multiples_of_12 = []
+
+for number in range(101):
+    
+    if number % 12 == 0:
+        multiples_of_12.append(number)
+        
+multiples_of_12
+```
+
+If you want to use an if-statement inside a list comprehension, it comes after the loop part.
+
+```{python}
+[number for number in range(101) if number % 12 == 0]
+```
+
+Very similarly, you can also use dict comprehensions, where looping through a list will create a dict of your choosing.
+
+```
+{key:value for value in values}
+```
+
+For example:
+
+```{python}
+words = ["apple", "orange", "dragon fruit"]
+
+length_of_words = {word:len(word) for word in words}
+
+length_of_words
+```
+
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Write the following loops as list comprehensions.
+
+1.
+
+```{python}
+primes = []
+for i in range(2, 100):
+    if i % 2 != 0 and i % 3 != 0 and i % 5 != 0 and i % 7 !=0 and i % 11 != 0:
+        primes.append(i)
+```
+
+2.
+
+```{python}
+ordinal_dict = {}
+
+for number in range(4, 11):
+    ordinal_dict[number] = str(number) + 'th'
+```
+
+<details>
+<summary>**Solution**</summary>
+
+1.
+
+```{python}
+[i for i in range(2, 100) if i % 2 != 0 and i % 3 != 0 and i % 5 != 0 and i % 7 !=0 and i % 11 != 0]
+```
+
+2.
+
+```{python}
+{i:str(i) + 'th' for i in range(4, 11)}
+```
+
+</summary>
+</blockquote>
+
+
+## Writing custom functions
+
+As we've seen already in R, yhe purpose of a function is to write a piece of logic wrapped in a construct that is reusable and self-contained. Writing a function in Python is fairly similar to the process in R. After defining it, you have to call the function by using brackets after the function's name:
+
+```{python}
+def calculate_mean(x, y):
+	sum = x + y
+	return sum / 2
+
+calculate_mean(2, 8)
+```
+
+Note the use of the `def` keyword to *define* the function, and the reappearance again of indentation to mark out the code that is in the function body. You can think of functions as a small automated factory that takes in raw materials, produces something following a specific set of instructions, then at the end of an assembly line, it gives it to you, ready to use.
+
+The `return` keyword is very important! There is no implicit return in Python: if you don't specifically state what a function should return with this keyword, it will return a `None` value, and Jupyter will not display anything! You can have more than one `return` statement in a function, but after the first `return` is hit, the execution of the rest of the function will stop.
+
+You can use and reuse functions within functions:
+
+```{python}
+def is_even(number):
+	if(number % 2 == 0):
+		return True
+	else:
+		return False
+
+def sum_of_even_numbers(numbers):
+	running_total = 0
+	for number in numbers:
+		if(is_even(number)):
+			running_total += number
+	return running_total
+```
+
+In R, we can pass in anonymous functions to be executed, the same can be done in Python by simply using the name of the function to execute at any given time:
+
+```{python}
+def square(number):
+	return number * number
+
+def modify_number(number, modifier_function):
+	return modifier_function(number)
+
+modify_number(3, square)
+```
+
+<blockquote class = 'task'>
+
+**Task - 5 minutes**
+
+Write a function that takes as input a whole number $n$, and returns the $n$-th triangle number. Try out your function a few times to test that it works.
+
+You can calculate the the $n$-th triangle number with the formula
+
+$$
+T_n = \frac{n(n + 1)}{2}
+$$
+
+So the 5th triangle number is
+
+$$
+\frac{5 \times (5 + 1)}{2} = 15
+$$
+<details>
+<summary> **Solution** </summary>
+
+```{python}
+def get_triangle_number(n):
+  return n * (n + 1) / 2
+```
+
+```{python}
+# Testing it works
+get_triangle_number(5)
+get_triangle_number(6)
+```
+
+</details>
+</blockquote>
+
+<blockquote class = 'task'>
+
+**Task - 5 minutes**
+
+Write a function `make_price()` that takes as input any whole number, and returns it written as a price (i.e. with a '£' in front of the number). For example 5 would become £5, and 123 would become £123. Try out your function a few times to test that it works.
+
+<details>
+<summary>**Hint**</summary>
+In an earlier example you saw that you can join Python strings using the `+` operator. i.e.
+
+```{python}
+'yes' + 'no'
+```
+</details>
+
+<details>
+<summary>**Hint**</summary>
+You'll need to convert the number into a string before you join it, using the function `str()`. 
+</details>
+
+<details>
+<summary>**Solution**</summary>
+
+```{python}
+def make_price(number):
+  return '£' + str(number)
+
+make_price(5)
+make_price(123)
+```
+</details>
+</blockquote>
+
+# Reading and writing data
+
+Reading and writing data is slightly more complicated in Python than in R; at least until you learn about `Pandas` (coming up soon!). 
+
+To read a file, you first need to open it and then read it. One way of doing it is using `with`:
+
+```{python}
+with open("surnames.txt", "r") as file:
+  names = file.read()
+  
+names
+```
+
+This reads the text of the file into a string:
+
+```{python}
+type(names)
+```
+
+You'll notice that after the name of the file we have specified the **mode** "r", this stands for "read". We don't technically need to include this mode, because read is the default mode. 
+
+If you want to read a file as a list, rather than a string, then you use the function `readlines()`.
+
+```{python}
+with open("surnames.txt", "r") as file:
+  names = file.readlines()
+  
+names
+```
+
+```{python}
+type(names)
+```
+
+When writing a string to a file you need the open the file you want to write to in write mode. Write mode is specified with a "w" rather than an "r". The available file options can be seen in the table below:
+
+| Character | Meaning                                                         |
+|-----------|-----------------------------------------------------------------|
+| r         | open for reading (default)                                      |
+| w         | open for writing, truncating the file first                     |
+| x         | open for exclusive creation, failing if the file already exists |
+| a         | open for writing, appending to the end of the file if it exists |
+| b         | binary mode                                                     |
+| t         | text mode (default)                                             |
+| +         | open for updating (reading and writing)                         |
+
+You can combine several modes together. For example mode "ab" will append binary data. 
+
+```{python, eval=FALSE}
+a_string = "Just a string"
+
+with open("just_text.txt", "w") as file:
+  file.write(a_string)
+```
+
+Again, you can write a list but using `writelines()`. Note that this doesn't place the list elements on separate lines.
+
+```{python, eval=FALSE}
+list_of_strings = ["text", "across several", "strings"]
+
+with open("a_list.txt", "w") as file:
+  file.writelines(list_of_strings)
+```
+
+# Extra - A very brief introduction to object-oriented programming
+
+As we mentioned earlier, Python is an object-oriented programming (OOP) language. Actually, R is also an OOP language, although it is less obviously so, and we tend to write R code in a more functional style.
+
+So, here is the philosophy of OOP in a nutshell. We model things of interest as **objects**, which typically inherit properties from an overarching **class**. Think of objects as the concrete realisations of a class, which can in turn be thought of as prototypes or idealisations. So, previously, the `fido` and `rex` objects were concrete realisations of the overarching `Dog` class.
+
+Objects have **attributes** (data that's held by each object) and **behaviours** (these are the 'methods' we've talked about before). So, in the case of our dog object `fido`, it could contain attributes `name = "Fido"`, `age = 4` and `coat = "Brown"` and behaviours `bark()`, `chase_ball()` and `eat(food)`
+
+The `Dog` class meanwhile just sets up the attributes and behaviours each dog will possess. For example, it will insist that a `Dog` has `name`, `age` and `coat` attributes and will also usually set up the behaviours (methods) shared by all dogs, in this case `bark()`, `chase_ball()`, `eat(food)`
+
+So far, so abstract: let's see some of this in Python!
+
+```{python}
+class Dog:
+
+  def __init__(self, name, age, coat):
+    self.name = name
+    self.age = age
+    self.coat = coat
+    
+  def bark(self):
+    print(self.name + " barks!")
+    
+  def chase_ball(self):
+      if self.age < 10:
+          print(self.name + " chases the ball!")
+      else:
+          print(self.name + " sits and stares at you accusingly...")
+
+  def eat(self, food):
+   print(self.name + " eats " + food + "!")
+    
+fido = Dog("Fido", 4, "brown")
+fido.bark()
+fido.chase_ball()
+fido.eat("dog biscuits")
+```
+
+Let's describe the code above
+
+* first `class Dog:` tells Python that we are defining a `Dog` class
+* we have a weird method `__init__()`. This is called an **initialiser** (or **constructor** in other OOP languages): it takes in a set of attributes and returns a `Dog` object with those attributes.
+* the attributes are all stored as `self.<something>`. The `self` keyword is special, it tells Python to store data within an object as an attribute.
+* at the end we create the three methods `bark()`, `chase_ball()` and `eat(food)`. We need to pass `self` into each of these methods, this is just a peculiarity of Python.
+
+<br>
+<blockquote class='task'>
+**Task - 10 mins**
+
+* Create a new `Dog` object `rex` with your own choice of attributes, and try out the methods of `rex`
+* Create a new method `decribe()` in the `Dog` class that prints something like "Fido is 4 years old and has a brown coat.", then try it out for both `fido` and `rex`! (You will need to rerun the lines of code that create `fido` and `rex` for this to work).
+
+<details>
+<summary>**Solution**</summary>
+
+```{python}
+rex = Dog("Rex", 10, "black")
+rex.bark()
+rex.chase_ball()
+rex.eat("stolen ice cream")
+```
+
+Add this to class `Dog`
+
+```{python}
+def describe(self):
+  phrase = self.name + " is " + self.age + " years old and has a " + self.coat + " coat."
+  print(phrase)
+```
+
+</details>
+</blockquote>
+<br>
+
+Now let's see a slightly more useful example. We're going to create a `DataHolder` class that will hold a list of numbers and, on demand, return a **normalised** list (this just means a list where the squares of the elements sum to 1). So, the attributes will be `self.data` and `self.norm`, which will be calculated from the input data, and the method will be `get_normalised()`.
+
+```{python}
+import numpy as np
+
+class DataHolder:
+
+  def __init__(self, data):
+    self.data = np.array(data)
+    # self.norm is not passed in here, it is calculated from the input data
+    self.norm = np.sqrt(np.sum(self.data ** 2))
+    
+  def get_normalised(self):
+    return list(self.data / self.norm)
+```
+
+Don't worry too much about this `numpy` and `np` code at the moment, we'll cover it in the next lesson, it's just a set of mathematical functions.
+
+Now let's create a `DataHolder` object, holding the data we are particularly interested in, and check that it then holds the data.
+
+```{python}
+data_holder = DataHolder([3, 4, 5])
+data_holder.data
+```
+
+Now we use the method we created to normalise the data. Hopefully, when we square and sum the elements of the normalised list, we should find they add to 1.
+
+```{python}
+result = data_holder.get_normalised()
+result
+result[0]**2 + result[1]**2 + result[2]**2
+```
+
+Close enough!
+
+# Python and R data structure equivalencies
+
+Here are the names of equivalent data structures in Python and R, along with what they are called in general (i.e. what programmers in any language tend to call them)
+
+| R | Python | in general |
+| -- | -- | -- |
+| vector | list | array |
+| list | dictionary | hash / hashmap |

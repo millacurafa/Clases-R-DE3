@@ -1,0 +1,328 @@
+---
+title: "Understanding Data"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+
+# Learning Objectives
+
+1. Review the structure of the data  
+2. Know not to underestimate the importance of eyeballing the data  
+3. Be able to extract and interpret summary statistics  
+4. Understand the concept of outliers and missing data and their effect on summary statistics  
+
+<br>
+
+**Duration - 80 minutes**<br>
+
+Whenever you start working with data, it's important to first find out what you're looking at. After all, if you don't really understand what data you have, you won't be able to make sense of any summaries, graphs or statistics you produce. This lesson is all about how you go about understanding your data when you first get it. 
+
+
+# Reviewing the structure of your data 
+
+You should understand what variables you have, how many records the data set contains, how many missing values, what is the variable structure, what are the variable relationships and more.  
+
+To investigate all of this, we will use data from the [CensusAtSchool NZ](https://new.censusatschool.org.nz/about/). Schools take part in the survey voluntarily, and the data then contributes to an international database. Some questions are in common with the other countries, to provide comparisons between countries. 
+
+```{r, message=FALSE, warning=FALSE}
+# make sure tidyverse and CodeClanData packages are loaded
+library(tidyverse)
+library(CodeClanData)
+
+```
+<br>
+
+The data we will be using is the `school_census` data from the `CodeClanData` package. Type `?school_census` to have a look at the documentation for it. This is always a good first step : check what the data you have is, and check any documentation.  
+
+You can also check the dimensions and variables in your data in more detail by using four R functions:
+
+```{r}
+
+# number of rows
+nrow(school_census)
+
+# number of observations
+ncol(school_census)
+
+# overall dimensions
+dim(school_census)
+
+# variable names
+names(school_census)
+
+```
+
+<br>
+Next we can look at the actual data. To begin, we are going to run the `head` function, which allows us to see the first 6 rows by default. We are going to override the default and ask to preview the first 10 rows, and view the last three rows.   
+<br>
+```{r}
+
+# Print the first 10 rows
+head(school_census, 10)
+
+# print the last 3 rows
+tail(school_census,3)
+```
+  
+<br>  
+<blockquote class='task'>
+**Task - 10 mins** 
+
+* Look at all the output you've got above. In groups, do a sense check. 
+* Check through the variables - do the variable names seem to match up with the data in them? For example, does your `height` column contain numeric values that look like height values? You'd be surprised at how often columns are labelled wrong, so it always pays to make sure the data at least LOOKS like it makes sense in the first instance. 
+* Are there any variables which don't seem to be coded properly? 
+* Do you spot any very high or low values that could be incorrect data points?
+* Are there any missing values? 
+* Are there variable names that have typos or odd spaces or naming conventions (all of which can mess with code during analysis stage!)?  
+* Anything else you think is worth noticing about the data at this stage?
+<br>
+
+<details>
+<summary>**Some Example Answers**</summary>
+* The variable names seem to match up with what they hold. Countries are in the right place, regions are too.. `Foot_length`, `Arm_span`, `Travel_time_to_School` and `Reaction_time` seem to not have any units so it's hard to tell if those values seem reasonable. 
+* X21 variable seems to not have a good column name. This could do with being changed. 
+* Some of the values in the `Importance` columns seem quite high. But again, it's hard to tell from the data alone as we don't know the scale. 
+* X21 variable seems to be entirely full of NA's - this could be an issue and should be looked at futher. 
+
+</details>
+</blockquote>
+
+<hr>
+
+
+
+# Eyeballing the data
+
+As you can see from above, it's good to take a look at the data you're working with to ensure you can become familiar with it. In terms of looking at the data in R, there are a few of ways to do it: 
+
+1. You can print out previews, just as we've done above.  
+
+2. You can print the entire dataset to the console, by typing the dataset name in the console.
+
+```{r}
+school_census
+```
+<br>
+
+3. You can use the `view` function to open the dataset in the viewer window. 
+```{r}
+View(school_census)
+```
+
+<br>
+4. You can plot the data to get an idea of it looks. You'll learn a lot more about plotting soon, so don't worry too much about the following syntax on HOW to make a plot. For now, let's focus on the concept of checking data. 
+
+Let's make a histogram to plot our Height data. A histogram tells you how the data you have is distributed. And one of the most important concepts when working with statistics is whether or not your data follows a normal distribtion:
+
+> The normal distribution is a probability function that describes how the values of a variable are distributed. It is a symmetric distribution where most of the observations cluster around the central peak and the probabilities for values further away from the mean taper off equally in both directions.
+
+You'll learn more about distributions during stats week, but for now all you need to be aware of is how a normal distribution might look:
+
+<br>
+<center>
+![](https://miro.medium.com/max/24000/1*IdGgdrY_n_9_YfkaCh-dag.png)
+</center>
+<br>
+
+In short: you would use a histogram when you have numerical data, and when you want to see how it is distributed. Let's do this now:
+
+
+```{r}
+hist(school_census$Height)
+
+# library(ggplot2)
+# 
+# # check height data 
+# ggplot(school_census, aes(Height)) +
+#   geom_histogram(binwidth=10) + xlab('height') + ylab('Number of Students') +
+#   ggtitle('Distribution of Students Height')
+
+```
+
+
+<blockquote class='task'>
+**Task - 10 mins**  
+
+* What does this histogram show you? Do you notice anything odd about the data?
+
+* Create a histogram for the `Reaction_time` variable. What does this tell you?
+
+<br>
+<details>
+<summary>**Answers**</summary>
+
+* This histogram shows that the students height range from 100 to 180. Most of the students fall within the 150-170 range. For the most part, this does look normally distributed. However, there does appear to be an outlier (100). 
+
+Histogram code:
+```{r}
+
+hist(school_census$Reaction_time)
+
+# # ggplot version: check if reaction_time data follows a normal distribution 
+# ggplot(school_census, aes(Reaction_time)) +
+#   geom_histogram(binwidth=0.2) + xlab('reaction time') + ylab('') +
+#   ggtitle('Distribution of student reaction time')
+```
+</details>
+<br>
+</blockquote>
+  
+<br>
+
+
+# Outliers 
+
+In both histograms, you can see that maybe the data follows a somewhat normal distribution. But there are some values on the outer edges that look a bit odd... This brings us to another important thing to check for: outliers. 
+
+An outlier is a value which does not follow usual norms of the data. For almost all the statistical methods outliers present a particular challenge, and so it becomes important to identify them and deal with them. A classic example to demonstrate how outliers can mess with your data is: 
+
+*"The software billionaire, Bill Gates, walks into a bar which has 10 other people already in it. As soon as he walks in, the average wealth of everyone in the bar rises to about 91 million dollars. Obviously, this isn't actually the case. If I were to describe the patrons of this bar as having an average annual income of $91 million, the statement would be both statistically correct and grossly misleading."*
+
+
+The presence of outliers in the dataset can be a result of an error or it can be a real value present in the data as a result of real distribution of the data. In either case, it is a responsibility of the analyst to understand and ensure that a proper treatment is given to such values.  
+
+A good way to check for the presence of outliers is to produce a simple boxplot, which shows the outliers as circular values outside the quartile ranges. Let's look at our height data
+
+```{r}
+
+# Now we have a look at height column of the mtcars dataset with boxplot
+boxplot(school_census$Height)
+
+```
+  
+As you can see, we have an outlier! 
+
+
+```{r}
+# You can get the actual values of the outliers and assign the outlier values into a vector
+outliers <- boxplot(school_census$Height, plot=FALSE)$out
+
+# Check the results
+print(outliers)
+```
+
+<br>
+Deciding what qualifies as an outlier and what doesn't can be one of the hardest parts of the job. Most of the time, you will have a criteria to follow. For example, say you had a dataset which recorded temperatures in a certain city over time. If you had an abnormal reading of say, 150 degrees celsius, you would know that is an outlier value and could decide that perhaps the equipment was broken. Other times, there is less guidance.   
+
+For this particular case, we know the values are outliers (since we put them in!) so we can go ahead and remove them.   
+
+```{r}
+# First you need find in which rows the outliers are
+school_census[which(school_census$Height %in% outliers), ]
+
+# Now you can remove the rows containing the outliers, one possible option is:
+school_census_nooutlier <- school_census[-which(school_census$Height %in% outliers),]
+
+# If you check now with boxplot, you will notice that those pesky outliers are gone!
+boxplot(school_census_nooutlier$Height)
+```
+
+
+
+
+# Summary statistics
+<br>
+The final important aspect of understanding your data that we will cover is how to calculate some basic descriptive statistics. Note, we can say anything about statistical significance or importance from these, but it does allow us to get an idea of the spread and range of the data.  
+
+<br>
+
+```{r}
+
+# summarise the height data
+summary(school_census$Height)
+
+# get the quantiles of a variable
+quantile(school_census$Height)
+
+# select quantiles by percent 
+quantile(school_census$Height, c(.2, .6, .8))
+
+# calculate the standard deviation
+sd(school_census$Height)
+
+
+```
+
+<br>
+<blockquote class='task'>
+**Task - 15 mins** 
+
+Have a careful look through the results - what do they tell you? Things you could be looking for at this stage are:   
+
+1. Are the mean and median similar values? If the mean is very different, this may tell you that you have some outlier values (very high or very low values). 
+2. What kind of range does your data have? The min and max (and quantiles) can tell you this.   
+3. Is there a large standard deviation in your data? This tells you how spread out the values are from the mean.   
+4. Write code which summarises `Travel_time_to_School`, calculates the quantiles, and variance. What does this tell you? 
+
+<details>
+<summary>**Answers**</summary>
+1. The median and mean seem quite similar. This suggests that the data isn't hugely affected by outliers.     
+2. Our range is 100 - 180 for height.   
+3. The spread from the mean isn't too large - 11.90494. This means the heights are relatively stable.   
+4. Code:
+
+```{r}
+# summarise the height data
+summary(school_census$Travel_time_to_School)
+
+# get the quantiles of a variable
+quantile(school_census$Travel_time_to_School)
+
+# calculate the standard deviation
+sd(school_census$Travel_time_to_School)
+
+```
+<br>
+This tells us that there is a bit more spread in the data for travel times to school - some people have long commutes (120), some have short (2). This causes the mean and median to be slightly different (20 vs 24), and for the standard deviation to be slightly larger (representing the spread from the mean).  
+<br>
+</details>
+</blockquote>
+
+
+
+# Recap
+
+Hopefully this section has shown you the power and importance of having a good old look at your data before you even begin cleaning or analysing it. To recap, have a think about the following:
+
+Why is it important to understand your data before you begin analysis? 
+<details>
+<summary>**Answer**</summary>
+To make sure you know what you'll be working with, to make sure you have everything you expect in the dataset, and to help you notice any missing or odd looking data before you get too far down the analysis path!
+</details>  
+<br>
+What are some different techniques you can use to understand your data?
+<details>
+<summary>**Answer**</summary>
+Using the different functions to show different aspects of the data, plotting the data, and calculating summary stats. 
+</details>  
+<br>
+What is the best way to deal with outliers?
+<details>
+<summary>**Answer**</summary>
+Plot them, try and investigate whether there is a valid reason for removing them or not, and ultimately remove and clean the data. 
+</details>
+
+
+
+
+# Additional Resources 
+
+If you have more time, or want to practice more, there are plenty of built in R datasets to use everything you've learned above on. Just type `data()` into the console for a list.   
+
+[What is Data Exploration](https://www.sisense.com/glossary/data-exploration/)
+
+[Preparing Data for Analysis is (more than) Half the Battle](https://www.theanalysisfactor.com/preparing-data-analysis/)
+
+[Outliers- To Drop or Not to Drop](https://www.theanalysisfactor.com/outliers-to-drop-or-not-to-drop/)
+

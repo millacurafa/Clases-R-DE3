@@ -1,0 +1,90 @@
+---
+title: "Final Project Brief"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../../styles.css
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Today's Learning Objectives<br>
+
+* Understand what is required for the week 14 final project
+* Give an introduction to the requirements
+* Give an introduction to the expectations and delivery approach
+
+**Duration - 1/2 hour**<br>
+
+# The Final Project
+
+## Project aims and learning objectives
+
+Over the next week and a bit you will work individually to carry out an end-to-end data project. This will allow you to consolidate and expand everything you have learned on the course.
+
+The projects are real-life data projects, so they may require a machine learning solution or it may be an in-depth analysis deep dive into a specific dataset looking for key insights, perhaps with some visualisation outputs.
+
+As the projects involve real client data, CodeClan may have signed an NDA with the partner company. An additional challenge in this project is to be able to observe required client confidentiality, be this careful sharing of analysis and outputs or keeping proprietary data safe within your working environment. 
+
+There are additional learning objectives to this project:
+
+* Capture requirements from the business and translate these into an achievable analysis project
+* Create a project plan to deliver an outcome
+* Identify the key insights and communicate these back to the business
+* Keep client data safe and secure
+* Maintain required client confidentiality
+
+## Timescales
+
+Below is the proposed plan of activities for the next week:
+
+| Date | Activity |
+|-----------------|-------------------------------------|
+| Monday | Project handout & starting work |
+| Tuesday | Project |
+| Wednesday | Project |
+| Thursday | Project |
+| Friday | Project |
+| Weekend | Project |
+| Monday | Project |
+| Tuesday | Project |
+| Wednesday | Employer Networking |
+| Thursday | Project presentations |
+| Friday | Graduations |
+
+## Expectations
+
+As this is an end-to-end data project we'd like you to carry out and document each stage of your project. The steps we'd like to see are:
+
+1.	**Defining:** identifying the question being solved and why it is important to the business
+2.	**Planning:** plan the analysis and rough timings over the project period
+3.	**Understanding:** initial understanding of provided data and identify any data augmentation
+4.	**Analysing:** manipulation, modelling and validating
+5.	**Concluding:** inferring and communicating findings through reports and visualisations
+6.	**Implementing:** recommendations for real-world implementation, next steps and any limitations to using the findings and outputs.
+
+You will have two weeks at the end of the project to transfer the project onto your personal portfolio/Github. You will need to take into account the level of condifentially for your project (e.g. whether you can upload the data and/or an anonomysed report). For all projects you will be able to upload your code (as long as you don't reference client names in the code/comments). After 2 weeks you will be removed from the project repo and must delete any copies of the data (for confidental client ones) and we will require confirmation that all client data has been deleted.
+
+## Final Presentation
+
+In the presentation session you will have up to 15 minutes, plus time for questions to present your findings and outputs back to the business. 
+
+We'd like you to:
+
+* Talk through your approach to the business question
+* Discuss any challenges encountered and how you addressed these
+* Present a story of your final insights which compels your client to action
+* If your solution would require implementation, discuss how this could be done
+* Any enhancements you would pick up if you'd had more time
+* Any lessons for the future
+
+
+
+
+

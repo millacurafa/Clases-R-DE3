@@ -1,0 +1,68 @@
+---
+title: "Ethics - group exercise"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+We've covered a lot about ethics today. Given the lessons on ethical risks and codes we have 2 real world scenairios below. In 2 groups discuss the ethical risks and considerations for your chosen situation and use the EthicalOS code to guide the conversation.  
+
+# Collecting data on refugees
+
+> *'Nearly one fifth of the world’s population — an estimated 1.5 billion people - lacks formal identification. Over 21 million people are currently seeking refuge worldwide. For them, proving their identity can be a lifesaver. Those who lack formal IDs will face greater hardship, such as struggling to access to food, shelter, healthcare, education, financial and telecommunications services or trying to get work to earn a living.  
+>To better enable refugees’ access to a range of services and aid, the United Nations High Commissioner for Refugees (UNHCR) is piloting a digital identity system to enable the collection and sharing of refugees’ personal data. Under the 1951 United Nations Convention, nation states are expected to register refugees, provide data on their condition, and issue identity papers.'*'[1](https://blogs.berkeley.edu/2017/11/27/risks-of-recognition-new-digital-id-program-for-refugees-is-vulnerable-to-abuses/)
+
+<blockquote class='task'>
+<details>
+<summary>**Possible considerations**</summary>
+
+* The more data is shared, the greater the vulnerability of cybersecurity threats. To mitigate risks of data exposure, consider minimizing the amount of data that’s collected and shared from this population. How much information is really needed to confirm a person’s identity?
+  * One way of working out if the data you’re gathering is particularly sensitive is to do a thought experiment: what would happen if this data got into the hands of a malicious party? Who would be keen to get their hands on it? What are the worst things that they could do with this data?
+* How long will the data be held for? And what are credentials for access? 
+* Multiple occasions in history when mass surveillance and data collection have played key roles in facilitating humanitarian crises, including genocides such as Rwanda and the Holocaust. 
+* Everyone has a right to control how their personal information is shared - are the refugees able to implement any control here? Can they ask for it to be deleted or transparency of where it is being used?
+* Concentration of power to private sector building the database by public sector organisations 
+* Is there an imbalance of power when providing consent for this data to be collected
+* With all the risks considered does the ability for refugees to more easily access all these services, which many are a human right, that would allow them opportunities to start a new life outweigh these risks?
+
+</details>
+
+</blockquote>
+
+# Alternative data use in lending
+
+> *Lending criteria essentially revolve around understanding a person's repayment capacity, intent to repay loans and fraud risk. It is on evaluations of intention and fraud risk that digital (alternative) lending companies are marching ahead of traditional lenders ; many boast of lower default rates than that of the banking sector.  
+One primary criterion for evaluation is social media and the various data points these platforms throw up--for example, a person's political activity*.  
+>*“If someone is politically active and engages in political campaigns, which are visible through their social media profiles, it is not a good sign since we do not want to go through the hassles that may come up in collection. It shows that the person can raise issues at the time of collection in these political groups,"*  
+said the founder of a lending platform, requesting anonymity. Having worked with a leading bank for several years, this person said banks also look at these factors but manually.   
+*"Usually, a bank official visits the house of a (potential borrower) and such photographs and signage of political parties at home are taken into consideration."*
+
+>These companies collate thousands of data points, including the seemingly mundane aspects of a person's daily life, to make the right lending decisions. At SlicePay, a lending platform focused on students, one of the data points taken into account is the number of photographs taken at restaurants or movie theatres that an individual puts up.  
+*“If a person checks into a particular restaurant, we know the price point. If a student puts up a lot of photos from restaurants and other such places, we can understand the person's spending pattern and that they have an ability to pay,"*  
+said SlicePay cofounder Rajan Bajaj. Another indicator on social media is the friends list, to check if there are any people there who may have taken credit from SlicePay before and if they were good borrowers.  
+*“In some cases, especially for waitlisted applicants, we also consider academic scores to evaluate the borrower“*   
+The startup's proprietary algorithm calculates more than 10,000 data points for each applicant. One variable is the call history.   
+*“If we get references from the applicant, we check the frequency of their communication through telecom data....The consistency of interaction over a period of time shows stability."* [2](https://tech.economictimes.indiatimes.com/news/technology/the-new-lending-game-post-demonetisation/56367457?redirect=1)
+ 
+ 
+<blockquote class='task'>
+<details>
+<summary>**Possible considerations**</summary>
+
+* Using 'other 'non-conventional' data allows people who potentitally couldn’t get credit before to gain access, e.g. those who don't have historic banking info, and so could increase financial inclusion. 
+* Could people who have an understanding of how their social media data is being used to calculate their credit risk start tailoring their online behaviour ahead of applying for finance to improve their score? But then it will only be those educated on this that will gain from this, and the most vulnerable may be at risk of being exploited?
+* Can the frequency someone calls their reference be an indicator of stability - just because you call someone frequently does it mean they would bail you our financially? You could be calling them for money....
+* Is it fair to be discriminating your credit risk based on how politically active you are? Should the amount of 'noise' you *potentially* might make based on this a good way to predict risk of default? They seem to be validating this behaviour by saying 'always been this way' - doesn't mean it's ok to embed into algorithmic decision making. 
+
+</details>
+
+</blockquote>

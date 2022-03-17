@@ -1,0 +1,729 @@
+---
+title: "Using dates and times"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+library("tidyverse")
+```
+
+# Learning Objectives 
+
+1. Be able to manipulate dates and times in R
+2. Understand about time zones
+3. Be able to create and manipulate datetime intervals
+
+
+# Dates and Times: why are they a problem
+
+You would think that analysing dates and times would be easy. After all, we use them every day and don't run into a lot of bother. However, it can become more tricky once you take into account:
+
+* Dates and times can be entered in MANY different formats (have you ever tried to format a date in excel - then you'll know how many ways this can be done!) 
+* Dates and times are not always entered correctly by people
+* Different countries have different time zones
+* Different software formats dates and times differently, and often it can be near impossible to figure out how the underlying encoding of the date is occurring. 
+
+<br>
+<center>
+
+![](images/date_meme.png)
+</center>
+<br>
+
+Without listing every possible reason working with dates and times is a pain, we can summarise it by saying: it is.  In this section, we're going to learn how to effectively deal with dates and times. 
+
+
+# ISO 8601 format 
+
+The first thing that is important to understand is international date-time standards. **ISO 8601** is an international standard covering the exchange of date and time related data. It's the most important date/time standard, and was designed to provide an unambiguous method of representing dates and times, and to avoid misinterpretation of numeric representations of dates and times, particularly when data are transferred between countries with different date time conventions (e.g. between the UK and US). If you plan on working with dates and times frequently, it's worth learning all about IS0 8601 format: https://en.wikipedia.org/wiki/ISO_8601
+
+<br>
+<center>
+![](https://imgs.xkcd.com/comics/iso_8601.png)
+</center>
+<br>
+
+<blockquote class='task'>
+**Task - 5 mins** 
+Take a few minutes and read about IS0 8601 standard, as we will be working with it A LOT today. Answer the following questions:
+
+1. What order does ISO standard follow? (e.g. year to second, second to year...)  
+2. What is the minimum number of digits you can have in a year? Why is this?  
+3. What clock system do the times use?   
+4. How many time formats does ISO standard have?
+5. What timezone are time and dates automatically represented in?  
+6. How are combined date-times represented?
+
+<br>
+<details>
+<summary>**Answer**</summary>
+1. Date and time values are ordered from the largest to smallest unit of time: year, month (or week), day, hour, minute, second, and fraction of second.  
+2. ISO 8601 prescribes, as a minimum, a four-digit year [YYYY]. This is to make sure the year (for example), the year 1945 isn't confused with the year 2045 (when it comes!)  
+3. ISO 8601 uses the 24-hour clock system.  
+4. Four. You can have - hh:mm:ss.sss , hh:mm:ss, hh:mm, hh
+5. Time zones are automatically represented in local time as UTC (coordinated universal time, GMT).  
+6. You use the letter T as a delimiter : "2007-04-05T14:30"
+
+In summary the ISO standard follows this format:
+
+     YYYY = four-digit year
+     MM   = two-digit month (01=January, etc.)
+     DD   = two-digit day of month (01 through 31)
+     hh   = two digits of hour (00 through 23) (am/pm NOT allowed)
+     mm   = two digits of minute (00 through 59)
+     ss   = two digits of second (00 through 59)
+     s    = one or more digits representing a decimal fraction of a second
+     TZD  = time zone designator (Z or +hh:mm or -hh:mm)
+     
+     
+</details>
+<br>
+
+
+
+# Dates and times in R
+
+Despite there being a good international standard for dates, converting dates & times in R into formats that are computer readable can be frustrating, mainly because there is very little consistency. Also, R doesn't know something is a date or time unless you tell it (and let it know the right format of the incoming date-time).
+
+In base R there are three classes of date/time data: 
+
+1. Date : only has dates, no times. 
+2. POSIXct : if you have times as well. 
+3. POSIXIt: this class allows you to extract the specific components of  date time (i.e. the day, month, second etc.)
+
+(Oddly enough, R doesn't have a native class for storing times alone...)
+
+If you want to learn more about using the three classes of date-times above from base R, [you can read more about it here](https://r4ds.had.co.nz/data-import.html#readr-datetimes). 
+
+
+
+<br>
+<center>
+
+```{r, echo=FALSE, out.width = '70%'}
+knitr::include_graphics("images/lubridate.jpg")
+``` 
+
+</center>
+<br>
+
+
+
+In Tidyverse, the package `lubridate` has been designed to make it easier to parse and manipulate these dates and date-times classes in R. With `lubridate` there are also three types of date/time data that refer to an instant in time:
+
+1. A date. Tibbles print this as `<date>`.
+2. A time within a day. Tibbles print this as `<time>`.
+3. A date-time is a date plus a time: it uniquely identifies an instant in time (typically to the nearest second). Tibbles print this as `<dttm>`. 
+
+From a learning perspective, tidyverse dates and times are slighly more intuative, but both base R and tidyverse utilise the same package : `lubridate`. 
+
+Let's start with something simple. To get the current date or date-time, you can use the function `today()` or `now()` from the `lubridate` package. 
+
+```{r, warning = FALSE, message = FALSE}
+# load library
+library(lubridate)
+```
+```{r}
+# use today function to make a date
+today()
+
+# use now function to make a date-time
+now()
+```
+
+Congrats, you've just made your first date and date-time in R! Now let's look at other ways to work with date-time. 
+
+<br>
+
+
+# Working with Dates / Date-times in R 
+
+In data analysis, there are three main ways you're likely to create date/time. 
+1. As strings 
+2. From date/time components (i.e. variables in a data set)
+3. From existing date/time objects
+
+Let's take a look at all of these in more detail.
+
+
+## Dates / Date-times as strings 
+
+Date and time data often come in as strings - that is, in text format. The lubridate package provides three useful functions for you to use, which help work out the format of your incoming data, and turn it into ISO 8601 date-time format:
+
+```{r} 
+
+# Use the lubridate package to turn different string formats into one ISO8601 date-time
+
+ymd("2019-01-19")          # the year is first, then month, then day
+
+mdy("January 9th, 2019")   # the month is first, then day, then year
+
+dmy("09-Jan-2019")         # the day is first, then month, then year. 
+
+```
+
+If you run each line, you'll see that the output is always the same: ISO format. 
+
+<div class='emphasis'>
+* Well worth knowing that the above functions also take unquoted strings as dates : e.g. `ymd(20190119)`
+</div>
+<br>
+
+To create a date-time, you can add on : `h`,`m`, and/or `s`: 
+
+```{r}
+ymd_hms("2019-01-09 10:08:26")
+
+ymd_hm("2019-01-09 10:08")
+
+ymd_h("2019-01-09 10")
+
+```
+
+
+<div class='emphasis'>
+* You'll see that the default when making a date-time is to set any missing minutes or seconds to 0. Important to keep in mind, as sometimes you may be calculating differences between times, and could end up with strange results if some date-times have minutes, and some don't. 
+</div>
+<br>
+
+
+<blockquote class='task'>
+**Task - 10 mins**
+
+Use the lubridate package to turn the following dates into ISO format:
+
+"March 12th, 2005"  
+"2018-06-23"  
+"2017-04-29 11:43:02"  
+"02-Sep-2002"    
+"2001-01-07 7"  
+"August 1st, 2019 08:13"
+<details>
+<summary>**Answers**</summary>
+
+```{r}
+mdy("March 12th, 2005")
+ymd("2018-06-23")  
+ymd_hms("2017-04-29 11:43:02")
+dmy("02-Sep-2002")
+ymd_h("2001-01-07 7")
+mdy_hm("August 1st, 2019 08:13")
+
+```
+</details>
+</blockquote>
+
+
+
+
+
+## Dates / date-times from variables
+
+Sometimes, you will have the date and time information come through as individual components, spread across multiple variables. For example: 
+
+```{r, warning = FALSE, message = FALSE}
+library(tibble)
+```
+
+```{r}
+# create some date component data to practice with 
+date_components <- tibble(id = 1:5, year = 2013 , month = 3:7, day = 1, hour = 5, minute = id^2 + month)
+date_components
+
+```
+
+How do we create a date/time from this? 
+
+```{r}
+date_components %>%
+  mutate(date_combo = make_datetime(year, month, day, hour, minute))
+```
+
+<blockquote class='task'>
+**Task - 5 mins**
+
+Load the library `nycflights13` (comes as part of the lubridate package). Select the `year`,`month`,`day`,`hour`, and `minute` variables from the `flights` dataset. Make a new column called `departure` which has a datetime for these variables. 
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+library(nycflights13)
+
+flights %>%
+  select(year, month, day, hour, minute) %>%
+  mutate(departure = make_datetime(year, month,day, hour, minute) )
+
+```
+</details>
+</blockquote>
+
+<br>
+
+## Dates / date-times from existing dates / date-times
+
+Yes, that might sound confusing! But say - you have a date, that you want as a date-time. Or what about if you have a date-time, and you just want the date?
+
+```{r}
+
+# turn a date into a date-time
+today()
+as_datetime(today())
+
+# turn a date-time into a date
+now()
+as_date(now())
+```
+
+
+<blockquote class='task'>
+**Task - 5 mins**
+
+Turn the variable `last_month` into a datetime, and then get the date part . 
+
+last_month <- "2019-07-01 04:23:12"
+
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+last_month <- "2019-07-01 04:23:12"
+
+as_datetime(last_month)
+as_date(last_month)
+```
+</details>
+</blockquote>
+
+
+Now we've seen different ways of getting our dates and times in, let's look at ways of getting the different parts of those! 
+
+
+
+
+# Extracting date/time components 
+
+Sometimes, you might only care about a certain part of the date and/or time. For example, you might want to look at the change in the bird population of scotland across summer months - for this you wouldn't need the time or even the date, just the month. 
+
+Thankfully, many functions exist to help you pull out all the individual parts of dates and times: `year()`, `month()`, `mday()` (day of the month), `yday()` (day of the year), `wday()` (day of the week), `hour()`, `minute()`, and `second()`. 
+
+
+```{r}
+# create a date-time to work with
+our_datetime <- ymd_hms("2019-06-19 21:04:56")
+```
+
+
+<blockquote class='task'>
+**Task - 10 mins** 
+* Try using the functions listed above to extract the year, month, day of the month, day of the year, day of the week, hour, minute and second.  
+<br>
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+# here`s the solution
+
+year(our_datetime)
+month(our_datetime)
+mday(our_datetime)
+yday(our_datetime)
+wday(our_datetime)
+
+month(our_datetime)
+month(our_datetime, label = TRUE) # add in the month label as well
+month(our_datetime, label = TRUE, abbr = FALSE) # add in the non abbreviated labels
+
+wday(our_datetime, label = TRUE)
+```
+
+</details>
+
+
+*** 
+
+
+
+# Calculating time spans
+
+Sometimes you might want to know the difference between two different times. You can have three different types of time span: 
+
+1. durations: represent an exact number of seconds 
+2. periods: represent time like weeks and months
+3. intervals: represent a start and end point 
+
+Let's look at how we calculate these now. 
+
+
+## Durations
+
+When you subtract two dates, you get a `difftime` object. Let's start by calculating how old you are. For this we can use the `as.duration` function from the `lubridate` package, alongside some we've already used:
+
+```{r}
+
+as.duration(today() - ymd(19890109))
+
+# in the second function ymd(), put your birthday in. Make sure it is is ISO 8601 format. (e.g. 19901012 would be the 12-10-1990)
+```
+
+
+You can also add and subtract different durations onto different dates and times using some of R's very handy build in duration functions: `dseconds()`, `dminutes()`, `dhours()`, `ddays()`, `dweeks()`, and `dyears()`. These will all add on a certain number durations onto times, or just create a duration object on their own. For example:
+
+```{r}
+# create a duration object 
+ddays(14)
+
+# add on a duration to an existing date : make last year
+today() - dyears(1)
+
+```
+
+
+<blockquote class='task'>
+**Task - 10 mins** 
+
+Let's use the date 25-12-2019 (christmas this year). Work out the following:
+
+1. How long is it from now until Christmas?  
+2. What date would 6 months after Christmas be?  
+3. What date would a fortnight before Christmas be?  
+4. What does adding on 36 hours after Christmas give you?
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+
+next_xmas <- ymd(20191225)
+
+# 1. calculate how long it is until christmas 
+as.duration(today() - next_xmas)
+
+# 2. what date would 6 months after Christmas be? 
+next_xmas + dyears(0.5)
+
+# 3. what date would a forgnight before christmas be?
+next_xmas - dweeks(2)
+
+# 4. add 36 hours
+next_xmas + dhours(36)
+
+```
+</details>
+<br>
+
+<br>
+
+
+## Periods
+
+Despite the duration functions being named things like 'days', they technically calculate everything in seconds rather than human-defined periods. To solve this, `lubridate` provides periods. These functions are pretty much the same as the duration ones, minus the `d` at the front: 
+`seconds()`, `minutes()`, `hours()`, `days()`, `weeks()`, and `years()`
+
+
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Run these durations listed below. How does the output differs from the duration functions?
+
+```{r, eval = FALSE}
+seconds(15)
+minutes(15)
+hours(1)
+days(10)
+months(2)
+weeks(3)
+years(2)
+```
+
+<details>
+<summary>**Answers**</summary>
+```{r}
+# run the periods
+seconds(15)
+minutes(15)
+hours(1)
+days(10)
+months(2)
+weeks(3)
+years(2)
+
+# do the same with durations
+dseconds(15)
+dminutes(15)
+dhours(1)
+ddays(10)
+dweeks(3)
+dyears(2)
+```
+
+The difference is that durations measure in seconds, whereas periods don't. 
+
+It's very important to note that durations are measured in seconds, and as such they are invariant to leap years, daylight seconds and daylight savings time. Lubridate uses standard time units to display durations (because no one would recognise 315360000 seconds as a year, for example), and so you might not notice that everything is calculated in seconds. Lubrdiate gives estimated units: a minute is 60 seconds, an hour 3600 seconds, a day 86400, a week 604800, and a year 31536000. Month
+units are not used because they are so variable.  
+
+Hence, durations have consistent lengths and can be easily compared to other durations. Durations are the appropriate object to use when comparing time based attributes, such as speeds, rates, and lifetimes. Periods provide robust predictions of clock time in the presence of leap seconds, leap years, and changes in DST.  
+
+</details>
+</blockquote>
+
+
+<br>
+You can also add different periods to dates:
+
+```{r}
+
+# a year from today 
+today() + years(1)
+
+# add to a string date
+ymd("2019-06-19") + days(10)
+```
+
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Use the date `one_pm <- "2016-03-12 13:00:00"`. Create a date object, and then calculate the following: 
+
+1. What date would one day after be?
+2. What would the time be if you added 3 hours?
+3. What date would 4 months after be?
+4. What would the date-time be if you added 3 weeks, 4 hours, and 12 minutes? 
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+# create the date-time object
+one_pm <- ymd_hms("2016-03-12 13:00:00")
+
+# add 3 hours
+one_pm + hours(3)
+
+# add 4 months
+one_pm + months(4)
+
+# add 3 weeks, 4 hours, and 12 minutes
+one_pm + weeks(3) + hours(4) + minutes(12)
+
+```
+</details>
+</blockquote>
+
+<br>
+
+
+## Intervals
+
+The final time span to look at is an Interval. Intervals are time spans bound by two real date-times: an interval is a duration with a specific start and end time. This allows it to be very precise, which means you can determine exactly how long it is between two dates. The lubridate package provides you with the very handy `interval` function, especially for this. 
+For example:
+
+```{r}
+
+# create an interval object using numeric dates 
+interval(ymd(20190621), ymd(20180621))
+
+# create an interval object using string dates
+this_year <- ymd("2019-06-21", tz= "GMT")
+last_year <- ymd("2018-06-21", tz = "GMT")
+interval_years <- interval(this_year,last_year)
+
+# use the %--% operator instead of the interval call (does the same thing)
+this_year %--% last_year
+
+```
+
+There are also lots of interval commands that allow you to manipulate interval objects. [You can read about them here](https://lubridate.tidyverse.org/reference/interval.html) 
+
+```{r}
+# access the start and end of the interval respectively
+int_start(interval_years)
+int_end(interval_years)
+
+# flip the start and end
+int_flip(interval_years)
+
+# shift the dates by a specified amount
+int_shift(interval_years, duration(days=1))
+
+```
+
+You also have different functions to test whether intervals align:
+
+```{r}
+
+# make a new interval object
+next_years <- interval(ymd(20200621), ymd(20210621))
+
+# check if the intervals overlap
+int_overlaps(interval_years, next_years)
+
+# test if two intervals share an endpoint 
+int_aligns(interval_years, next_years)
+
+```
+
+
+Other functions that work with intervals include: `setdiff`, and `%within%`.
+
+<blockquote class='task'>
+**Task - 10 mins** 
+
+
+Define the intervals below: 
+
+date1 <- ymd_hms("2011-06-04 12:03:01", tz= "Europe/London") 
+date2 <- ymd_hms("2011-07-20 14:24:06", tz = "Europe/London")
+
+date3 <- ymd_hms("2011-07-20 13:23:21", tz= "Europe/Berlin")
+date4 <- ymd_hms("2011-08-31 15:02:11", tz= "Europe/Berlin")
+
+Then answer the questions: 
+
+1. Create two interval objects from the dates above. Assign a variable called interval1 which uses the first two dates, and then a variable called interval2 which uses the third and fourth dates. 
+
+2. Use the `setdiff` function to find the difference between your two intervals.  
+3. Use the `within` function to find the overlap between your two intervals. 
+
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+# Tasks: Answers
+
+# define the dates 
+date1 <- ymd_hms("2011-06-04 12:03:01", tz= "Europe/London") 
+date2 <- ymd_hms("2011-07-20 14:24:06", tz = "Europe/London")
+
+date3 <- ymd_hms("2011-07-20 13:23:21", tz= "Europe/Berlin")
+date4 <- ymd_hms("2011-08-31 15:02:11", tz= "Europe/Berlin")
+
+
+
+# create two interval objects from the dates above. Assign a variable called interval1 which uses the first two dates, and then a variable called interval2 which uses the third and fourth dates. 
+interval1 <- interval(date1, date2)
+interval2 <- interval(date3, date4)
+
+# use the setdiff function
+setdiff(interval1, interval2) # works out the overlap between the two 
+
+# use the within function
+interval1 %within% interval2
+```
+</details>
+</blockquote>
+<br>
+
+
+
+# Understanding time zones
+
+The final thing worth understanding about dates and times is time zones. You've seen above that the time zone is added when you create a date-time. If you need a reminder, you can see it here: 
+
+```{r}
+ymd_h("2019-01-09 10")
+```
+
+
+Time zones are an enormously complicated topic in itself, but [you can read more about them here in section 16.5](https://r4ds.had.co.nz/dates-and-times.html) 
+
+First, you can see what time zone R thinks you are in, and find a complete list of all time zones:
+```{r}
+
+# find your current time zone (make sure you have a capital s!)
+Sys.timezone()
+
+# complete list of time zones is huge, let's just view the first 10
+head(OlsonNames(),10)
+
+```
+
+
+Unless specified, `lubridate` always uses UTC (coordinated universal time). It is the standard time zone used by the scientific community, and is roughly equivalent to GMT. 
+
+
+```{r}
+
+utc_date <- ymd_hms("2015-06-02 04:00:00", tz = "UTC")
+pct_date <- ymd_hms("2015-06-02 04:00:00", tz = "Pacific/Auckland")
+
+pct_date - utc_date
+
+```
+
+Here you can see something important about the time zones : both of these above represent the same instant in time. But as you've set the time zone, it will be recognised as a different time. 
+<br>
+
+
+<blockquote class='task'>
+**Task - 15 mins** 
+
+Let's say a plane leaves Sydney Australia at 2.15pm 7-August-2018, and arrives at 5.40am on the 8-August-2018 in London.  
+
+1. Create these two dates with the appropriate time zones.  
+
+2. Work out how long the duration between take off and landing is.
+
+3. If you left London at 6.20 am on the 10-August-2018, and the total flight time including stop overs was 28 hours and 46 minutes. What time would you arrive in Sydney, Australia?     
+
+4. Let's say you couldn't get a direct flight straight to Sydney, and had to stop at Adelaide first. If you leave London at 6.20 am on the 10-August-2018, and your arrival time in Adelaide is 3pm on the 11-August-2018, how long was your flight? What time is it in Sydney when you arrive in Adelaide? 
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+# 1. create the two dates with approrpiate time zones
+takeoff_sydney <- ymd_hms("2018-08-07 14:15:00", tz = "Australia/Sydney")
+land_london <- ymd_hms("2018-08-08 05:40:00", tz = "Europe/London")
+
+# 2. work out how long the travel time is 
+# create interval between take off and landing
+how_long <- interval(takeoff_sydney, land_london) 
+# show this as a period 
+as.period(how_long)
+
+# 3. work out when you'd arrive in sydney if you left london on the 10th
+# create your departure date 
+takeoff_london <- ymd_hms("2018-08-10 06:20:00", tz = "Europe/London") 
+
+# add the flight time to the departure date
+land_sydney <- takeoff_london + hours(28) + minutes(46)
+
+# make sure you've got the right time zone set 
+arrive <- with_tz(land_sydney, tzone = "Australia/Sydney")
+arrive
+
+# 4. work out when you'd land in Adelaide 
+# create the adelaide time
+land_adelaide <- ymd_hms("2018-08-11 15:00:00", tz = "Australia/ACT")
+# work out the interval 
+how_long <- interval(takeoff_london, land_adelaide) 
+as.period(how_long)
+
+# work out the corresponding time in sydney: 
+with_tz(land_adelaide, "Australia/Sydney")
+```
+</details>
+</blockquote>
+<br>
+
+
+# More Resources
+
+[R for Data Science: Handling dates and times](https://r4ds.had.co.nz/dates-and-times.html)
+
+[All about lubridate](https://lubridate.tidyverse.org/)
+
+[Working with dates and times using lubridate](https://data.library.virginia.edu/working-with-dates-and-time-in-r-using-the-lubridate-package/)
+
+[Do more with dates and times in R](https://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html)
+
+[Cleaning and manipulating dates with R lubridate and dplyr](http://rstudio-pubs-static.s3.amazonaws.com/268221_9a8a8794a0384c8e9acf9020869adbae.html)

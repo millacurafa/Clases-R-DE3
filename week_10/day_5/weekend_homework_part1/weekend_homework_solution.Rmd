@@ -1,0 +1,382 @@
+---
+title: "Weekend Homework Solution - Model Building"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# MVP
+
+Load libraries:
+
+```{r}
+library(tidyverse)
+library(GGally)
+library(modelr)
+library(janitor)
+```
+
+Load dataset and examine it:
+
+```{r}
+avocados <- clean_names(read_csv("data/avocado.csv"))
+summary(avocados)
+head(avocados)
+```
+
+```{r}
+avocados %>%
+  distinct(region) %>%
+  summarise(number_of_regions = n())
+```
+
+```{r}
+avocados %>%
+  distinct(date) %>%
+  summarise(
+    number_of_dates = n(),
+    min_date = min(date),
+    max_date = max(date)
+  )
+```
+The `x1` variable is related to the database, while `region` and `date` are going to create a lot of dummy variables, so let's get rid of them. We should also treat `year` as a factor and not numerical, and we might as well make sure `type` is a factor too:
+
+```{r}
+trimmed_avocados <- avocados %>% 
+  select(-c("x1", "date", "region")) %>%
+  mutate(
+    year = as_factor(year),
+    type = as_factor(type)
+  )
+```
+
+Now let's check for aliased variables (i.e. combinations of variables in which one or more of the variables can be calculated exactly from other variables):
+
+```{r}
+alias(average_price ~ ., data = trimmed_avocados )
+```
+
+Nice, we don't find any aliases.
+
+Run `ggpairs()` on the remaining variables:
+```{r}
+ggpairs(trimmed_avocados)
+```
+Let's save that plot so we can zoom in on it more easily
+
+```{r}
+ggsave("pairs_plot_choice1.png", width = 10, height = 10, units = "in")
+```
+
+Test competing models with `x4046` and `type`:
+
+```{r}
+model1a <- lm(average_price ~ x4046, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model1a)
+summary(model1a)
+```
+
+
+```{r}
+model1b <- lm(average_price ~ type, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model1b)
+summary(model1b)
+```
+
+`model1b` is best, so we'll keep that and re-run `ggpairs()` with the residuals.
+
+```{r}
+avocados_remaining_resid <- trimmed_avocados %>%
+  add_residuals(model1b) %>%
+  select(-c("average_price", "type"))
+
+ggpairs(avocados_remaining_resid)
+```
+```{r}
+ggsave("pairs_plot_choice2.png", width = 10, height = 10, units = "in")
+```
+
+Looks like `x4046` and `year` are our next strong contenders:
+
+```{r}
+model2a <- lm(average_price ~ type + x4046, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model2a)
+summary(model2a)
+```
+
+```{r}
+model2b <- lm(average_price ~ type + year, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model2b)
+summary(model2b)
+```
+
+So `model2b` comes out as slightly better here. Everything looks good so far, all coefficients are significant at $0.05$ level and the diagnostics are acceptable.
+
+```{r}
+avocados_remaining_resid <- trimmed_avocados %>%
+  add_residuals(model2b) %>%
+  select(-c("average_price", "type", "year"))
+
+ggpairs(avocados_remaining_resid)
+```
+
+```{r}
+ggsave("pairs_plot_choice3.png", width = 10, height = 10, units = "in")
+```
+
+The next contender variable looks to be `x4046`. Let's try it out.
+
+```{r}
+model3 <- lm(average_price ~ type + year + x4046, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model3)
+summary(model3)
+```
+
+Everything still looks OK, perhaps some mild heteroscedasticity. All coefficients remain significant.
+
+```{r}
+avocados_remaining_resid <- trimmed_avocados %>%
+  add_residuals(model3) %>%
+  select(-c("average_price", "type", "year", "x4046"))
+
+ggpairs(avocados_remaining_resid)
+```
+
+We're definitely now chasing variables with rather poor predictive power, so let's try one more: `x4225` looks to be our best choice.
+
+```{r}
+model4 <- lm(average_price ~ type + year + x4046 + x4225, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model4)
+summary(model4)
+```
+
+All coefficients remain significant, and diagnostics look fine, but we are achieving only marginal gains in predictive power of the model.
+
+Let's now think about possible pair interactions, for four main effect variabled we have six possible pair interactions. Let's test them out.
+
+```{r}
+model4pa <- lm(average_price ~ type + year + x4046 + x4225 + type:year, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model4pa)
+summary(model4pa)
+```
+
+```{r}
+model4pb <- lm(average_price ~ type + year + x4046 + x4225 + type:x4046, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model4pb)
+summary(model4pb)
+```
+
+```{r}
+model4pc <- lm(average_price ~ type + year + x4046 + x4225 + type:x4225, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model4pc)
+summary(model4pc)
+```
+
+```{r}
+model4pd <- lm(average_price ~ type + year + x4046 + x4225 + year:x4046, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model4pd)
+summary(model4pd)
+```
+
+```{r}
+model4pe <- lm(average_price ~ type + year + x4046 + x4225 + year:x4225, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model4pe)
+summary(model4pe)
+```
+
+```{r}
+model4pf <- lm(average_price ~ type + year + x4046 + x4225 + x4046:x4225, data = trimmed_avocados)
+par(mfrow = c(2, 2))
+plot(model4pf)
+summary(model4pf)
+```
+
+So it looks like `model4pa` with the `type:year` interaction is the strongest. But, again, the improvement due to the interaction is rather marginal.
+
+## Automated approach
+
+Let's try to fit a *predictive* model using `glmulti()`
+
+```{r}
+library(glmulti)
+```
+
+### Train-test split:
+
+This data is pretty big for `glmulti` on a single CPU core, so we'll likely not be able to do a search simultaneously for both main effects and pairwise interactions. Let's look first for the best main effects model using BIC as our metric:
+
+```{r}
+n_data <- nrow(trimmed_avocados)
+test_index <- sample(1:n_data, size = n_data * 0.3)
+
+test  <- slice(trimmed_avocados, test_index)
+train <- slice(trimmed_avocados, -test_index)
+
+# sanity check
+nrow(test) + nrow(train) == n_data
+nrow(test)
+nrow(train)
+```
+
+```{r}
+glmulti_fit <- glmulti(
+  average_price ~ ., 
+  data = train,
+  level = 1, # 2 = include pairwise interactions, 1 = main effects only (main effect = no pairwise interactions)
+  minsize = 1, # no min size of model
+  maxsize = 10, # -1 = no max size of model
+  marginality = TRUE, # marginality here means the same as 'strongly hierarchical' interactions, i.e. include pairwise interactions only if both predictors present in the model as main effects.
+  method = "h", # the problem is too large for exhaustive search, so search using a genetic algorithm
+  crit = bic, # criteria for model selection is BIC value (lower is better)
+  plotty = FALSE, # don't plot models as function runs
+  report = TRUE, # do produce reports as function runs
+  confsetsize = 10, # return best 10 solutions
+  fitfunction = lm # fit using the `lm` function
+)
+```
+
+```{r}
+summary(glmulti_fit)
+```
+
+So the lowest BIC model with main effects is `average_price ~ type + year + x4046 + x4225 + x4770 + large_bags + x_large_bags`. Let's have a look at possible extensions to this. We're going to deliberately try to go to the point where models start to overfit (as tested by the RMSE on the test set), so we've seen what this looks like.
+
+```{r}
+results <- tibble(
+  name = c(), bic = c(), rmse_train = c(), rmse_test = c()
+)
+```
+
+
+```{r}
+# lowest BIC model with main effects
+lowest_bic_model <- lm(average_price ~ type + year + x4046 + x4225 + x4770 + large_bags + x_large_bags, data = train)
+results <- results %>%
+  add_row(
+    tibble_row(
+      name = "lowest bic", 
+      bic = bic(lowest_bic_model),
+      rmse_train = rmse(lowest_bic_model, train),
+      rmse_test = rmse(lowest_bic_model, test)
+    )
+  )
+
+# try adding in all possible pairs with these main effects
+lowest_bic_model_all_pairs <- lm(average_price ~ (type + year + x4046 + x4225 + x4770 + large_bags + x_large_bags)^2, data = train)
+results <- results %>%
+  add_row(
+    tibble_row(
+      name = "lowest bic all pairs", 
+      bic = bic(lowest_bic_model_all_pairs),
+      rmse_train = rmse(lowest_bic_model_all_pairs, train),
+      rmse_test = rmse(lowest_bic_model_all_pairs, test)
+    )
+  )
+
+# try a model with all main effects
+model_all_mains <- lm(average_price ~ ., data = train)
+results <- results %>%
+  add_row(
+    tibble_row(
+      name = "all mains", 
+      bic = bic(model_all_mains),
+      rmse_train = rmse(model_all_mains, train),
+      rmse_test = rmse(model_all_mains, test)
+    )
+  )
+
+# try a model with all main effects and all pairs
+model_all_pairs <- lm(average_price ~ .^2, data = train)
+results <- results %>%
+  add_row(
+    tibble_row(
+      name = "all pairs", 
+      bic = bic(model_all_pairs),
+      rmse_train = rmse(model_all_pairs, train),
+      rmse_test = rmse(model_all_pairs, test)
+    )
+  )
+
+# try a model with all main effects, all pairs and all triples (this is getting silly)
+model_all_triples <- lm(average_price ~ .^3, data = train)
+results <- results %>%
+  add_row(
+    tibble_row(
+      name = "all triples", 
+      bic = bic(model_all_triples),
+      rmse_train = rmse(model_all_triples, train),
+      rmse_test = rmse(model_all_triples, test)
+    )
+  )
+
+# try a model with all main effects, all pairs, all triples and all quadruples (definitely silly)
+model_all_quadruples <- lm(average_price ~ .^4, data = train)
+results <- results %>%
+  add_row(
+    tibble_row(
+      name = "all quads", 
+      bic = bic(model_all_quadruples),
+      rmse_train = rmse(model_all_quadruples, train),
+      rmse_test = rmse(model_all_quadruples, test)
+    )
+  )
+```
+
+```{r}
+results <- results %>%
+  pivot_longer(cols = bic:rmse_test, names_to = "measure", values_to = "value") %>%
+  mutate(
+    name = fct_relevel(
+      as_factor(name),
+      "lowest bic", "lowest bic all pairs", "all mains", "all pairs", "all triples", "all quads"
+    )
+  )
+```
+
+```{r}
+results %>%
+  filter(measure == "bic") %>%
+  ggplot(aes(x = name, y = value)) +
+  geom_col(fill = "steelblue", alpha = 0.7) +
+  labs(
+    x = "model",
+    y = "bic"
+  )
+```
+BIC is telling us here that if we took our main effects model with lowest BIC, and added in all possible pairs, this would likely still improve the model for predictive purposes.
+
+Let's compare the RMSE values of the various models for train and test sets. We expect train RMSE always to go down as model complexity increases, but what happens to the test RMSE as models get more complex?
+
+```{r}
+results %>%
+  filter(measure != "bic") %>%
+  ggplot(aes(x = name, y = value, fill = measure)) +
+  geom_col(position = "dodge", alpha = 0.7) +
+  labs(
+    x = "model",
+    y = "rmse"
+  )
+```
+Lowest RMSE in test is obtained for the 'all pairs' model, and it increases thereafter as the models get more complex. This is a clear indication of overfitting.
+
+

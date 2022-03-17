@@ -1,0 +1,86 @@
+---
+title: "Mini-Lab - Data Quality"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+```
+
+
+# Introduction
+
+Now is a chance to practice defining, documenting and coding our own data quality rules.
+
+Have a look at the `contractsregister.csv` file which comes from [Aberdeen Council's open data portal](https://www.aberdeenshire.gov.uk/online/open-data/).
+
+# MVP - Defining and coding data quality rules
+**Task - 1 hour**
+
+## Business Statement
+
+We are going to start by writing 3 business statements. Ensure they explain the required rule and the context as to why this is important for the business.
+
+1. Write a statement ensuring the DateOfAward is populated
+
+2. Write a statement ensuring that DateOfAward is in the past and is formatted correctly
+
+3. Write a statement ensuring that the ContractValue is a positive numeric value
+
+## Rule Specification
+
+Now for each business statement write rule(s) explaining the test that is being carried out. Ensure you can map each rule to the DQ dimension it is checking.
+
+<details>
+<summary>**Hint**</summary>
+
+You may need more than one rule per business statement
+
+</details>
+
+
+## The coded rules
+
+For each data quality rule defined above, try and write `R-code` that can be used to test that rule.
+
+You may want to use this function, which checks if a date is invalid:
+
+```{r}
+is_invalid_date <- function(date){
+ 
+  parsed_date <- try(as.Date(date, format= "%d/%m/%Y"))
+  
+  return(inherits(parsed_date, "try-error") | is.na(parsed_date))
+}
+```
+
+And this function, which checks if a date is in the past:
+
+```{r}
+is_in_past <- function(date){
+  
+  return(lubridate::dmy(date) <= lubridate::today())
+  
+}
+```
+
+Don't worry if you don't understand the code! We'll learn about dates and times in week 3.
+
+## Summary statistics 
+
+Create summary statistics, showing the volumes that pass and fail each of the rules you have defined.
+
+
+
+
+
+
+
+

@@ -1,0 +1,1451 @@
+---
+title: "Control Flow"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Learning Objectives
+
+* Know the structure of all the conditional statements
+* Be able to nest conditional statements
+* Understand the use of the `ifelse()`  and `case_when()` functions.
+* Know how to use for loops, but understand when they should not be used. 
+
+**Duration - 3 hours 30 minutes**
+
+***
+
+So far when you've been writing code, each step has been executed one by one in sequence. In this lesson we'll learn ways of writing code where we skip statements or do some statements repeatedly. This can make code more complicated to think about, but it also makes it hugely more powerful.
+
+# `If` Statements
+
+In real life we often need to make decisions that are conditional on something else happening. 
+
+> If it's sunny today, I'll hang out the washing.
+
+This type of decision-making happens all the time in code, and we do it by using an `if` statement. `if` statements in R look like this
+
+```{r, eval = FALSE}
+if (expression){
+  do something
+}
+```
+
+The expression is any Boolean expression (i.e. an expression resulting in a value `TRUE` or `FALSE`): 
+
+<br>
+<center>
+![](https://bookdown.org/ndphillips/YaRrr/YaRrr_files/figure-html/comparison-1.png)
+</center>
+
+<br>
+
+The `do something` part is any R code that you want to run. If we wanted to write our laundry decision above as R code, it would look something like this:
+
+```{r, eval = FALSE}
+if (weather == "Sunny"){
+  hang_up_washing()
+}
+```
+
+Here `hang_up_washing()` is an example of a function we've written ourselves (i.e. it's not inbuilt in R). Don't worry if this seems strange, we'll see more on this shortly!
+
+Here are some examples of `if` statements. Note that the function `print()` makes sure that whatever is inside it is returned on the console, even if it's inside an `if` statement.
+
+**When writing `if` statements remember to indent everything inside the statement, and to put the brackets on the first line and after the statement.** 
+
+```{r}
+if (10 < 15){
+  print("Yes")
+}
+```
+
+```{r}
+if (5 %in% c(1, 4, 8)){
+  print("Yes")
+}
+```
+
+```{r}
+if (5 != 3){
+  print("Yes")
+}
+```
+
+```{r}
+x <- 8
+y <- 7
+
+if (x > y){
+  print("Yes")
+}
+```
+
+<blockquote class = 'task'>
+
+**Task - 5 minutes**
+
+Write an `if` statement that prints 'Yes that divides by 2' if a number `x` is divisible by 2 (hint: use `%% 2 == 0` as your expression), try it out for different values of `x`. 
+
+
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+x <- 6
+
+if (x %% 2 == 0){
+  print("Yes that divides by 2")
+}
+```
+
+</details>
+</blockquote>
+
+***
+
+# More complicated `if` statements
+
+You can put an `if` statement inside another `if` statement. The inner code will only run if both the Boolean expressions are `TRUE`. 
+
+```{r}
+if (10 != 5){
+  if (3 > 1){
+    print("Hello!")
+  }
+  print("Goodbye!")
+}
+```
+
+
+```{r}
+if (10 != 5){
+  if (2 <= 0){
+    print("Hello!")
+  }
+  print("Goodbye!")
+}
+```
+
+<blockquote class = 'task'>
+
+**Task - 10 minutes**
+
+Here's an example of a nested `if` statement. Predict what the code is going to print out for the following combinations:
+
+1. `x` is 10 and `y` is 3.
+2. `x` is 10 and `y` is 2.
+3. `x` is 2 and `y` is 10.
+
+
+```{r, eval = FALSE}
+if (x > y) {
+  print("Start of outer if block")
+
+  if (x %% y == 0) {
+    print("Inner if block 1")
+  }
+
+  if (y %in% c(1:5)) {
+    print("Inner if block 2")
+  }
+
+  print("End of outer if block")
+}
+
+print("After if statement")
+```
+
+<details>
+<summary> **Solution** </summary>
+
+
+```{r}
+if_statements_function <-  function(x, y){
+  
+  if (x > y) {
+    print("Start of outer if block")
+    
+    if (x %% y == 0) {
+      print("Inner if block 1")
+    }
+    
+    if (y %in% c(1:5)) {
+      print("Inner if block 2")
+    }
+    
+    print("End of outer if block")
+  }
+  
+  print("After if statement")
+}
+
+```
+
+The first thing to note here is that we've made our solution into our own function `if_statements_function()`. Again, don't worry too much about how to make functions right now, as we will cover this later today. All you need to know at this point is it takes some code, and makes it into something you can use over and over again, which will let us try out the various `x` and `y` values.
+
+1. 
+
+```{r}
+if_statements_function(x = 10, y = 3)
+```
+
+2.
+
+```{r}
+if_statements_function(x = 10, y = 2)
+```
+
+3. 
+
+```{r}
+if_statements_function(x = 2, y = 10)
+```
+
+</details>
+</blockquote>
+
+***
+
+# `if-else` statements
+
+Did you notice that in example 3 above when `y` > `x`, none of the nested print statements were accessed? If you want to write `if` statements that have an option for when the statement isn't true then you'll need an `if-else` statement. These look like this:
+
+```{r, eval = FALSE}
+if (expression){
+  do something when expression is true
+} else {
+  do something when expression is false
+}
+```
+
+We could translate this everyday expression about the weather:
+
+> If it's raining today, I'll wear my wellies, otherwise I'll wear my trainers.
+
+into R code like this:
+
+```{r, eval = FALSE}
+if (weather == "Rain"){
+  wear_wellies()
+} else {
+  wear_trainers()
+}
+```
+
+Here are some examples.
+
+```{r}
+if (4 > 5){
+  print("Yes")
+} else {
+  print("No")
+}
+```
+
+```{r}
+if (4 < 5){
+  print("Yes")
+} else {
+  print("No")
+}
+```
+
+```{r}
+if (3 %in% 4:6){
+  print("Yes")
+} else {
+  print("No")
+}
+```
+
+<blockquote class = 'task'>
+
+**Task - 5 minutes**
+
+Edit your code from the first exercise so that it prints 'Yes that divides' when `x` is divisible by 2, and prints 'No that does not divide' otherwise.
+
+
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+x <- 7
+
+if (x %% 2 == 0){
+  print("Yes that divides")
+} else {
+  print("No that does not divide")
+}
+```
+
+</details>
+</blockquote>
+
+<blockquote class = 'task'>
+
+**Task - 10 minutes**
+
+Here's an example of a nested `if-else` statement. Predict what it's going to print out for the following conditions:.
+
+1. When `x` is 5 and `y` is 10
+2. When `x` is 6 and `y` is 12
+3. When `x` is 6 and `y` is 13
+
+```{r eval=FALSE}
+x <- 5
+y <- 10
+
+if (x %in% c(3, 4, 5)){
+  
+  print("x is in our list")
+  
+  if (x == 5){
+    
+    print("x is exactly 5")
+    
+  }
+  
+} else {
+  
+  print("Start of else statement")
+  
+  if (y %% x == 0){
+    
+    print("x divides y")
+  
+  } else(
+    
+    print("x does not divide Y")
+  )
+  
+  print ("End of else statement")
+  
+}
+```
+
+<details>
+<summary> **Solution** </summary>
+
+First, we can make our function:
+
+```{r}
+if_else_function <- function(x, y){
+  if (x %in% c(3, 4, 5)){
+    
+    print("x is in our list")
+    
+    if (x == 5){
+      
+      print("x is exactly 5")
+      
+    }
+    
+  } else {
+    
+    print("Start of else statement")
+    
+    if (y %% x == 0){
+      
+      print("x divides y")
+    
+    } else(
+      
+      print("x does not divide y")
+    )
+    
+    print ("End of else statement")
+    
+  }
+}
+```
+
+1. 
+
+```{r}
+if_else_function(x = 5, y = 10)
+```
+
+2. 
+
+```{r}
+if_else_function(x = 6, y = 12)
+```
+
+3.
+
+```{r}
+if_else_function(x = 6, y = 13)
+```
+
+</details>
+</blockquote>
+
+***
+
+# The `ifelse()` function
+
+We can achieve the results of a whole `if-else` statement using one function: `ifelse()`. This is useful because it's more compact than writing an `if-else` statement. It's particularly useful when we want to change the elements of a vector.
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Read the help file for `ifelse()`. See if you can understand how to use it. 
+
+</blockquote>
+
+You can think of the `ifelse()` function as going through element of a vector and applying a 'Boolean expression' to each element in turn, substituting the element with one given value if the Boolean expression is `TRUE`, and another given value if the expression is `FALSE`.
+
+Let's see the first step of this process: we'll go through a vector and transform it into a `logical` vector by applying a Boolean expression to each element in turn.
+
+Let's transform a `numeric` vector of numbers from 1 to 10:
+
+```{r}
+1:10
+```
+
+into a `logical` vector by checking if each element is less than or equal to 5.
+
+```{r}
+1:10 <= 5
+```
+
+Since the first 5 elements of the vector are less than or equal to 5, these transform to `TRUE`, and since the remaining elements are greater than 5 these transform to `FALSE`. 
+
+The `ifelse()` function let's us transform this vector further in one step - we can pick any values we want to substitute instead of just `TRUE` and `FALSE`. An example should make this clearer:
+
+```{r}
+ifelse(1:10 <= 5, "Less than or equal to 5", "Greater than 5")
+```
+
+Or:
+
+```{r}
+ifelse(1:10 <= 5, 0, 5)
+```
+
+The syntax is
+
+<center>
+`ifelse(boolean expression, value if TRUE, value if FALSE)`
+</center>
+
+In many programming languages this is called a **'ternary statement'**, or **'ternary operation'**, because it is composed of **three parts**, as you can see. 
+
+Here are a few more examples.
+
+```{r}
+ifelse(1:10 %% 2 == 0, "Even", "Odd")
+```
+
+```{r}
+animals <- c("Cat", "Dog", "Monkey", "Elephant", "Dog")
+ifelse(animals == "Dog", "Dog", "Not dog")
+```
+
+You can use `ifelse()` to replace a value which is wrong.
+
+```{r}
+animals <- c("Cat", "Dog", "Monkay", "Elephant", "Dog")
+ifelse(animals == "Monkay", "Monkey", animals)
+```
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Use `ifelse()` to rewrite the following `if-else` statements. Make your own vectors of values to test your answer on.
+
+1. 
+
+```{r, results=FALSE}
+if (x %% 3 == 0){
+  print("Multiple of 3")
+} else {
+  print("Not a multiple of 3")
+}
+```
+
+2.
+
+```{r, results=FALSE}
+if (x == "Sum"){
+  print("Sun")
+} else {
+  print(x)
+}
+```
+
+<details>
+<summary> **Solution** </summary>
+
+1.
+```{r}
+x <- 1:10
+ifelse(x %% 3 == 0, "Multiple of 3", "Not a multiple of 3")
+```
+
+2.
+```{r}
+x <- c("Sun", "Sum", "Rain", "Sun")
+ifelse(x == "Sum", "Sun", x)
+```
+
+</details>
+</blockquote>
+
+***
+
+# The `case_when()` function
+
+When you want to do more complicated transformations of a vector, you can use the `case_when()` function. This comes from the `dplyr` package, so you'll need to load that now (and install it if you've not already done so).
+
+```{r, warning=FALSE, message=FALSE}
+library(dplyr)
+```
+
+Using `case_when()` you can write as many cases and outcomes as you like. They have to go on either side of a `~` (tilde). Each time the left hand side is `TRUE`, the vector will have the value on the right. Often we end `case_when()` statements with a `TRUE` on the left-hand-side, that mops up all cases left over.
+
+```{r}
+x <- 1:20
+
+case_when(
+  x %% 2 == 0 ~ "Even",
+  x %% 3 == 0 ~ "Divisible by 3",
+  x %% 5 == 0 ~ "Divisible by 5",
+  TRUE        ~ "Other number"
+)
+```
+
+You can use any type as the input vector and the output vector. Below we transform our vector of animal species (`character` type) to a vector containing the count of how many legs they have (`numeric` type). 
+
+```{r}
+animals <- c("Cat", "Dog", "Monkey", "Elephant", "Dog")
+
+case_when(
+  animals == "Cat" ~ 4,
+  animals == "Dog" ~ 4,
+  animals == "Monkey" ~ 2,
+  animals == "Elephant" ~ 4
+)
+```
+
+The order in which we do the statements matters. If a value is `TRUE` for two statements, then only the first one will apply.
+
+In the example below, values which are less than or equal to 5, are also less than or equal to 7. However, they are substituted with a value of A, since that comes first.
+
+```{r}
+x <- 1:10
+
+case_when(
+  x <= 5 ~ "A",
+  x <= 7 ~ "B",
+  TRUE   ~ "C"
+)
+```
+
+However, if we swap the order around in the `case_when()` statement, they now all get the value B.
+
+```{r}
+x <- 1:10
+
+case_when(
+  x <= 7 ~ "B",
+  x <= 5 ~ "A",
+  TRUE   ~ "C"
+)
+```
+
+All your substituted values (the values on the right hand side of the tilde `~`) have to be of the same type. The code below will not work, because some of the substituted values are `character` and some are `numeric`. 
+
+```{r, eval = FALSE}
+x <- 1:20
+
+case_when(
+  x %% 2 == 0 ~ "Even",
+  x %% 3 == 0 ~ 3,
+  x %% 5 == 0 ~ 5,
+  TRUE        ~ "Other number"
+)
+```
+
+Be particularly careful if you are returning your original value: if this isn't of the same type as your other substituted values, you'll need to convert it.
+
+```{r}
+x <- 1:20
+
+case_when(
+  x %% 2 == 0 ~ "Even",
+  x %% 3 == 0 ~ "Divisible by 3",
+  x %% 5 == 0 ~ "Divisible by 5",
+  TRUE        ~ as.character(x)
+)
+```
+
+<blockquote class = 'task'>
+
+**Task - 10 minutes**
+
+FizzBuzz is a very famous coding interview question. It goes like this:
+
+Write a program that prints the numbers from 1 to 100. But for multiples of three print "Fizz" instead of the number, and for multiples of five print "Buzz". For numbers which are multiples of both three and five print "FizzBuzz". When the number is not a multiple of either just return the number. 
+
+Use `case_when()` to code a solution to the FizzBuzz problem.
+
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+x <- 1:100
+
+case_when(
+  x %% 3 == 0 & x %% 5 == 0 ~ "FizzBuzz",
+  x %% 3 == 0 ~ "Fizz",
+  x %% 5 == 0 ~ "Buzz",
+  TRUE ~ as.character(x)
+)
+
+# or
+case_when(
+  x %% 15 == 0 ~ "FizzBuzz",
+  x %% 3 == 0 ~ "Fizz",
+  x %% 5 == 0 ~ "Buzz",
+  TRUE ~ as.character(x)
+)
+```
+</blockquote>
+
+<blockquote class = 'task'>
+
+**Task - 10 minutes - Harder!**
+
+Use `case_when()` to find all the primes less than 100. (Hint: you might want to Google 'Sieve of Eratosthenes', for more information on how to do this.)
+
+<details>
+<summary>**Extra Hint**</summary>
+You only need to use the primes up to 11 in the sieve.
+</details>
+
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+x <- 1:100
+
+case_when(
+  x == 1                 ~ "Not Prime", # 1 isn't prime
+  x != 2 & x %% 2 == 0   ~ "Not Prime",
+  x != 3 & x %% 3 == 0   ~ "Not Prime",
+  x != 5 & x %% 5 == 0   ~ "Not Prime",
+  x != 7 & x %% 7 == 0   ~ "Not Prime",
+  x != 11 & x %% 11 == 0 ~ "Not Prime",
+  TRUE                   ~ as.character(x)
+)
+```
+
+</details>
+</blockquote>
+
+
+
+***
+# The `recode()` function
+
+The `recode()` function is another way of conditionally executing code. It comes from a different R package called `dplyr`. This particular function allows you to replace values in a vector based on their position or their name: it is particularly useful for working with `factor` vectors. To see why, run the following code and see what happens:
+
+```{r, eval = FALSE}
+
+x <- as.factor( c("green", "blue", "blue", "red", "purple"))
+ifelse(x == "green", "blue", x)
+```
+
+You see that implicit conversion of the resulting vector has occurred: it has replaced all of the "green" values with the word "blue", but it hasn't done anything to the others (because we haven't told it to). This is not particularly useful behaviour.   
+
+Now let's try it using the `recode()` function:
+
+```{r}
+x <- as.factor( c("green", "blue", "blue", "red", "purple"))
+dplyr::recode(x , "green" = "blue")
+```
+
+Now we can see we've managed to recode the `green` observations as `blue`, and it has maintained the other levels in the factor. 
+
+You can also `recode()` more than one factor level at a time. In fact, you can even introduce new levels (i.e. not just recode one level to another) in the recoding scheme:
+
+```{r}
+dplyr::recode(x , "green" = "blue", "purple" = "black" )
+```
+
+Here, we introduced a new level called black, that wasn't in the original.  
+
+<blockquote class = "task">
+
+**Task - 5 minutes**
+
+Let's say we have the following data frame.
+
+```{r}
+
+name <- c("John", "Clara", "Smith")
+sex <- c(1, 2, 1)
+age <- c(30, 32, 54)
+
+# create a new dataframe
+student_df <- data.frame(name, sex, age)
+student_df
+```
+
+In `student_df` the column `sex` has values 1 or 2. Use the `recode()` function to change these values to "Male" and "Female", respectively. 
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+student_df$sex <-  recode(sex, "1" = "Male", "2" = "Female")
+
+student_df
+```
+</details>
+</blockquote>
+
+`recode()` also works on `numeric` variables, if you include the L after.
+
+```{r}
+x <- 1:10
+
+dplyr::recode(x, "2" = 20L, "4" = 40L)
+```
+
+In this case, `recode()` leads to more concise code than `case_when()`:
+
+```{r}
+# With case_when function
+dplyr::case_when(
+  x == 2 ~ 20,
+  x == 4 ~ 40,
+  TRUE ~ as.numeric(x)
+)
+```
+
+<br>
+
+You can also use `recode()` to change some values within a variable, and replace any unmatched ones with 'NA' (which in this case stands for 'not applicable').
+
+Let's see an example:
+
+```{r, warning=FALSE}
+fruits <- sample(c("apple", "banana", "cherry"), 10, replace = TRUE)
+
+dplyr::recode(fruits, "apple" = "A", "banana" = "B", .default = NA_character_)
+```
+
+
+<blockquote class = "task">
+
+**Task - 10 minutes**
+
+Using the data below, do the following:
+
+* Recode the `subject` numbers to be: 001, 002, 003 and 004
+* Recode the `sex` column to be "Male" and "Female"
+* Recode the `compl` column to be T = "True", F = "False", and NA otherwise
+
+
+```{r}
+data <- read.table(header=T, text='
+ subject sex control cond1 cond2 compl
+       1   M     7.9  12.3  10.7  T
+       2   F     6.3  10.6  11.1  T
+       3   F     9.5  13.1  13.8  N
+       4   M    11.5  13.4  12.9  F
+')
+
+```
+
+<details>
+<summary>**Answers**</summary>
+```{r}
+data$subject <- dplyr::recode(data$subject, 
+                  "1" = "001",
+                  "2" = "002",
+                  "3" = "003",
+                  "4" = "004"
+                )
+data$sex <- dplyr::recode(data$sex, 
+                  "M" = "Male",
+                  "F" = "Female"
+            )
+
+data$compl <- dplyr::recode(data$compl, 
+                  "T" = TRUE,
+                  "F" = FALSE,
+                  .default = NA
+              )
+```
+
+
+
+***
+
+# Loops
+
+Loops are another important type of control flow structure. In the general sense, a loop is a sequence of code statements that are repeated until either a certain number of iterations have been completed, or until a logical condition has been satisfied. Together with `if` and `if-else` statements, loops allow a great degree of control over the execution of code and the evaluation of expressions. Loops are not used very often when writing R code for data analysis, but it's still important to know a little about them.
+
+* **For** loops execute for a set number of times, as controlled by a counter or an index which is incremented with each cycle around the loop. Roughly this translates to : *for N many times, do X*
+* **While** loops are controlled by the checking of a logical condition. The condition is tested at the start or the end of the loop construct, and the loop repeats until the condition is satisfied. Roughly this translates to: *while condition C is TRUE (or FALSE, as specified by us), do X * <br>
+
+You might also sometimes find a need to use **nested loops**, which are just loops within loops. 
+
+For example: 
+
+* you might have a `for` loop nested within a `for` loop: *for N number of times, do this, and do that M number of times*
+* you might have a `while` loop nested within a `for` loop: *for N number of times, while condition C is true, do this* <br>
+
+with various other possible combinations. **Note that nesting loops within loops within loops etc... is a very quick way to write very slow code (i.e. code that takes a long time to run)**. If you find yourself writing code like this, stop and think: "Is there another way to tackle this problem? Am I missing a simplifying assumption of some sort?"
+
+We aren't going to show all the different statements relating to control flow today, we will focus on the most relevant of them, [but you can find out more here](https://data-flair.training/blogs/r-control-structures/)  
+
+***
+
+## For loops
+
+`for` loops let you do an action repeatedly.
+
+```{r, eval = FALSE}
+for (item in list){
+  do something to/with item
+}
+```
+
+The code above will go through every item in some R object (it doesn't really have to be a list, it could be a vector) and apply some code to the item, or use the item to perform another action.
+
+Again this concept appears in real life too. Imagine it's sunny so you decide to hang out your washing. For every sock in your basket you need to peg it to the line, so let's write this as
+
+```{r, eval = FALSE}
+for (sock in basket){
+  peg_to_line(sock)
+}
+```
+
+This means we don't have to write an instruction for every individual sock - we might not even know how many socks are in the basket. But we can write succinct code that applies the same action repeatedly as often as necessary: **one** block of code takes care of *all* the socks in the basket, **however many** there are.
+
+The most common loop you'll come across in programming is a `for` loop. 
+
+Let's start with a conceptual example. Suppose we want to print out the days of the week. We could do it like this:  
+
+```{r, eval = FALSE}
+
+print("The day is Monday")
+print("The day is Tuesday")
+print("The day is Wednesday")
+print("The day is Thursday")
+print("The day is Friday")
+
+```
+<br>
+But you can see this is a bit tedious. Instead, let's use a `for` loop.     
+<br>
+```{r}
+
+weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+
+for (day in weekdays) {
+    phrase <- paste("The day is", day)
+    print(phrase)
+    # or could do in one line as
+    # print(paste("The day is", day))
+} 
+
+```
+<br>
+
+The code above does as follows:    
+
+* `weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")` : this creates our vector of days of the week. 
+
+* `for (day in weekdays) {` : this is the start of the `for` loop. The `for` keyword starts the loop and the curly brackets `{} ` tell you what code is contained within the loop, i.e. the code that is to be repeated. 
+
+* The next argument `day` is the **loop index**. You can call your index whatever you want - here we've called it `day` just to make it a bit clearer what it is. When looking at `for` loops online or in code from other people, you'll notice that some people tend to just use one letter as their index (usually `i`, to stand for index). However, it is good practice to use a more meaningful name, as it helps you and others understand the purpose of the code. Often the index should sensibly be called the singular of whatever collection of objects you are looping through, e.g. `for(item in items)`, `for(tweet in tweets)`, `for(row in rows)` and so on.
+<br><br>
+So, what does the index variable do? It basically lets the `for` loop keep track of position through the 'to-do' list. So, on the first iteration through the loop, this will translate to *'for the object at position 1 in the collection, do...'*. On the second iteration round this loop, this will translate to: *'for the object at position 2 in the collection, do...'*  and so on, until we each the end of the collection (i.e. the `weekdays` vector in this case).
+
+* The final part of this line tells R which vector/list/anything you want to loop through: in principle, this should be some sort of **collection** of objects or values. In this case, we've told the loop to go through our `weekdays` vector. Here's what the progress through the loop looks like:
+
+| iteration | position in collection | contents of loop index |
+| --- | --- | --- |
+| 1 | 1 | `day = "Monday"` |
+| 2 | 2 | `day = "Tuesday"` |
+| 3 | 3 | `day = "Wednesday"` |
+| 4 | 4 | `day = "Thursday"` |
+| 5 | 5 | `day = "Friday"` |
+
+* `phrase <- paste("The day is", day); print(phrase)` : this is the statement part of the `for` loop, i.e. this tells R which actions we want to repeat a number of times. In this case, we tell R to `paste()` together the text 'The day is' with the current content of the loop variable `day`, and store the result in a variable `phrase`. So, the first time around the loop, `phrase` will contain 'The day is Monday'; the second time, 'The day is Tuesday', and so on. On the next line, we tell R to `print()` the `phrase` we have just created.
+
+
+<br>
+
+<blockquote class='task'>
+**Task - 10 mins** 
+
+
+Change the code below to use a `for` loop: 
+
+```{r, eval = FALSE}
+print(1)
+print(2)
+print(3)
+print(4)
+print(5)
+```
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+numbers <- 1:5
+for(number in numbers){ 
+  print(number)
+}
+
+# or can do this more concisely as
+for(number in 1:5){ 
+  print(number)
+}
+```
+</details>
+</blockquote>
+
+<br>
+
+
+## While loops (and how to avoid an infinite loop)
+<br>
+While loops tell R to execute a block of statements until a logical condition is satisfied. For a simple example, let's say you want to write some code that prints out increasing numbers until a certain value is reached.   
+
+```{r}
+# set the value we want to start printing at 
+current_value <- 1
+# set value we want to stop at
+stop_value <- 10
+
+while(current_value < stop_value) {
+  current_value <- current_value + 1
+  print(current_value)
+}
+```
+<br> 
+This section of code does as follows: 
+
+* `while(current_value < stop_value) {` : this is the start of our `while` loop. You can read this literally as it is: while the number in `current_value` is less than the number in `stop_value`. Then we use a curly bracket to start the block of statements that will be executed repeatedly.   
+
+* `current_value = current_value + 1` : this is our statement within our loop. Here we are saying to add one to the current value.     
+
+* `print(current_value)` : finally, we are saying to print out the start value.   
+
+* So if you read this in one go, it says, while `current_value` is less than `stop_value`, add one to it, then print it. 
+
+<br>
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+What do you think would happen if we didn't add one to the original `current_value` (`current_value <- current_value + 1`), and only included the `print()` statement? 
+
+<details>
+<summary>**Solution**</summary>
+
+The `while` loop is conditional on `current_value < stop_value`. If you don't add anything to `start_value`, **then it will always remain under `stop_value`**. So the loop will just keep on running forever! <br>
+
+```{r, eval = FALSE}
+# set the value we want to start printing at 
+current_value <- 1
+# set value we want to stop at
+stop_value <- 10
+
+while(current_value < stop_value) {
+  print(current_value)
+}
+## MAKE SURE YOU PRESS STOP!
+```
+
+</details>
+</blockquote>
+
+
+### Alternative ways of writing loop indexes
+
+We have seen how index can be looping through the vector e.g. `for(item in items)` or `for(i in items)`. Another common way you may seen loops being written is calling upon the number position in the item within the vector explicitly. For example repeating the weekdays example an alternative way of writing the loop is as follows:
+
+```{r}
+weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+length_weekdays <- length(weekdays) 
+
+for (i in 1:length_weekdays) { # the loop index differs as it reads the start and end number and loops through the numbers in between
+    phrase <- paste("The day is", weekdays[i])
+    print(phrase)
+} 
+```
+
+For this example the previous method of `for(item in items)` looping index is a better way of writing it, but you may see other people writing loops like this so it's good to have an awareness. However this method of writing loop indexes is used when you want to put something back into a vector/dataframe in a known position in the example below we are looking to pluralise the days of the week vector `weekdays`(i.e. add 's' on the end of the days). 
+
+```{r}
+weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+length_weekdays <- length(weekdays) 
+
+for (i in 1:length_weekdays) {
+  
+    plural <- paste0(weekdays[i], "s")
+    weekdays[i] <- plural # here is where we use the value i to assign the position in the weekdays vector
+
+    } 
+
+weekdays
+```
+
+This method can be used to improve speed of code (depending on the task) but we don't need to worry about that just now. 
+
+<br>
+
+## Nested Loops
+
+Nested loops are loops within loops. They are commonly used to iterate through multidimensional or hierarchical data structures (e.g. matrices, lists), to do multiple things in one chunk (loop) of code. 
+
+Let's start with nested `for` loops. 
+
+For example, let's say we have a $3 \times 4$ matrix `my_data`, and we want to print out all the values held in the matrix. Let's think about a loop which iterates first through the rows of the matrix, and then through the columns, printing out the value it finds in `my_data` at each combination of row index and column index.
+
+```{r, eval = FALSE}
+
+for (row_index in 1:number of rows) { 
+  for (col_index in 1:number of columns){ 
+        print(my_data[row_index, col_index]) 
+  }
+}
+```
+
+Let's see how the row and column indices change as the code runs
+
+| step | row_index | col_index |
+| --- | --- | --- |
+| 1 | 1 | 1 |
+| 2 | 1 | 2 |
+| 3 | 1 | 3 |
+| 4 | 1 | 4 |
+| 5 | 2 | 1 |
+| 6 | 2 | 2 |
+| 7 | 2 | 3 |
+| 8 | 2 | 4 |
+| 9 | 3 | 1 |
+| 10 | 3 | 2 |
+| 11 | 3 | 3 |
+| 12 | 3 | 4 |
+
+In plain language, this code will work through all the columns of the first row, and then all the columns of the second row, and so on. Note which of these indices is what we call the **'fastest moving'** (i.e. changes most often as the code runs): it is the index of the **innermost loop**. This will always be true: the index of the innermost loop changes most rapidly; the next one out, less rapidly; and the index of the outermost loop, the most slowly. You might think of this as being like the dials on an electricity meter: the 'ones' dial spins most rapidly; the 'tens', less rapidly (at one-tenth the speed); the 'hundreds', less rapidly still (at one-hundredth the speed), and so on.  
+
+Let's try this now for a $5 \times 5$ matrix:
+
+```{r}
+# create a 5x5 matrix of random numbers
+my_matrix <- replicate(5, rnorm(5)) 
+# check the matrix 
+my_matrix
+
+# even though we know the matrix is 5 x 5, let's get the
+# num_rows and num_cols programatically, so this code could apply to 
+# any matrix
+num_rows <- dim(my_matrix)[1]
+num_cols <- dim(my_matrix)[2]
+
+for(row_index in 1:num_rows){  # for each row
+  for(col_index in 1:num_cols){ # for each column
+     print(my_matrix[row_index, col_index]) # print value at this row and column
+  }
+}
+
+```
+
+Now it's your turn. 
+
+<blockquote class='task'>
+**Task - 10 mins** 
+
+Run the code below to create an empty $5 \times 5$ matrix:
+
+```{r}
+product_matrix <- matrix(nrow = 5, ncol = 5)
+product_matrix
+```
+
+Check that the matrix is empty. 
+
+Now we're going to fill `product_matrix` in the following way: each entry should be **the product of the row index and position index at which the entry occurs**. For example, the entry on the third row, fourth column, should be $3 \times 4 = 12$. 
+
+Get the matrix dimensions programatically (so that we could in the future apply this code to any size of matrix with minimal changes).
+
+*Hint: you can use the code above as a guide, although we won't be printing out the matrix entries as we go. Instead, check your code by printing out the whole matrix at the end: just run the single statement `product_matrix` to do this.*
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+num_rows <- dim(product_matrix)[1]
+num_cols <- dim(product_matrix)[2]
+  
+for(row_index in 1:num_rows){  # for each row
+  for(col_index in 1:num_cols){ # for each column
+    product_matrix[row_index, col_index] <- row_index * col_index     # assign value as product of two indices
+  }
+}
+
+product_matrix
+```
+</details>
+</blockquote>
+
+Loops can also contain other control flow statements. For example, a `for` loop might contain complex conditional logic using various `if` or `if-else` statements. Essentially, any code can be enclosed within a loop, and loops can occur within `if` statements. Rather like assembling Lego(TM), we assemble the code we need to solve the problem at hand!
+
+<blockquote class='task'>
+**Task - 10 mins** 
+
+Here is the matrix we will use in this task
+
+```{r}
+example_matrix = matrix(1:25, nrow = 5, ncol = 5)
+example_matrix 
+```
+
+Taking your knowledge about `for` loops and `if` statements, and **without running the code below**, write what you expect to be printed out by the following code. 
+
+```{r, eval = FALSE}
+for (row_index in 1:5){
+  for (col_index in 1:5){
+    if (row_index == col_index){
+      print(example_matrix[row_index, col_index])
+    }
+   }
+}
+```
+
+
+<details>
+<summary>**Solution**</summary>
+
+Here, the `if` statement is nested inside two `for` loops. As we have a matrix, we have to use two `for` loops to cover rows and columns. In this case the will print out the values occurring at positions: `[1, 1], [2, 2], [3, 3], [4, 4], [5, 5]`, because the `if` statement means that the `print()` command runs only when the row index equals the column index.
+
+```{r, echo = FALSE}
+for (row_index in 1:5){
+  for (col_index in 1:5){
+    if (row_index == col_index){
+      print(example_matrix[row_index, col_index])
+    }
+   }
+}
+```
+
+
+</details>
+</blockquote>
+
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Create a nested `for` loop and `if` statement combination which loops through the weekdays and prints out the phrase 'Last weekday!' once it gets to Friday. 
+
+```{r}
+# create your weekdays vector
+weekdays <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+```
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+for (day in weekdays){
+  if (day == "Friday"){
+    print("Last weekday!")
+  }
+}
+
+# or could do this using a numerical index
+# but note syntax above is cleaner
+for (day_index in 1:length(weekdays)){
+  if (weekdays[day_index] == "Friday"){
+    print("Last weekday!")
+  }
+}
+```
+</details>
+<br>
+
+**Be careful with nesting though**: nesting beyond 2 to 3 levels often makes it difficult to read/understand the code, and, as mentioned above, it can lead to long execution times. If you find yourself in need of a large number of nested loops, think carefully about what you are doing, and to make the code more readable you may want to break up the loops by defining your own functions. That's not to say that deeply nested loops are always a bad thing, sometimes you have no alternative! 
+
+
+## A warning about loops
+
+Loops are very important in other programming languages. But when writing R code for data analysis we'd recommend that you *avoid* writing loops wherever possible. This is possible since everything in R is a vector, and R was designed from the outset to use and understand **vectorised operations** (i.e. simple statements that easily apply operations to whole vectors at once). This means that we can normally do whatever we want straightforwardly by applying only a small number of statement to whole vectors, rather than by writing loops to iterate through a vector, making the changes we want. Beyond making your code **more concise**, vectorised operations usually also **run faster** than 'homebrew' code using loops, as package designers have optimised the code for you ahead of time! 
+
+For example, in other programming languages, if you wanted to add one to every element of a vector, you might have to write something like:
+
+```{r}
+my_vector <-  c(1, 4, 6, 2, 4)
+# create temporary vector to hold addition
+temp_vector <- numeric(length(my_vector))
+
+for (index in 1:length(my_vector)){
+  temp_vector[index] <- my_vector[index] + 1
+}
+
+# once all additions finished without problems, reassign temp_vector to my_vector
+my_vector <- temp_vector
+
+my_vector
+```
+
+But in R we can simply do this using a vectorised operation:
+
+```{r}
+my_vector + 1
+```
+
+i.e. R understands that it should apply the `+ 1` operation to **each** element of `my_vector`. Much easier, and if we timed the code execution, we would find that it runs much faster too! 
+
+So be very careful about where you use loops in R. Most loops can be replaced by writing code that uses vectorised operations, or other functions that apply to whole vectors at once. In most cases, use loops only when you are working with objects more complicated than vectors. For example, say you want to read in several files in the same folder, you might write code like:
+
+```{r, eval=FALSE}
+my_data <- NULL
+
+for (file in list.files('data')){
+  part_data <- read_csv(file)
+  my_data <- rbind(part_data)
+}
+```
+
+The code above 
+
+1. Goes through each `file` in a folder called `data`
+2. Reads in each `file` in the folder as a CSV
+3. Adds the rows from each `file` onto `my_data`
+
+Or, imagine you are working with complicated lists
+
+```{r, eval = FALSE}
+for (item in complicted_list){
+  
+  if (item$has_address == TRUE){
+      
+      address <- item$details$address
+      addresses <- c(addresses, address)
+    
+  }
+}
+
+```
+
+The code above:
+
+1. Goes through each `item` in `complicated_list`.
+2. If the `item` has an address it goes to step 3, otherwise it skips on to the next item in `complicated_list`
+3. It extracts the `address` from inside `details` and add the `address` to a vector called `addresses`.
+
+
+<blockquote class = 'task'>
+
+**Task - 15 minutes**
+
+Using the `starwars` list from the `CodeClanData` package, do the following:
+
+1. Print the `name` for every character in the list
+2. Print out the `hair_color` of every female in the list.
+3. (**Harder**) Print out all the URLs for the films of every character that is under 170cm tall.
+
+<details>
+<summary> **Solution** </summary>
+
+1. 
+```{r}
+library(CodeClanData)
+
+for (character in starwars){
+  print(character$name)
+}
+```
+
+2.
+```{r}
+for (character in starwars){
+  if (character$gender == 'female'){
+    print(character$hair_color)
+  }
+}
+```
+
+3.
+```{r}
+for (character in starwars){
+  if (character$height <= 170){
+    for (film in character$films){
+      print(film)
+    }
+  }
+}
+```
+
+</details>
+</blockquote>
+
+*** 
+
+## The `apply()` family of functions
+
+
+At a general level, the `apply()` collection of functions take in a data structure (data frame, list, vector, etc) and a function, and **apply the passed in function to each element of the passed in data structure). The main purpose of `apply()` is primarily to avoid explicit use of loops. Any function can be passed into `apply()`, but some use cases are more common and helpful than others.
+
+As always, an example will help you see how to use `apply()`. Probably the simplest use case is to sum the columns or rows of a matrix. Let's do this now for column sums:
+
+
+```{r}
+m1 <- matrix(data = 1:10, nrow = 5, ncol = 6)
+m1
+sum_cols_m1 <- apply(X = m1, MARGIN = 2, FUN = sum)
+sum_cols_m1
+```
+
+In this case, the code `apply(X = m1, MARGIN = 2, FUN = sum)` will apply the `sum()` function to the $5 \times 6$ matrix `m1` and return the sum of each column. Note that it passes the sums back in a vector. Virtually any function can be passed in to `apply()`, and using it helps you avoid using a loop. 
+
+What does the `MARGIN = ` argument mean? This tells `apply()` the 'axis' of the matrix along which to apply the function: `1` indicates rows and `2` indicates columns. So, to sum all the rows of matrix `m1` we would write 
+
+```{r}
+sum_rows_m1 <- apply(X = m1, MARGIN = 1, FUN = sum)
+sum_rows_m1
+```
+
+Different forms of the `apply()` function exist:
+
+* `lapply()`: works on lists and vectors. The main difference from `apply()` is that the output of `lapply()` will be a list. `lapply()` can be used for other objects like data frames and lists.
+
+* `sapply()`: performs jobs similar to `lapply()` but returns a vector instead of a list. It is generally more user-friendly than `lapply()`: you can think of the `s` in `sapply()` as standing for 'simple', it returns simpler data structures.
+
+
+<blockquote class = 'task'>
+
+**Task - 5 minutes**
+
+Use the `cars` dataset which is inbuilt in R. Use each of the `lapply()` and `sapply()` functions to measure the mean speed and stopping distance of the cars. How does the output of each function differ?
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+cars_lapply <- lapply(X = cars, FUN = mean)
+cars_lapply
+
+cars_sapply <- sapply(X = cars, FUN = mean)
+cars_sapply
+```
+
+In this case, the return from `sapply()` is more useful than that of `lapply()`, as `sapply()` returns the mean values in a named vector, which is generally more easy to handle in later code or analysis. 
+
+</details>
+</blockquote>
+
+In short, the `apply()` family of functions forms the basis of code to perform virtually any task that could be performed by writing explicit loops. However, the code using `apply()` and related functions will be more concise, and may well run faster. 
+
+The family is made up of functions `apply()`, `lapply()` , `sapply()` (which we saw above); and `vapply()`, `mapply()`, `rapply()`, and `tapply()` (which we haven't yet seen). It is worth taking some time to familiarise yourself with all the functions in this family. 
+
+
+***
+
+# Recap 
+
+* What is the general form of an `if` statement?
+
+<details>
+<summary>**Answer**</summary>
+```{r, eval = FALSE}
+if (expression){
+  do something
+}
+```
+</details>
+<br>
+
+* What is the general form of an `if-else` statement?
+
+<details>
+<summary>**Answer**</summary>
+```{r, eval = FALSE}
+if (expression){
+  do something when expression true
+} else {
+  do something when expression false
+}
+```
+</details>
+<br>
+
+* What's the syntax of the `ifelse()` function?
+
+<details>
+<summary>**Answer**</summary>
+```{r, eval = FALSE}
+ifelse(logical expression, value when true, value when false)
+```
+</details>
+<br>
+
+* What's the syntax of the `case_when()` function?
+
+<details>
+<summary>**Answer**</summary>
+```{r, eval = FALSE}
+case_when(
+  expression 1 ~ value 1,
+  expression 2 ~ value 2,
+  ... etc.,
+)
+```
+</details>
+<br>
+
+* What's the general form of a `for` loop?
+
+<details>
+<summary>**Answer**</summary>
+```{r, eval = FALSE}
+for (item in collection){
+  do something with item
+}
+```
+</details>
+<br>
+
+* If you wanted to make a loop conditional on a certain statement (e.g. a variable being equal to a particular value), what kind of loop would you use?
+
+<details>
+<summary>**Answer**</summary>
+A `while` loop. While loops iterate only while a logical condition is satisfied. 
+</details>
+<br>
+
+* In general, why should you try to avoid using `for` loops in R?
+
+<details>
+<summary>**Answer**</summary>
+Because R understands and offers **vectorised operations**, that lead to more concise code and generally run faster than code using explicit loops.
+</details>
+
+*** 
+
+# Additional Resources
+
+* The start of [this chapter](https://r4ds.had.co.nz/iteration.html) has some more examples of using `for` loops.
+
+* [Iteration: R for data science](https://r4ds.had.co.nz/iteration.html#mapping-over-multiple-arguments).  

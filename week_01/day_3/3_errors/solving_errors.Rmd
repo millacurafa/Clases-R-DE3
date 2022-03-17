@@ -1,0 +1,425 @@
+---
+title: "Solving errors"
+output:
+  html_document: 
+    css: ../../../styles.css
+    number_sections: yes
+    toc: yes
+    toc_float: yes
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, error = TRUE, fig.align = "center")
+```
+
+# Learning Objectives<br>
+
+* Know some of the common sources of errors
+* Know some techniques and approaches of how to solve the errors
+
+**Duration - 30 minutes**
+
+<br>
+
+There are a lot of debugging tools in R which are great for digging into errors often found within functions you have written (covered in the ‘Functions’ lesson). However you will face errors which do not require these tools and need some old fashioned problem solving. 
+
+Below are some common issues and some helpful tips. Some of these may sound obvious but when you’ve been staring at the same problem for a while normal reasoning can sometimes go out the window! 
+
+![](images/debugging_1.png){width=30%} ![](images/debugging_2.png){width=30%} ![](images/debugging_3.png){width=30%}
+
+
+
+# Common issues
+
+## Spelling 
+Spelling! Often this will come apparent when R will think that the object you have created is not there ... but it's actually because you have misspelled it either when you assigned it or when you have tried to call it. 
+
+<blockquote class='task'>
+
+**Task - 1 minute**
+
+What is the issue here:
+
+```{r}
+the_name_of_my_variable <- c(3, 4, 5)
+
+the_name_of_my_varaible[2]
+```
+
+<details>
+<summary> **Solution** </summary>
+
+There is a spelling mistake when calling the variable, the_name_of_my_var**ai**ble and not the_name_of_my_var**ia**ble. Should be:
+
+```{r}
+the_name_of_my_variable <- c(3, 4, 5)
+
+the_name_of_my_variable[2]
+```
+
+</details>
+
+</blockquote>
+
+
+**Check/Tip**
+
+* This is a motivation to keep variable names simple, and not too long. You can use ls() to give you a list of all the current objects in R, which may help you spot a spelling error. However, sometimes an error like this may take someone else taking a look at your code to spot the mistake!
+
+* R Studio version 1.3 will have real time spell checking, more info [here](https://blog.rstudio.com/2020/02/11/rstudio-1-3-preview-real-time-spellchecking/)
+
+* There is a greatly named packaged named `fcuk`, where once loaded each time a typo occurs, a correction suggestion will be made under the default error message. More info [here](https://cran.r-project.org/web/packages/fcuk/vignettes/fcuk.html) 
+
+## Upstream change 
+Another common error is if you have changed something in your code further up in your script but haven’t re-run all bits that are dependent on this change so it’s not filtering through to your current code chuck. 
+
+
+**Check/Tip**
+
+Remember to run all the code after a change (by selecting ‘Run All Chunks Below’ when cursor is in the amended chunk or, if it doesn't take too long, rerun full script). 
+
+![](images/run_markdown.png){width=30%}
+
+
+## Object type or size 
+Environment objects are not as expected, either in data type or by dimension. Often functions and operations are dependent on the size and type of an object and so applying an operation to something of the wrong data type or wrong dimension can cause errors.
+
+<blockquote class='task'>
+
+**Task - 1 minute**
+
+What is the issue here:
+
+```{r}
+
+the_name_of_my_variable <- c(3, 4, 5)
+
+the_name_of_my_variable[2,3]
+
+```
+
+<details>
+<summary> **Solution** </summary>
+
+Trying to subset the element in the 2nd row and 3rd column but the object is a vector, so there isn't a 3rd column. 
+</details>
+
+</blockquote>
+
+
+
+**Check/Tip**
+
+Check the objects used in the line of code causing the error are the type and dimensions you expect (may have to step back through code to check this). Can highlight the objects individually and use shortcut command+enter to just run a single object. Can also check in the Environment tab (top right of R Studio):
+
+![](images/enviroment_pane.png){width=30%}
+
+Or do checks such as dim(), length() and class():
+
+```{r}
+dim(the_name_of_my_variable)
+length(the_name_of_my_variable)
+class(the_name_of_my_variable)
+```
+
+
+
+
+## Conflict of functions
+Conflicts due to the different functions with the same name in different packages was introduced as part of the 'Functions' lesson. These conflicts may cause errors if you try to use a function that is named the same in two packages you have loaded, and unfortunately the error messages are not very obvious. For example, let's load the following packages dplyr and MASS.
+
+```{r}
+library(dplyr)
+library(MASS)
+```
+
+Can see here once load 'MASS' you get a message saying *'The following object is masked from ‘package:dplyr’:select'*. This means there is a function named 'select' in both MASS and dplyr and because you have loaded MASS **after** dplyr then the select function in MASS will be used unless stated explicitly (via dplyr::select). 
+
+If you now try to use the select function as expect it to be the functionality from the dplyr package (the select function is expected to select a column in a dataframe) then you will get the following message:
+
+```{r}
+select(mtcars, "mpg")
+```
+
+This message isn't clear that the issue is due to R trying to use the MASS::select when user is trying to use dplyr::select. 
+
+
+**Check/Tip**
+
+During this course it's unlikely you will face many conflicts but as you start to use and experiment with more packages (especially ones on Github rather than just CRAN) then you may find conflicts coming up. However it can be useful to read the messages get from loading packages 
+
+You can also list conflicts vis the conflicts() function, which will list any functions where has conflicts (but some of them are intentional e.g. for dplyr provides its own versions of several functions from base R, such as filter and lag, which will see when load dplyr). 
+
+```{r}
+conflicts()
+```
+
+These is also a package called 'conflicted' which you can load at the start of a script. It makes every conflict an error and forcing you to explicitly choose which function to use. 
+
+<blockquote class='task'>
+
+**Task - 2 minute**
+
+Let's retry the example above but first loading the conflicted package. 
+
+
+```{r, eval=FALSE}
+library(conflicted)
+library(dplyr)
+library(MASS)
+
+select(mtcars, "mpg")
+```
+
+<details>
+<summary> **Solution** </summary>
+```{r}
+library(conflicted)
+library(dplyr)
+library(MASS)
+
+select(mtcars, "mpg")
+```
+</details>
+</blockquote>
+
+One of the most common conflicts is MASS::select vs. dplyr::select and so try to be mindful of this if getting an error when using select, try to remember this lesson :)
+
+
+
+## Missing or extra syntax 
+You may have forgotten a bracket, comma (when listing arguments) or closing quotation mark, or conversely have too many. These can often be hard to spot as they are small! 
+
+**Check/Tip**
+
+If you have forgotten a bracket or quotation mark at the end of a line then in the console there will be a "+" rather then “>”  which means looking for the code line to be completed. Click into the console, press ESC, add the “)" to the script, and try again.
+
+![](images/missing_bracket.png){width=30%}
+
+Additionally if you click next to a bracket then the corresponding opening/closing bracket will highlight which is useful in determining if you may have missed a bracket (this will come in handy for R Shiny in particular!).
+
+![](images/bracket.png){width=30%}
+
+Often if a comma is missing in a function (when listing arguments) then the following error will appear:
+
+<blockquote class='task'>
+
+**Task - 1 minute**
+
+What's the issue here:
+
+```{r}
+the_name_of_my_variable <- c(3, 4, 5)
+the_name_of_your_variable <- c(6, 7, 8)
+
+both_varaibles <- data.frame(the_name_of_my_variable the_name_of_your_variable)
+```
+
+<details>
+<summary> **Solution** </summary>
+
+There is a comma missing from between the vectors being listed in the dataframe. It should read
+
+```{r}
+the_name_of_my_variable <- c(3, 4, 5)
+the_name_of_your_variable <- c(6, 7, 8)
+
+both_varaibles <- data.frame(the_name_of_my_variable, the_name_of_your_variable)
+
+both_varaibles
+```
+
+</details>
+
+</blockquote>
+
+You may also face something similar when you miss a quotation mark:
+
+<blockquote class='task'>
+**Task - 1 minute**
+
+What's the issue here:
+
+```{r}
+some_characters <- c("Steph", "Del", "Mhairi, "Aileen")
+```
+
+<details>
+<summary> **Solution** </summary>
+
+There is a quotation mark missing after Mhairi's name. It should read
+
+```{r}
+some_characters <- c("Steph", "Del", "Mhairi", "Aileen")
+
+some_characters
+```
+
+</details>
+
+</blockquote>
+
+These errors can be a little confusing at first because it reads *'unexpected symbol'* so may think there is an additional symbol in there, rather that one is missing. But it generally means that it's not got the symbols it was expecting in the order it was expecting. 
+
+You can conversely have the situation where you have extra syntax, again often quotation marks, commas and brackets, and may see an error like this:
+
+<blockquote class='task'>
+**Task - 1 minute**
+
+What's the issue here:
+```{r}
+both_varaibles <- data.frame(the_name_of_my_variable, the_name_of_your_variable,)
+```
+
+<details>
+<summary> **Solution** </summary>
+
+There is an extra comma at the end of the creation of the dataframe that has no object. It should read:
+
+```{r}
+both_varaibles <- data.frame(the_name_of_my_variable, the_name_of_your_variable)
+
+both_varaibles
+```
+
+</details>
+
+</blockquote>
+
+## Loading packages 
+Loading a package that you’ve either not installed (so need to install) or have *just* installed. It may read something like this (if you install and load the package straight away):
+
+
+```{r, eval=FALSE}
+install.packages("zoo")
+library(zoo)
+
+#Error in library(zoo) : there is no package called ‘zoo’
+```
+
+**Check/Tip**
+
+Sometimes when you first install a package you need to re-start your R session before about to load it. Shortcut is Ctrl+Shift+F10. 
+
+# Other helpful tips 
+
+## Building code up 
+If running a whole R notebook chunk can simplify by **running code line by line**, building up to source line of error. Can highlight line and command+enter to run a single line. Similarly can **comment out particular lines of code** (using #) and progressively uncomment lines.  
+
+## Read the error message
+Error message are not always intuitive but most of the time can at least point you in the direction of where error is occurring.
+
+
+## Google the error message
+The likelihood is that someone has faced this error before, so cannot stress the usefulness of the website StackOverflow enough! It is the go-to website for programmers to share their (programming!) problems and help with finding solutions. It may sound silly but finding useful answers and explanations on StackOverflow is an art and skill in itself, which will get easier with practice. 
+
+![](images/googling_error.png){width=30%} ![](images/stack_overflow.png){width=30%}
+
+<blockquote class='task'>
+
+**Task - 2 minute**
+
+Using the example error from earlier try giving the error message you get a Google (and specifically keep an eye out for Stack Overflow pages). 
+
+```{r}
+the_name_of_my_variable <- c(3, 4, 5)
+the_name_of_your_variable <- c(6, 7, 8)
+
+both_varaibles <- data.frame(the_name_of_my_variable the_name_of_your_variable)
+```
+
+
+
+</blockquote>
+
+The caveat of this is **don’t blindly copy and paste a bit of code** seen on StackOverflow. You want to understand how it is working because even though it may work it is so so important to know why, which will help you for the next (inevitable) time you face something similar. Additionally you should be able to explain and understand all your code, it will not be sufficient at work to say ‘I just copied this from the internet’.
+
+*Errorist* is a package in R which allows the user to automatically search errors and warnings straight from R console https://github.com/r-assist/errorist.
+
+<blockquote class='task'>
+
+**Task - 2 minute**
+
+Using the sample example as above try first loading the errorist library and see how it works
+
+```{r}
+library(errorist)
+
+the_name_of_my_variable <- c(3, 4, 5)
+the_name_of_your_variable <- c(6, 7, 8)
+
+both_varaibles <- data.frame(the_name_of_my_variable the_name_of_your_variable)
+
+```
+</blockquote>
+
+
+Although this might be a bit overkill (especially if like to problem solve before googling!) but it's interesting to learn about the kind of tools and packages people are building to cater to common problems users of R face. 
+
+## Step away from your computer
+
+![](images/coffee_break.jpg){width=40%}
+
+Sometimes you’ve been staring at an issue for so long you can no longer see sense. Take a break, get a drink or a breather. Come back with fresh eyes and the answer may come to you! 
+Sometimes it is hard to check errors running on large datasets because testing out adjustments to the code are slow to run and it's also difficult to pinpoint the issue to due complexity of the data. Try sampling the dataset so it runs on a smaller volume or create a small test dataset which you can run the code on and it will make it easier to detect the source.
+
+## Rubber duck debugging
+
+![](images/rubber_duck.jpg){width=40%}
+
+This is a term used in software engineering as a method of debugging code (and why you see so many rubber ducks around CodeClan!). The concept is that you explain what your code is doing line by line and at a level the duck (i.e. something what knows nothing about programming will understand). By doing this you may well come across the error when thinking out loud what your code is doing. 
+
+More info: https://www.thoughtfulcode.com/rubber-duck-debugging-psychology/
+
+
+## Get someone to check over your code
+
+![](images/teamwork.jpg){width=40%}
+
+Get someone to check over your code - whether that be a peer or an instructor. This is invaluable, and don’t worry about hassling others for help. Reviewing other people’s code is a **great tool for learning too**, you can see how others approach problems and can learn about new ways of doing things. When working as an analyst you will often have to review other’s code and it’s great practice to start now! 
+
+It also gives you **practice in walking the reviewer through your code** (similar logic as rubber duck debugging). Don’t forget you might have been working on a project/code script for some time and take for granted your knowledge and understanding of it when explaining to someone else to review who doesn’t know what your working on or your logic to approaching the problem. Take a step back and ensure you are explaining it throughout to allow the reviewer to understand and help. Again, this will be something you will do regularly as an analyst and is good to practice! 
+
+## Warnings (not just errors) 
+As mentioned in the 'Packages' lesson there are warnings and there are errors - this not only applied to loading packages but writing code in general. You will be forced to read an error message as your code won’t run but make sure you read warning messages too! Just because code has run warnings can often signify not running as may expect as that’s why isn’t warning you. 
+
+Vector recycling is an example of an warning message where the code is likely not running as expected (unless specifically looking for this kind of matching) but it will run it with the following error:
+
+<blockquote class='task'>
+
+**Task - 2 minute**
+
+What is the issue here:
+
+```{r}
+the_name_of_my_variable <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+subset_variable <- c(2, 3, 4)
+
+
+the_name_of_my_variable == subset_variable
+```
+
+<details>
+<summary> **Solution** </summary>
+
+This is doing 'vector recycling', which was mentioned earlier in the week, which is likely not to be what you want (although it may be!). It's more likely the command should be:
+
+```{r}
+the_name_of_my_variable %in% subset_variable
+```
+
+where the position of the elements in the subset_variable does not matter. 
+
+</details>
+
+</blockquote>
+
+So it's important to read warnings, not just errors!
+
+## Exception is class code alongs
+When we are doing code alongs in class of course you may not have time to go through all these so please please raise your hand for an instructor to help so you are able to keep up but these tips will help when it comes to homework, labs, projects and your own learning.
+
+
+# Additional resources 
+Conflicts: https://developer.r-project.org/Blog/public/2019/03/19/managing-search-path-conflicts/

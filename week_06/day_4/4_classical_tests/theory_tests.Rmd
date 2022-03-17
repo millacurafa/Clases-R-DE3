@@ -1,0 +1,309 @@
+---
+title: "Theory-based hypothesis tests"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# Learning Objectives<br>
+* What are theory-based tests 
+* Difference between theory-based and computational-based tests
+* How to perform a one-sample t-test for a mean
+* Difference between paramertic and non-parametric theory-based tests and some examples
+
+
+**Duration - 1 hour**<br>
+
+<hr>
+
+# Introduction
+
+Throughout our hypothesis testing lessons we have been using computational methods (permutation, simulation, and bootstrapping) to generate a null distribution to test our observed sample statistic against. To perform these simultations we needed computer power, but this computing power hasn't always been around historically. In fact, even with some of the current simulations you may find they do take some time to run, and we have very small datasets in our lessons. Imagine trying to do this before the advent of computers - it would have been hugely time consuming. 
+
+So what did statisticians do before computers? They used 'theory-based' tests, which are approximations to the computation-based methods we are able to do now (and have been using in the lessons before now). However, in order to perform these theory-based tests a number of assumptions have to hold true (based upon the central Limit theorem), otherwise the approximations wouldn't be justified, and the results of the tests may not be valid. 
+
+We won't cover all the theory-based (also called classical or traditional methods) tests in detail, as you've seen that we can easily use computation-based methods, which have fewer restrictions and assumptions, and are more generally applicable. However theory-based tests are still often used in statistics, and you will likely come across them if you do any further study/work in hypothesis testing. 
+
+# Theory-based hypothesis tests
+
+Within a theory-based approach our final output is still a $p$-value, and the interpretation is the same. What differs are the steps we take to calculate the null distribution and $p$-value.
+
+<br>
+<div class='emphasis'>
+**Step-through of a hypothesis test: theory-based tests**<br><br>
+
+* We need to check whether the assumptions required for whichever theory-based test we are going to perform hold true. Otherwise the results may not be valid. These assumptions can differ depending on the test and how many groups the test is based on. 
+
+* We decide upon a **significance level** $\alpha$ for our test. 
+
+* We calculate the **test statistic**. This will differ depending upon what test you are doing (i.e. it depends upon the question you are asking). For example:
+  - If we are testing popoulation means we would perform a **t-test**, and the test statistic is called a **t-statistic**. 
+  - If we are testing for independence between variables we would perform a **chi-square test**, and the test statistic is named a **chi-squared statistic**. 
+  - These test statistics are calculated from the sample data via formulae based on inputs such as the sample mean and standard error. 
+
+* We use **standard distributions to approximate our null distribution**. So unlike computation-based methods, we don't generate the null distributions based on our specific dataset. For a t-test we compare our test statistic against a **t-distribution**, while for a chi-squared test, we compare it with a **chi-squared distribution**. 
+
+* We see where our test statistic falls on the null sampling distribution and calculate the  **$p$-value**, the interpretation of which is the same as for computation-based methods: 
+    - If the calculated $p$-value is **less than or equal to** $\alpha$ then **we reject the null hypothesis in favour of the alternative hypothesis**. 
+    - If the $p$-value is greater than $\alpha$ then we **fail to reject the null hypothesis**.
+</div>
+<br>
+
+We are going to work through an example of a one-sample t-test to show how theory-based tests work. 
+
+## One sample t-test
+
+We're going to revisit the one-sample hypothesis test we applied earlier for the average ratings of books in the Goodreads dataset. 
+
+```{r, message=FALSE}
+library(tidyverse)
+library(janitor)
+library(infer)
+```
+
+Let's load up the data and tidy it up a little:
+
+```{r, warning = FALSE}
+books <- read_csv("data/books.csv")
+
+books_tidy <- books %>%
+  clean_names() %>%
+  filter(!is.na(average_rating)) %>%
+  rename(num_pages = number_num_pages)
+
+glimpse(books_tidy)
+```
+
+That looks better. Now we'll visualise the distribution of the `average_rating` values.These are the averages of the ratings recorded by Goodreads users for each book. 
+
+```{r}
+books_tidy %>%
+  ggplot(aes(y = average_rating)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+We have some outliers leading to some left-skew. Now, we want to address the following problem:
+
+<br>
+<div class='emphasis'>
+The mean `average_rating` for books in the Goodreads database in 2016 was $3.93$. Now, we have taken this current sample of books from the database, and we want to know if the current mean `average_rating` **differs significantly** from the 2016 value? 
+</div>
+<br>
+
+We can write our two hypotheses as:
+
+<br>
+<center>
+$H_0$: $\mu_{\textrm{average_rating}} = 3.93$<br>
+$H_a$: $\mu_{\textrm{average_rating}} \ne 3.93$
+</center>
+<br>
+
+First, we need to check whether our data meets the necessary requirements for a one-sample t-test to be valid. These are:
+
+* Independent observations: The observations are collected independently.
+* Approximately normal distribution: The distribution of the response variable should be normal or the sample size should be at least $30$.
+
+We will make the assumption that the average rating of one book does not influence or affect the value of other books, and so the independence assumption holds. 
+
+On inspection of the sample distribution it was a little left skewed but the sample is quite large, with $10,999$ observations, so we can say both conditions are met. 
+
+We decide upon a **significance level** $\alpha = 0.05$ for our test.
+
+Next, we calculate the statistic we are interested in from the current sample.
+
+In the present case, we calculate the $t$-statistic as follows:
+
+$$t = \frac{\textrm{sample_mean} - \mu_0}{\textrm{std. error}}$$
+The sample mean and standard error are based on the sample data, and $\mu_0$ is the mean under $H_0$, which in our case is $3.93$.
+
+The formula for standard error is
+
+$$\textrm{std. error} = \frac{\textrm{sample standard deviation}}{\sqrt{n}}$$
+where $n$ is the number of observations in our sample. 
+
+```{r}
+mu_0 <- 3.93
+sample_mean <- mean(books_tidy$average_rating)
+std_error <- sd(books_tidy$average_rating) / sqrt(nrow(books_tidy)) 
+
+t_statistic <- (sample_mean - mu_0) / std_error
+t_statistic
+```
+
+Or alternatively `infer` will calculate the test statistic for classical tests (to save us memorising the formulas). For a t-test we use the function `t_stat()` from `infer`. 
+
+```{r}
+t_statistic_infer <- books_tidy %>%
+  t_stat(response = average_rating, mu = 3.93) 
+
+t_statistic_infer
+```
+
+
+Next, we treat the situation specified by the **null hypothesis as if it were true**, and use a standard $t$-distribution as our null distribution. 
+
+Again, we can use the `infer` package to produce the standard t-distribution i.e. our null distribution. and the visualise the distribution. 
+```{r}
+null_distribution <- books_tidy %>% 
+  specify(response = average_rating) %>% 
+  hypothesize(null = "point", mu = 3.93) %>% 
+  calculate(stat = "t")  #specify that it is a t-test
+
+head(null_distribution)
+```
+
+Let's visualise our null disribution and our calculated t-statistic to see where it falls on the distribution. 
+```{r}
+null_distribution %>%
+  visualize(method = "theoretical") + #specify that using theory based test
+  shade_p_value(obs_stat = t_statistic, direction = "both") #is a two-sided test so use direction="both"
+```
+
+Notice here we get a warning message from `infer`:
+
+<br>
+<center>
+*Check to make sure the conditions have been met for the theoretical method. {infer} currently does not check these for you.*
+</center>
+<br>
+
+`infer` doesn't check that the required assumptions for a t-test are met (independence and normality) and so it flags to the user that it is their responsibility to check these prior to using the results of the test! 
+
+We see from our plot that the t-statistic lies quite far to the right of the null distribution. As before, the shaded red regions correspond to the probability of obtaining a result as or more extreme than our t-statistic under $H_0$ i.e. our $p$-value. 
+
+Finally we calculate the $p$-value using the function `t_test` from `infer` package
+
+```{r}
+t_test_results <- books_tidy %>%
+  t_test(response = average_rating, alternative = "two.sided", mu = 3.93)
+
+t_test_results
+```
+
+In this case $p = 0.02132$, which is less than $\alpha = 0.05$, so we reject the null hypothesis and conclude that the current mean `average_rating` differs significantly from the mean `average_rating` in 2016.
+
+Looking back to where we performed this hypothesis test using computation-based methods, we obtained a very similar $p$-value, likely because our sample size is very big and so the requirements of the t-test are well satisfied. 
+
+Note: you may also see the function `t.test()` used, which is the base R version of `infer`s `t_test()`. 
+
+<br>
+<blockquote class='task'>
+**Task - 15 mins**
+
+Perform a theory-based hypothesis test to answer the question *do books in Spanish have a `mean(average_rating)` less than $3.96$*?
+
+**Hint:** remember to make sure that the assumptions of the test hold! 
+
+</center>
+
+<details>
+<summary>**Solution**</summary>
+We shall set $\alpha = 0.05$. The two hypotheses are: 
+
+<br>
+<center>
+$H_0$: $\mu_{\textrm{average_rating(Spa)}} \ge 3.96$<br>
+$H_a$: $\mu_{\textrm{average_rating(Spa)}} \lt 3.96$
+</center>
+<br>
+
+Let's check that the assumptions of the test hold. We have discussed that we have assumed independence holds. Let's look at the distribution of `average_rating` for Spanish language books to check whether the normality assumption is satisfied.  
+
+```{r}
+books_in_spanish <- books_tidy %>%
+  filter(language_code == "spa")
+
+books_in_spanish  %>%
+  ggplot(aes(y = average_rating)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+The distribution looks fairly normal, and the number of observations is greater than 30 (at 278) so we can assume the assumptions required for a one-sample t-test hold. Let's go ahead with the test. 
+
+```{r}
+t_statistic <- books_in_spanish %>%
+  t_stat(response = average_rating, mu = 3.96) 
+
+t_statistic
+```
+
+We treat the situation specified by the **null hypothesis as if it were true**, and use a standard $t$-distribution as our null distribution. 
+
+```{r}
+null_distribution <- books_in_spanish %>% 
+  specify(response = average_rating) %>% 
+  hypothesize(null = "point", mu = 3.96) %>% 
+  calculate(stat = "t")  #specify that it is a t-test
+
+head(null_distribution)
+```
+
+Let's visualise our null distribution and overlay our calculated t-statistic. 
+
+```{r}
+null_distribution %>%
+  visualize(method = "theoretical") + #specify that using theory based test
+  shade_p_value(obs_stat = t_statistic, direction = "left") #is a left hand sided test because the alternative is less than
+```
+
+We see from the plot that our t-statistic lies to the left, but we should expect a large $p$-value. Let's calculate it to be sure. 
+
+```{r}
+t_test_results <- books_in_spanish %>%
+  t_test(response = average_rating, alternative = "less", mu = 3.96)
+
+t_test_results
+```
+
+Since $p$ is **greater** than $\alpha$ we **fail to reject** $H_0$. There is not enough evidence to say that the mean average rating of books in Spanish is less than $3.96$.
+
+This is the same exercise you did earlier in the 'Introduction to Hypothesis Tests' lesson, but there you used computation-based methods. Take a moment to compare your currents results with those obtained earlier to see how the methods compare. 
+
+</details>
+</blockquote>
+<br>
+
+
+# Parametric vs. non-parametric theory-based tests 
+
+We have performed a theory-based hypothesis test in this lesson. A variety of theory-based tests exist, depending on what we are testing e.g. one-sample mean, two-sample difference in means, independence of variables etc. 
+
+In reality we won't always meet the assumptions required for some of these tests to be valid; often the assumption of normality is the trickiest one to satisfu. Prior to computation-based methods (which make very few assumptions), there was the alternative of using **non-parametric tests**. 
+
+<br>
+* **Parametric tests**: have required assumptions about the data that need to be met for the results of the test to be valid.  
+* **Non-parametric tests**: do not make any assumptions about the data. 
+<br>
+
+If your data satisfy a parametic test requirements, they are often preferred over a non-parametric test, because parametric tests typically have greater **statistical power** than non-parametric tests. By this we mean that they are more likely to reveal significant findings.
+
+Below are a list of the names of some parametric and non-parametric tests for different cases of interest:
+
+| Case | Parametric test | Non-parametric test |
+|---|---|---|
+| Comparing one-sample mean against a specified value | One-sample t-test | Wilcoxon Signed Rank test |
+| Comparing two paired means | Paired-sample t-test |  Wilcoxon Signed Rank test |
+| Compared two independent means | Two-sample t-test | Mann-Whitney test |
+| Testing the independence of two categorical variables | Chi-squared test | - |
+
+We won't go into any of the other tests in detail (because we are able to treat all of these via computation-based methods) but if you want to learn more then see the additional resources at the bottom of this lesson. 
+
+# Recap
+
+
+# Additional resources
+
+* [t-statistic and t-distribution in more detail](https://rpsychologist.com/d3/tdist/)
+* [Parametric vs. non-parametric tests](https://statisticsbyjim.com/hypothesis-testing/nonparametric-parametric-tests/)

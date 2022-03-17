@@ -1,0 +1,54 @@
+p.caption {
+  font-size: 0.9em;
+  font-style: italic;
+  color: grey;
+  margin-right: 10%;
+  margin-left: 10%;
+  text-align: justify;
+}
+
+div.emphasis {
+  background-color:#e6f0ff;
+  border-radius: 5px;
+  padding: 20px;
+}
+
+blockquote.task {
+  background-color:#fadadd;
+  border-radius: 5px;
+  padding: 20px;
+  font-size: 0.9em;
+}
+
+h1, .h1 {
+  margin-top: 64px;
+}
+
+h2, .h2, h3, .h3 {
+  margin-top: 24px;
+}
+
+.nested-p-a {
+  color: red;
+}
+
+.body-fake {
+  color: blue;
+}
+
+.green-text{
+  color: green;
+}
+  
+.orange-text{
+  color: orange;
+}
+
+#my-element{
+  background-color: #d3f3c8;
+  height: 200px;
+  width: 200px;
+  padding: 2em 1em 2em 1em;
+  margin: 5%;
+  border: 2px solid black;
+}

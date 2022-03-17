@@ -1,0 +1,82 @@
+---
+title: "Python Machine Learning - Homework"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r, echo = FALSE}
+library(reticulate)
+use_python("/anaconda3/bin/python")
+
+knitr::opts_chunk$set(echo = FALSE, eval = FALSE)
+```
+
+# MVP
+
+Use the forest fire data from last night's homework.
+
+We want you to build a linear regression model to predict the size of a forest fire in both in *Python* and in *R*. No need to explore the data first, since you did that yesterday!
+
+1. Create a model in Python
+2. Create a model in R.
+3. Write a short paragraph comparing what was easy and what was difficult in both languages.
+4. Interpret the model.
+
+```{python}
+# Python version
+
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+
+
+forest_fire = pd.read_csv("forestfires.csv")
+
+forest_fire = forest_fire.dropna()
+
+forest_fire = pd.get_dummies(forest_fire, drop_first = True)
+
+y = forest_fire["area"]
+X = forest_fire.drop(columns = "area")
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.1, random_state = 7)
+
+model = LinearRegression()
+
+model.fit(X_train, y_train)
+
+model.score(X_test, y_test)
+```
+
+```{r}
+# R version
+
+library(readr)
+
+forest_fire <- read_csv("forestfires.csv")
+
+model <- lm(area ~ ., data = forest_fire)
+
+summary(model)
+```
+
+
+# Extension
+
+Containing in whatever language you like, try to improve this model. 
+
+
+```{r}
+# Predicing log of area is much more effective. Lots of other improvements are possible! 
+
+model <- lm(log(area + 1) ~ ., data = forest_fire) # Need log + 1 because of 0 values
+
+summary(model)
+```
+

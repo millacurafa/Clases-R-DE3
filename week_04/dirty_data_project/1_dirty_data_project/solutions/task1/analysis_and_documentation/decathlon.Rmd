@@ -1,0 +1,74 @@
+---
+title: "Task 1 - Analysis results "
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+Loading in data 
+
+```{r}
+library(tidyverse)
+library(here) 
+
+# Use the 'here' function so that path directories work in notebooks the same way the work in scripts
+decathalon <- read_csv(here("clean_data/decathlon_clean.csv"))
+```
+
+#  Question 1
+Who had the longest long jump seen in the data?
+
+```{r}
+decathalon %>%
+  filter(event == "long_jump") %>%
+  arrange(desc(score)) %>%
+  head(1)
+```
+
+
+# Question 2
+What was the average 100m time in each competition?
+
+```{r}
+decathalon %>%
+  filter(event == "running_100m") %>%
+  group_by(competition) %>%
+  summarise(av_time = mean(score))
+```
+
+
+# Question 3 
+Who had the highest total points across both competitions?
+
+```{r}
+decathalon %>%
+  distinct(surname, competition, points) %>%
+  group_by(surname) %>%
+  summarise(points_total = sum(points)) %>%
+  arrange(desc(points_total)) %>%
+  head(1)
+```
+
+
+# Question 4
+What was the shot-put scores for the top three competitors in each competition?
+
+```{r}
+decathalon %>%
+  filter(rank <= 3) %>%
+  filter(event == "shot_put")
+```
+
+
+# Question 5
+What was the average points for competitors who ran the 400m in less than 50 seconds vs. those than ran 400m in more than 50 seconds?
+
+```{r}
+decathalon %>%
+  filter(event == "running_400m") %>%
+  mutate(fast_400 = score < 50) %>%
+  group_by(fast_400) %>%
+  summarise(avg_points = mean(points))
+```
+
+

@@ -1,0 +1,602 @@
+---
+title: "Bootstrapping and confidence intervals"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "30th August 2019"
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# Learning objectives
+
+* Understand the concept of a confidence interval.
+* Understand and be able to perform bootstrap resampling.
+* Gain experience with the `infer` package.
+* Be able to calculate confidence intervals.
+
+**Duration - 90 minutes**<br>
+
+<hr>
+
+```{r, message = FALSE}
+library(tidyverse)
+library(janitor)
+```
+
+```{r}
+telco <- read_csv("data/telecomms_churn.csv")
+telco <- telco %>%
+  clean_names()
+```
+
+# Confidence level and confidence interval
+
+Often we might like an indication of the uncertainty associated with a point estimate of a parameter.
+
+Let's return to the `tenure` variable in the `telecomms_churn` dataset. We take a $200$-observation sample of the population and calculate the `mean(tenure)` of this sample. This is our **point estimate** of the mean `tenure` in the population given this sample.
+
+Using the methods we'll discuss below, we can go on to make helpful statements like:
+
+<br>
+<center>
+From our $200$-observation sample, the point estimate of `mean(tenure)` is $32.6$ months<br> with a $95\%$ confidence interval of $[29.1 \textrm{ to } 36.1]$ months<br><br>
+and<br><br>
+From our $200$-observation sample, the point estimate of mean `tenure` is $32.6$ months<br> with a $99\%$ confidence interval of $[28.1 \textrm{ to } 37.1]$ months<br><br>
+</center>
+<br>
+
+i.e. we would like to be able to state a **likely range** of mean values and/or other statistics! Now, in this case, we know that the actual population parameter is:
+
+```{r}
+mean(telco$tenure)
+```
+
+But remember, we will essentially **never** have privileged information like this in real applications. Normally, all we would have is **one** sample and **one** point estimate. but confidence intervals (CIs) give us a sense of the 'variability' or 'precision' or 'reasonable range' of an estimate! 
+
+Here, '$95\%$' and $99\%$ are both examples of what is known as a **confidence level**. You can see that as we make the confidence level larger, the interval gets wider. You can think of this as a consequence of the **no such thing as a free lunch** principle: if we don't gather any more data, but want to be more confident in our estimate of a parameter, our only option is to increase the width of the CI.
+
+<br>
+<center>
+You can think of this as being like fishing with either a spear or a net. The 'spear' is the point estimate, while the 'net' is the confidence interval. To be more certain of catching a fish, you have to make your net bigger.
+</center>
+<br>
+
+The CI itself is composed of two values: a **lower bound** and an **upper bound**.
+
+The actual interpretation of a CI is slightly subtle. Strictly, we can't really say that there is a '$95\%$ chance that the population parameter lies inside the CI', because this makes it sound like it's the **population parameter that's subject to chance**, which is untrue. If we had the time, energy, breath and money, we could gather all the data and compute the population parameter exactly, with no probability theory needed! 
+
+Instead, it was **our use of random sampling** that introduced the element of chance into the process! 
+
+
+<br>
+<div class='emphasis'>
+Think of CIs in this way: 
+
+* Each time we draw a $200$-observation sample, we'll get a different point estimate of mean `tenure`, and a CI with different lower and upper bounds.  
+
+* At $95\%$ confidence level, if we draw $100$ samples and calculate a CI for each, we would expect on average that $95$ of these CIs **would contain** the true population parameter, while $5$ **would not contain** it.  
+
+* 'Confidence' means having confidence in this method to deliver CIs with these properties. When we draw a single sample, we don't know whether the particular CI we calculate from that sample will contain the parameter or not, but we have **confidence** that $95\%$ of such CIs would, so there's a good chance this CI is one of that number.  
+</div>
+<br>
+
+Phew, like we said, a bit too subtle perhaps! Confidence intervals are definitely useful to help us think about the likely range of a population parameter. We can use them to quantify the uncertainty in our estimate of a population parameter. 
+
+The other way to think about the construction of a CI is as:
+
+$$\textrm{confidence interval} = \textrm{point estimate} \pm \textrm{margin of error}$$
+
+The **margin of error** depends upon sample size, standard deviation and confidence level (in fact, it's directly proportional to the standard error). This makes clear that CIs constructed in this way are **symmetric about the point estimate**: the point estimate will lie exactly in the centre of the CI. 
+
+Check the example intervals above and you'll see this is (approximately) true: the lower bound is as far below the point estimate as the upper bound is above it.
+
+# Bootstrapping
+
+We've been avoiding a particularly big elephant in the room so far: we keep talking about drawing **multiple samples** from a population, but in reality, we will probably only ever have one sample to work with. If we had more time and money, we might make the sample bigger and thus more representative, but we're not going to be able to sample say $1000$ times from the same population. 
+
+So what do we do if we want to get the details of the sampling distribution? The maths of the central limit theorem and standard errors was worked out before the advent of computers to give statisticians a way to characterise sampling distributions **without** repeatedly sampling the population, as they had no realistic way to do that resampling.  
+
+Now, with easy access to computer power, we can do better! This is where the concept of **'bootstrapping'** comes into play. The name comes from the concept of 'pulling yourself up by your own bootstraps', i.e. using **only what you presently have** to make progress.
+
+<br>
+<div class='emphasis'>
+**Bootstrap resampling** is sampling repeatedly from a **single sample** (**not** the population) **with replacement**. By doing this, we can generate an approximation of the sampling distribution from our single sample! Typically, thousands of resamples are calculated, which means that we realistically need a computer to use the technique. It's one of the most interesting developments in modern statistics.
+</div>
+<br>
+
+First, let's get the sampling distribution as we did earlier today, by repeatedly sampling from the population.
+
+```{r}
+library(infer)
+rep_sample_200 <- telco %>%
+  rep_sample_n(size = 200, reps = 10000) %>%
+  group_by(replicate) %>%
+  summarise(
+    mean_tenure = mean(tenure)
+  ) 
+
+rep_sample_200 %>%
+  ggplot(aes(x = mean_tenure)) +
+  geom_histogram(col = "white")
+
+rep_sample_200 %>%
+  summarise(stderr = sd(mean_tenure))
+```
+
+Now let's use bootstrap resampling from a single sample. First, let's get a single $200$-observation sample
+
+```{r}
+single_sample_200 <- telco %>%
+  rep_sample_n(size = 200, reps = 1) %>%
+  ungroup() %>%
+  select(tenure, churn, monthly_charges)
+```
+
+Now imagine this sample is **all we know** about the population: it's not feasible to gather any further samples. How can we approximate the sampling distribution? 
+
+We bootstrap! We **resample the single sample with replacement**:
+
+```{r}
+bootstrap_rep_sample_200 <- single_sample_200 %>%
+  rep_sample_n(size = 200, replace = TRUE, reps = 10000) %>%
+  group_by(replicate) %>%
+  summarise(
+    mean_tenure = mean(tenure)
+  ) 
+
+bootstrap_rep_sample_200 %>%
+  ggplot(aes(x = mean_tenure)) +
+  geom_histogram(col = "white")
+  
+bootstrap_rep_sample_200 %>%
+  summarise(stderr = sd(mean_tenure))
+```
+
+You can see that the `sd()` of the `bootstrap_rep_sample_200` distribution is close to that for the 'proper' sampling distribution we got above!
+
+<br>
+<div class='emphasis'>
+Note in the code above that each resample of the original sample is set to have the **same size** as the original sample. This is key to getting the correct sampling distribution! Remember that we saw in the last lesson that the standard error (i.e. the `sd()`) of the sampling distribution depends upon sample size.
+</div>
+<br>
+
+<br>
+<blockquote class='task'>
+**Task - 2 mins**  
+
+Why is it important to sample **with replacement** when we get the bootstrap distribution? Have a think and discuss with people around you.  
+
+[**Hint** - what happens if we resample $200$-observations from a $200$-observation sample without replacement?]
+<details>
+<summary>**Solution**</summary>
+If we resample $200$-observations from a $200$-observation sample **without replacement**, we just get the same $200$-observations over and over again. This will lead to no sampling variation: the `mean(tenure)` will always be the same!
+</details>
+</blockquote>
+<br>
+
+# CIs from the bootstrap distribution
+
+## Percentile method - simple demonstration
+
+Let's have a look again at the boostrap sampling distribution for `mean(tenure)`:
+
+```{r}
+bootstrap_rep_sample_200 %>%
+  ggplot(aes(x = mean_tenure)) +
+  geom_histogram(col = "white")
+```
+
+For a $95\%$ confidence interval, we want to find the upper and lower bounds that separate the central $95\%$ of the sampling distribution from the $2.5\%$ at either edge. We can do this using the `quantile()` function.
+
+```{r}
+bootstrap_rep_sample_200 %>%
+  summarise(
+    mean = mean(mean_tenure),
+    lower_bound = quantile(mean_tenure, probs = 0.025),
+    upper_bound = quantile(mean_tenure, probs = 0.975)
+  )
+```
+
+So we estimate the mean at $32.6$ months, with a $95\%$ confidence interval of $[29.1, 36.1]$ months.
+
+<br>
+<blockquote class='task'>
+**Task - 2 mins**  
+  
+* Try a similar approach to determine the upper and lower bounds of a $99\%$ confidence interval for `mean(tenure)` based on the bootstrap sampling distribution. 
+* Compare your calculated bounds to those of the $95\%$ CI  
+  
+[**Hint** - think about how much of the distribution you want to 'chop off' at either end of the CI]
+
+<details>
+<summary>**Solution**</summary>
+We want to 'chop' $0.5\%$ off the bottom of the distribution and the same off the top! This corresponds to probabilities of $0.005$ and $0.995$ for the `quantile()` function.  
+
+```{r}
+bootstrap_rep_sample_200 %>%
+  summarise(
+    mean = mean(mean_tenure),
+    lower_bound = quantile(mean_tenure, probs = 0.005),
+    upper_bound = quantile(mean_tenure, probs = 0.995)
+  )
+```
+Of course, the `mean()` doesn't change, only the upper and lower bounds. 
+
+The $99\%$ CI is **wider** than the $95\%$ one we calculated earlier. 
+</details>
+</blockquote>
+<br>
+
+## Workflow using the `infer` package
+
+The `infer` package offers a `tidyverse` approach to statistical inference. We'll use it here and in the following lesson on hypothesis tests. As with other packages in the `tidyverse`, it has the main advantage that it provides a consistent interface and workflow, as compared with base R functions.
+
+### Calculate the bootstrap distribution
+
+We will use three `infer` functions to calculate the bootstrap sampling distribution. 
+
+i. First, we `specify()` which variable we are interested in. 
+ii. Next we `generate()` the replicate resamples. 
+iii. Finally we `calculate()` the statistic we are interested in for each resample
+
+```{r}
+bootstrap_rep_sample_200 <- single_sample_200 %>%
+  specify(response = tenure) %>%
+  generate(reps = 10000, type = "bootstrap") %>%
+  calculate(stat = "mean")
+```
+
+### Calculate the required confidence interval
+
+Next, we calculate the upper and lower bounds of the required CI using `get_confidence_interval()`
+
+```{r}
+bootstrap_tenure_ci <- bootstrap_rep_sample_200 %>%
+  get_confidence_interval(level = 0.95, type = "percentile")
+bootstrap_tenure_ci
+```
+
+Argument `level =` adjusts the confidence level: here we opted for a $95\%$ CI. The `type =` argument adjusts the type of CI: we're sticking for now to the "percentile" method, but we'll see another option below. 
+
+Also, if you want to save your fingers, the `get_ci()` function is an alias for `get_confidence_interval()`!
+
+### Visualise distribution and CI
+
+Next, we can visualise the distribution and the CI, using the `visualise()` and `shade_confidence_interval()` functions.
+
+```{r}
+bootstrap_rep_sample_200 %>%
+  visualise(bins = 30) +
+  shade_confidence_interval(endpoints = bootstrap_tenure_ci)
+```
+
+We need to tell `shade_confidence_interval()` the `endpoints` (i.e. bounds) of the CI. We get these from the output of `get_confidence_interval()` in the last step.
+
+As above, `shade_ci()` is a useful alias for `shade_confidence_interval()`.
+
+### Calculate point estimate
+
+We go back to more basic `dplyr` to calculate the point estimate!
+
+```{r}
+bootstrap_rep_sample_200 %>%
+  summarise(mean(stat))
+```
+
+This is a `mean()` of the means held in the bootstrap sampling distribution. Depending upon what you are trying to do, you might prefer the `mean()` of the original sample
+
+```{r}
+single_sample_200 %>%
+  summarise(mean(tenure))
+```
+
+<br>
+<blockquote class = 'task'>
+**Task - 15 mins**  
+
+Now, it's your turn. 
+
+* Take a new $300$-observation sample of `tenure` from `telco`, and use that single sample to calculate and visualise a bootstrapped $95\%$ CI using the `infer` workflow. 
+* Also calculate the point estimate of `mean(tenure)`.
+* Is the width of the $95\%$ CI for your $300$-observation sample different from that you calculated earlier for a $200$-observation sample?
+* If you have time, rerun your code with $400$- and $500$-observation samples, and keep note of the CIs you obtain. Is there any trend to the width as sample size changes?
+
+To get you started, here's the code to generate the initial $300$-observation sample:
+
+```{r}
+single_sample <- telco %>%
+  rep_sample_n(size = 300, reps = 1) %>%
+  ungroup() %>%
+  select(tenure)
+```
+
+<details>
+<summary>**Solution**</summary>
+
+1. Generate bootstrap distribution
+
+```{r}
+bootstrap_rep_sample <- single_sample %>%
+  specify(response = tenure) %>%
+  generate(reps = 10000, type = "bootstrap") %>%
+  calculate(stat = "mean")
+```
+
+2. Calculate CI  
+
+```{r}
+bootstrap_tenure_ci <- bootstrap_rep_sample %>%
+  get_confidence_interval(level = 0.95, type = "percentile")
+bootstrap_tenure_ci
+```
+
+3. Visualise bootstrap sampling distribution and CI
+
+```{r}
+bootstrap_rep_sample %>%
+  visualise(bins = 30) +
+  shade_confidence_interval(endpoints = bootstrap_tenure_ci)
+```
+
+4. Calculate point estimate
+
+```{r}
+bootstrap_rep_sample %>%
+  summarise(point_est = mean(stat))
+```
+
+or...
+
+```{r}
+single_sample %>%
+  summarise(point_est = mean(tenure))
+```
+
+
+5. Here's how the $95\%$ CI changed with sample size. Note that width generally *decreases* as sample size *increases*, but expect noise in your results!
+
+| sample size | $2.5\%$ bound | $97.5\%$ bound | CI width |
+| --- | --- | --- | --- |
+| 200 | 29.150	| 36.245 | 7.095 |
+| 300 | 30.893 | 36.060 | 5.167 |
+| 400 | 29.057 | 33.873 | 4.816 |
+| 500 | 29.606 | 34.024 | 4.418 |
+
+</details>
+</blockquote>
+<br>
+
+# CI width and sample size
+
+Hopefully you saw in the last task that CI width generally **decreases** as sample size **increases**. This just comes from the fact that the width of the sampling distribution (i.e. the **standard error**) decreases with sample size. In fact, we saw in the last lesson that the standard error varies as $\frac{1}{\sqrt{\textrm{sample size}}}$, so
+
+<br>
+<div class='emphasis'>
+The width of a confidence interval should roughly vary as $\frac{1}{\sqrt{\textrm{sample size}}}$
+</div>
+<br>
+
+<br>
+<blockquote class='task'>
+**Task - 2 mins**  
+
+We calculate a CI for the mean of a variable from a $400$-observation sample, but find it is too wide (meaning we can't estimate the mean of the variable with enough precision). There is an opportunity to sample the population again. If we want to **halve** the CI width, roughly what size of sample should we aim for?
+
+Have a think, and discuss with the people around you.
+
+<details>
+<summary>**Solution**</summary>
+The CI width varies as $\frac{1}{\sqrt{\textrm{sample size}}}$, so if we want to **halve** the CI width, we must **increase** sample width by a factor of approximately $4$ to $1600$-observations.
+</details>
+</blockquote>
+<br>
+
+# CI for a proportion
+
+So far we've been exploring CIs for means, but the workflow for proportions is very similar! Let's see it in action for the `churn` proportion in `single_sample_200`: we'll explain any differences as we go
+
+Calculate the bootstrap sampling distribution
+
+```{r}
+# THIS MIGHT TAKE A FEW MINS
+# when we specify a categorical response, have to specify a success argument
+# the stat we want now is "prop"
+bootstrap_rep_sample <- single_sample_200 %>%
+  specify(response = churn, success = "Yes") %>%
+  generate(reps = 10000, type = "bootstrap") %>%
+  calculate(stat = "prop")
+```
+
+Now get the appropriate CI
+
+```{r}
+bootstrap_prop_ci <- bootstrap_rep_sample %>%
+  get_confidence_interval(level = 0.95, type = "percentile")
+bootstrap_prop_ci
+```
+
+And now visualise the sampling distribution and CI
+
+```{r}
+bootstrap_rep_sample %>%
+  visualise(bins = 30) +
+  shade_confidence_interval(endpoints = bootstrap_prop_ci)
+```
+
+Finally, calculate the point estimate
+
+```{r}
+single_sample_200 %>%
+  summarise(point_est = mean(churn == "Yes"))
+```
+
+or...
+
+```{r}
+bootstrap_rep_sample %>%
+  summarise(point_est = mean(stat))
+```
+
+# Extra - Standard error method
+
+Remember we said earlier that we can think of CIs in this way
+
+$$\textrm{confidence interval} = \textrm{point estimate} \pm \textrm{margin of error}$$
+
+and that the **margin of error** is related to the standard error. It's time to explore this further!
+
+CIs constructed in this way make an assumption about the sampling distribution: they assume that it's **close to normal**. The percentile method above **did not** make this assumption: whatever the shape of the sampling distribution, it chopped the appropriate percentage off the top and bottom to find the upper and lower bounds. The percentile method CI wasn't constrained to be symmetric about the point estimate. So the percentile method is **more general** than the standard error method we are about to show: you should probably usually opt to use the percentile method in most cases!
+
+<br>
+<div class='emphasis'>
+The standard error method should only be used when you are satisfied that the sampling distribution is nearly normal.
+</div>
+<br>
+
+## Margin of error
+
+The $\textrm{margin of error}$ can be calculated this way
+
+$$\textrm{margin of error} = \textrm{multiplier} \times \textrm{standard error}$$
+
+We get the standard error as the `sd()` of the bootstrap sampling distribution, and select the multiplier from the following table.
+
+| confidence level | multiplier |
+| --- | --- |
+| $90\%$ | 1.64 |
+| $95\%$ | 1.96 |
+| $99\%$ | 2.58 |
+
+<br>
+<details>
+<summary>**Where do the multipliers come from?**</summary>
+Haha, OK, you asked for it! The multipliers come from the assumption that the sampling distribution is normal. If it is, then we can use the `qnorm()` function to find the $z$-scores marking the upper and lower bounds of the CI. 
+
+For example, for a $95\%$ CI, we want to chop $2.5\%$ off the top and the same amount off the bottom of the standard normal. What $z$-scores does this correspond to?
+
+```{r}
+qnorm(0.025)
+qnorm(0.975)
+```
+
+The bounds occur at $z$-scores of $\pm1.96$. We then turn this back into 'variable' units by reversing the definition of the $z$-score.
+
+$$z = \frac{x-\bar{x}}{s} \implies x = \bar{x}+z \times s$$
+
+i.e.
+
+$$\textrm{upper bound} = \bar{x} + 1.96 \times \textrm{standard error}$$
+$$\textrm{lower bound} = \bar{x} - 1.96 \times \textrm{standard error}$$
+</details>
+<br>
+
+## An example for `mean(tenure)`
+
+Let's calculate a $95\%$ CI for `mean(tenure)` by bootstrapping our $200$-observation sample. We can
+
+Calculate point estimate:
+
+```{r}
+point_est <- mean(bootstrap_rep_sample_200$stat)
+point_est
+```
+
+Calculate standard error:
+
+```{r}
+std_error <- sd(bootstrap_rep_sample_200$stat)
+std_error
+```
+
+Calculate bounds of CI
+
+```{r}
+upper_bound <- point_est + 1.96 * std_error
+lower_bound <- point_est - 1.96 * std_error
+upper_bound
+lower_bound
+```
+
+These should be reasonably close to what we obtained earlier using the percentile method, as the bootstrap sampling distribution is close to normal!
+
+## `infer` workflow
+
+Here's how to use the standard error method using the `infer` workflow. You've seen this a couple of times now, so we won't split the steps up.
+
+```{r}
+# generate bootstrap sampling distribution in the usual way
+# we'll just re-use the one from above stored in bootstrap_rep_sample_200
+
+# get ci using standard error ("se") method
+# need point estimate for this
+bootstrap_tenure_ci <- bootstrap_rep_sample_200 %>%
+  get_confidence_interval(level = 0.95, type = "se", point_estimate = point_est)
+bootstrap_tenure_ci
+
+bootstrap_rep_sample_200 %>%
+  visualise(bins = 30) +
+  shade_ci(endpoints = bootstrap_tenure_ci)
+```
+
+# Recap
+
+<br>
+
+* What is a confidence interval?
+<details>
+<summary>**Answer**</summary>
+A confidence interval is defined by a confidence level (e.g. $95\%$ or $99\%$). It is a region calculated so that, e.g. on $95\%$ of attempts, the population parameter will lie within the CI and on $5\%$ of attempts it won't. 
+</details>
+
+<br>
+
+* What is bootstrapping?
+<details>
+<summary>**Answer**</summary>
+Bootstrapping is the process of approximating a sampling distribution by drawing repeatedly from a single sample with replacement. It lets us estimate the true sampling distribution we would obtain if we had the full population and could sample repeatedly from it.
+</details>
+
+<br>
+
+* If we don't change the sample size, how does the width of a CI vary as we increase confidence level?
+<details>
+<summary>**Answer**</summary>
+The width of the CI **increases** as confidence level increases.
+</details>
+
+<br>
+
+* If we don't change the confidence level, how does the width of a CI vary as we increase sample size?
+<details>
+<summary>**Answer**</summary>
+The width of the CI **decreases** as sample size increases.
+</details>
+
+<br>
+
+* What is the `infer` workflow to generate a CI?
+<details>
+<summary>**Answer**</summary>
+We `specify()` the variable we are interested in, `generate()` a large number of replicates (e.g. $10,000$), `calculate()` the statistic we are interested in (e.g. the `mean()`) from each replicate. Then we `get_ci()`, and can optionally `visualise()` the sampling distribution, and superimpose the CI with the `shade_ci()` function.
+
+</details>
+
+<br>
+
+
+
+
+

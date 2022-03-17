@@ -1,0 +1,347 @@
+---
+title: "Logistic regression lab - answers"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "19th Jan 2020"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives
+
+* Practice performing logistic regression
+* Extract and interpret fitted coefficients
+* Calculate and plot ROC curves and the AUC
+* Compare classifiers based on different logistic regressions
+
+**Duration - 120 minutes**
+
+<hr>
+
+# MVP
+
+You're given sample data for the customers of a telecomms company, and asked to use the data to build a classifier to predict which customers are likely to 'churn' (i.e. decline to renew their service contract and move to another supplier) over the next 12 months.  Your clients intend to use your classifier to send targeted offers to customers likely to churn.
+
+The sample data given in file `telecomms_churn.xlsx` contains a number of columns, including a `Churn` column stating whether each customer churned during the previous 12 months.
+
+<br>
+1. Read in the `telecomms_churn.xlsx` dataset, do initial data tidying and then explore its contents (try the `readxl` ppackage). Examine the relationships between the `churn` variable and other possible predictor variables, looking for significant relationships.
+
+```{r}
+library('readxl')
+library('tidyverse')
+library('janitor')
+telco_churn <- read_excel('telecomms_churn.xlsx')
+telco_churn <- clean_names(telco_churn)
+
+glimpse(telco_churn)
+```
+
+Let's see if we have any missing data:
+
+```{r}
+summary(telco_churn)
+```
+
+We have NAs in `total_charges`, but only 11 rows. Let's exclude them 
+
+```{r}
+telco_churn <- telco_churn %>%
+  filter(!is.na(total_charges))
+```
+
+The `customer_id` column is unlikely to have any predictive power, let's remove it
+
+```{r}
+telco_churn <- telco_churn %>%
+  select(-customer_id)
+```
+
+Now let's have a look at the relationships with `churn`. We will split the variables into three sets, as the output of `ggpairs()` will be slow and cramped if we include all variables at once. Note that a disadvantage of this approach is that it will be difficult to visually assess relationships between some predictor pairs if they fall into different split sets.
+
+```{r}
+split1 <- telco_churn %>%
+  select(gender, senior_citizen, partner, churn)
+
+split2 <- telco_churn %>%
+  select(dependents, tenure, phone_service, churn)
+
+split3 <- telco_churn %>%
+  select(internet_service, contract, monthly_charges, total_charges, churn)
+```
+
+Now get three separate pairs plots
+
+```{r, message=FALSE}
+library(GGally)
+split1 %>%
+  ggpairs()
+```
+
+```{r, message=FALSE}
+split2 %>%
+  ggpairs()
+```
+
+```{r, message=FALSE}
+split3 %>%
+  ggpairs()
+```
+
+From split 1, we observe significant looking relationships between `churn`, `senior_citizen` and `partner`; from split 2, with `tenure`; and from split 3, with `monthly_charges` and `total_charges` 
+
+<br>
+2. Convert all character columns to factor columns (**hint** consider `mutate_if()` for this). Convert `senior_citizen` to a meaningful factor column as well.
+
+```{r}
+telco_churn_facs <- telco_churn %>%
+  mutate_if(is_character, as_factor) %>%
+  mutate(senior_citizen = as_factor(if_else(senior_citizen == 1, "Yes", "No")))
+```
+
+<br>
+3. Let's perform logistic regression using the `churn` column as the binary dependent variable. Create **three separate single predictor logistic regression models** choosing from amongst the promising predictor columns you found in your analysis above. Try to have at least one continuous predictor, and at least one categorical predictor. Check that the coefficient of the single predictor in each model is statistically significant.
+
+```{r}
+mod1_1pred_monthly_charges <- glm(churn ~ monthly_charges, data = telco_churn_facs, family = binomial(link = 'logit'))
+
+mod2_1pred_tenure <- glm(churn ~ tenure, data = telco_churn_facs, family = binomial(link = 'logit'))
+
+mod3_1pred_senior <- glm(churn ~ senior_citizen, data = telco_churn_facs, family = binomial(link = 'logit'))
+
+library(broom)
+
+clean_names(tidy(mod1_1pred_monthly_charges))
+clean_names(tidy(mod2_1pred_tenure))
+clean_names(tidy(mod3_1pred_senior))
+
+clean_names(glance(mod1_1pred_monthly_charges))
+clean_names(glance(mod2_1pred_tenure))
+clean_names(glance(mod3_1pred_senior))
+```
+
+The p-values are well below $\alpha = 0.05$ for all predictors, so all of the models are significant.
+
+<br>
+4. So far so good! Now we'll treat the logistic regression models as potential classifiers. Plot ROC curves for each classifier (it would be nice to put these on the same axes). Obtain AUC values for each of your classifiers and say which of them is likely to be the best classifier.
+
+```{r}
+library(pROC)
+library(modelr)
+
+telco_churn_facs_with_mod1 <- telco_churn_facs %>%
+  add_predictions(mod1_1pred_monthly_charges, type = "response")
+telco_churn_facs_with_mod2 <- telco_churn_facs %>%
+  add_predictions(mod2_1pred_tenure, type = "response")
+telco_churn_facs_with_mod3 <- telco_churn_facs %>%
+  add_predictions(mod3_1pred_senior, type = "response")
+
+roc_obj_mod1 <- telco_churn_facs_with_mod1 %>%
+  roc(response = churn, predictor = pred)
+roc_obj_mod2 <- telco_churn_facs_with_mod2 %>%
+  roc(response = churn, predictor = pred)
+roc_obj_mod3 <- telco_churn_facs_with_mod3 %>%
+  roc(response = churn, predictor = pred)
+
+roc_curve <- ggroc(
+  data = list(
+    mod1 = roc_obj_mod1, 
+    mod2 = roc_obj_mod2,
+    mod3 = roc_obj_mod3
+  ), 
+  legacy.axes = TRUE) +
+  coord_fixed()
+
+roc_curve
+```
+
+From the ROC curves it looks like model 2 (with `tenure`) will be the best classifier, its curve gets closest to the top left corner and is well above the diagonal line for a random classifier for all threshold values. Let's confirm this with AUC values.
+
+```{r}
+auc(roc_obj_mod1)
+auc(roc_obj_mod2)
+auc(roc_obj_mod3)
+```
+
+<br>
+5. So far we've used all our data for both training and testing. Let's perform cross validation to check how representative the AUC values you calculated above will be for unseen data
+
+```{r, message=FALSE}
+library(caret)
+```
+
+```{r}
+train_control <- trainControl(method = "repeatedcv", 
+                              number = 5,
+                              repeats = 100,
+                              savePredictions = TRUE, 
+                              classProbs = TRUE, 
+                              summaryFunction = twoClassSummary)
+```
+
+```{r}
+mod1_1pred_monthly_charges_cv <- train(mod1_1pred_monthly_charges$formula,
+                                       data = telco_churn_facs,
+                                       trControl = train_control,
+                                       method = "glm",
+                                       family = binomial(link = 'logit'))
+```
+
+```{r}
+mod2_1pred_tenure_cv <- train(mod2_1pred_tenure$formula,
+                              data = telco_churn_facs,
+                              trControl = train_control,
+                              method = "glm",
+                              family = binomial(link = 'logit'))
+```
+
+```{r}
+mod3_1pred_senior_cv <- train(mod3_1pred_senior$formula,
+                           data = telco_churn_facs,
+                           trControl = train_control,
+                           method = "glm",
+                           family = binomial(link = 'logit'))
+```
+
+```{r}
+mod1_1pred_monthly_charges_cv$results
+mod2_1pred_tenure_cv$results
+mod3_1pred_senior_cv$results
+```
+
+All of the `ROC` (i.e. AUC) values in the results from cross validation are very close to those calculated above training on all data. This isn't so surprising, as with only one predictor in each classifier, the chance of overfitting is negligible.
+
+<br>
+6. Take the model generating the best classifier (highest AUC value) from amongst your three and interpret the fitted coefficient of the particular predictor in that model in a meaningful way. Think in terms of **odds ratio**, i.e. how does changing the predictor value affect the odds that a customer will churn?
+
+In this case, the best classifier came from the model with `tenure` as predictor.
+
+```{r}
+coeff <- clean_names(tidy(mod2_1pred_tenure)) %>%
+  filter(term == "tenure") %>%
+  select(estimate)
+coeff
+```
+
+Now a *1 unit increase* in `tenure` leads to an odds ratio of 
+
+```{r}
+odds_ratio <- exp(coeff * 1)
+odds_ratio
+```
+
+i.e. the odds of `churn` are decreased by multiplication by a factor $0.96$. 
+
+# Extensions
+
+<br>
+7. Now try fitting a logistic regression model with **all** potential predictors. Are any predictors statistically insignificant? Keep any insignificant predictors in the model. How does the classifier perform in terms of AUC value? Does cross validation reveal any evidence of overfitting? 
+
+```{r}
+mod4_all_preds <- glm(churn ~ ., data = telco_churn_facs, family = binomial(link = 'logit'))
+clean_names(tidy(mod4_all_preds)) %>%
+  select(term, p_value) %>%
+  filter(p_value > 0.05)
+```
+
+The `gender`, `partner` and `monthly_charges` predictors are not significant at $\alpha = 0.05$.
+
+```{r}
+telco_churn_facs_with_mod4 <- telco_churn_facs %>%
+  add_predictions(mod4_all_preds, type = "response")
+
+roc_obj_mod4 <- telco_churn_facs_with_mod4 %>%
+  roc(response = churn, predictor = pred)
+
+ggroc(roc_obj_mod4) +
+  coord_fixed()
+
+auc(roc_obj_mod4)
+```
+The ROC curve and AUC value indicate that this is a promising classifier!
+
+```{r}
+mod4_all_preds_cv <- train(churn ~ .,
+                           data = telco_churn_facs,
+                           trControl = train_control,
+                           method = "glm",
+                           family = binomial(link = 'logit'))
+```
+
+```{r}
+mod4_all_preds_cv$results
+```
+
+The ROC (i.e. AUC) value from cross validation is only slightly less than that we got earlier using all data for training, so there is still no strong evidence for overfitting!
+
+<br>
+8. Use the classifier you created in the last question for this question. We wish to perform a expected value calculation to set an optimal threshold for the classifier. The targeted campaign consists of giving selected customers deemed likely to churn a loyalty incentive of £100 to remain with the company for the next year. A positive case is a customer deemed likely to churn
+
+Here are the established profits per customer passed through the classifier depending upon outcome:
+
+* TPP will equal the mean `total_charges` of customers who did not churn in the last year less the £100 loyalty incentive
+* TNP no profit, as no incentive offered.
+* FPP will be a negative profit equal to the £100 loyalty incentive
+* FNP no profit, as no incentive offered
+
+[Note, this is not a particularly accurate financial model, real analysis of churn classifiers should take in information about each customer!]
+
+Use these values to establish an optimal threshold for the 'all predictors' classifier you generated in the last question.
+
+```{r}
+classifier_data <- tibble(
+  threshold = roc_obj_mod4$thresholds,
+  tpr = roc_obj_mod4$sensitivities,
+  tnr = roc_obj_mod4$specificities
+) %>%
+  mutate(
+    fpr = 1 - tnr,
+    fnr = 1 - tpr
+  )
+
+head(classifier_data)
+```
+
+```{r}
+prob_pos = sum(telco_churn_facs$churn == "Yes") / nrow(telco_churn_facs)
+prob_pos
+prob_neg = sum(telco_churn_facs$churn == "No") / nrow(telco_churn_facs)
+prob_neg
+```
+
+```{r}
+tpp <- as.numeric(telco_churn_facs %>%
+  filter(churn == "Yes") %>%
+  summarise(mean(total_charges) - 100))
+
+tnp <- 0
+fpp <- -100
+fnp <- 0
+
+classifier_data <- classifier_data %>%
+  mutate(
+    exp_profit = 
+      prob_pos * (tpr * tpp + fnr * fnp) + 
+      prob_neg * (tnr * tnp + fpr * fpp)
+  )
+
+classifier_data %>%
+  ggplot(aes(x = threshold, y = exp_profit)) +
+  geom_line()
+
+classifier_data %>%
+  filter(exp_profit == max(exp_profit))
+```
+
+It looks like the optimal threshold occurs at 0.057, corresponding to an expected profit per customer through the classifier of £324.92. Note, again, that the assumptions made in this model are overly simplistic!

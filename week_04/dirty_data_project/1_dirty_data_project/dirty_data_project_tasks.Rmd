@@ -1,0 +1,138 @@
+---
+title: "Dirty Data Project - tasks"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+# MVP
+
+## Task 1 - Decathlon Data
+
+This data is contained in the `.rds` file `decathlon.rds`. You'll need to use `read_rds()` from `readr` to open it.
+
+### Some cleaning hints
+
+- This data has row names - how do you get rid of them?
+- This data isn't tidy.
+- You will want better column header names.
+
+### Analysis questions
+
+1. Who had the longest long jump seen in the data?
+2. What was the average 100m time in each competition?
+3. Who had the highest total points across both competitions?
+4. What was the shot-put scores for the top three competitors in each competition?
+5. What was the average points for competitors who ran the 400m in less than 50 seconds vs. those than ran 400m in more than 50 seconds?
+
+## Task 2 - Cake ingredients
+
+The main data is in the file `cake-ingredients-1961.csv`, there is supplementary data that converts from short form ingredients to long form in `cake_ingredient_code.csv`.
+
+### Some cleaning hints
+
+- This data isn't in tidy format. You'll need to figure out how to get it into our classic data format.
+- We want the actual ingredient names, not the abbreviations. You'll find these in `cake_ingredient_code.csv`
+
+### Analysis questions
+
+1. Which cake has the most cocoa in it?
+2. For sponge cake, how many cups of ingredients are used in total?
+3. How many ingredients are measured in teaspoons?
+4. Which cake has the most unique ingredients?
+5. Which ingredients are used only once?
+
+## Task 3 - Sea bird observation data
+
+The data for this project is in the file `seabirds.xls`, in particular the sheets `Bird data by record ID` and `Ship data by record ID`. 
+
+### Some cleaning hints
+
+- Do we need all the variables for this data?
+- You'll need to join the ship data to the bird record data
+
+### Analysis questions
+
+For each question where we ask for bird names, give the bird's common name, scientific name and species abbreviation.
+
+1. Which bird had the most individual sightings?
+2. Which bird had the highest total count?
+3. Which bird had the highest total count above a latitude of -30?
+4. How many different types of birds were only ever seen in groups of 1?
+5. How many penguins were seen? (Hint: there are many types of penguin)
+
+## Task 4 - Halloween Candy Data
+
+The data is in files `boing-boing-candy-2015.xlxs`, `boing-boing-candy-2016.xlxs` and `boing-boing-candy-2017.xlxs`. Bear in mind that this is trickier compared with tasks 1, 2 & 3. 
+
+More information on this data is available [here](https://www.scq.ubc.ca/so-much-candy-data-seriously/)
+
+### Some cleaning hints
+
+- You'll need to combine these three datasets together.
+- The column `country` is particularly messy, you will likely need to do some 'hard coding' here!
+
+### Analysis questions
+
+1. What is the total number of candy ratings given across the three years. (number of candy ratings, not number of raters. Don't count missing values)
+2. What was the average age of people who are going out trick or treating and the average age of people 3. not going trick or treating?
+4. For each of joy, despair and meh, which candy bar revived the most of these ratings?
+5. How many people rated Starburst as despair?  
+
+For the next three questions, count despair as -1, joy as +1 and meh as 0.   
+
+6. What was the most popular candy bar by this rating system for each gender in the dataset?
+7. What was the most popular candy bar in each year?
+8. What was the most popular candy bar by this rating for people in US, Canada, UK and all other countries?
+
+# Extensions
+
+## Task 5 - Right Wing Authoritarianism
+
+The data is available in the file `rwa.csv`. This dataset comes from https://openpsychometrics.org/_rawdata/. It measures how people score on a measure called Right Wing Authoritarianism, or RWA.
+
+### Some cleaning hints
+
+- You'll need to calculate people's overall RWA score. This is found from the mean of questions 3 to 22. Questions 1 and 2 are warm up questions. Note that the following questions are reverse scored: 4, 6, 8, 9, 11, 13, 15, 18, 20, 21.
+- Read the file `rwa_codebook.txt` to understand how to clean this data. [**Hint**: you may want to recode some of the variables to give their values meaning]. 
+
+### Analysis questions
+
+1. What's the average RWA score for each gender?
+2. What's the average RWA score for left handed people vs. right handed people.
+3. What's the average family size for each type of childhood?
+4. What's the average time to take the test for each education level?
+5. Create a plot of results of question 4. 
+6. What's the average RWA score for people aged
+  - Under 18
+  - 18 to 25
+  - 26 to 40
+  - 41 to 60
+  - Over 60
+
+## Task 5 - Dog owners survey
+
+The data is available in the file `dog_survey.csv` It is the results of a survey filled in by dog owners about their dogs. 
+
+### Some cleaning hints
+
+- Ensure there are no duplicates in the data. Write code to check for duplicates. 
+- Ensure information for a single dog per row 
+- Be mindful of the data issues we see in this data, they might be the type of things we see from 'free hand' survey responses!
+
+### Analysis questions
+
+1. The client only counts a valid email address as one ending in '.com'. How many survey results have a valid email address. 
+2. What's the average amount spent on dog food for each dog size. 
+3. For owners whose surname starts with a letter in the second half of the alphabet (N onwards) what is the average age of their dog?
+4. The `dog_age` column is the age in dog years. If the conversion is *1 human year = 6 dog years*, then what is the average human age for dogs of each gender?
+5. Create a plot of results of question 4.
+
+
+
+

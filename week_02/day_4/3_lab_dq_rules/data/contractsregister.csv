@@ -1,0 +1,775 @@
+ContractID,ServiceContractReference,ContractName,Counterparties,ContractValue,DateOfAward,StartDate,EndDate,MaximumExtensionMonths
+000-KBNW7448,(blank),Tenants Home contents insurance,Marsh Limited,500000,01/04/2015,01/04/2015,31/03/2018,24
+000-NMWH6293,20047732,iPayImpact,CRB Cunninghams (formerly CRB Solutions),205275,27/11/2014,27/11/2014,26/11/2018,24
+000-JCLB6538,SP-15-011-3,Web Based and Propriety Devices - Scottish Procurement Framework SP-15-011-3 Call-off,XMA Limited,1316212.73,30/11/2015,30/11/2015,29/11/2018,12
+000-RLFN9364,(blank),Secondment Agreement,McLeod & Aitken,132960,01/10/2018,08/10/2018,08/02/2019,5
+000-UGHD8856,416,Personal Protective Equipment - SXL Framework 0416    Call-off,"Allison & Stiven Ltd,Arco Ltd,Bunzl UK Ltd (T/A Greenham),Cleaning and Wiping Supplies Ltd.,Corston Sinclair Limited,D. Gibson Road & Quarry Services Ltd,Donside Group Llp,Gts Central Ltd,Ioma Clothing Company Ltd,James Boylan Safety NI Ltd (T/A JBS Group),Lion Safety,Mo & Co (uk) Ltd,Morna Laird Ltd (t/a Mckinlay Workwear Supplies),Mwuk Ltd (t/a Alexandra),Protective Wear Supplies Ltd,Rexel Uk Limited,Scott Direct Limited,Stax Trade Centres Plc,The Guthrie Group Ltd,Unico Limited,Wc Willis & Co Ltd (t/a Willis Safety)",870000,01/03/2017,01/03/2017,28/02/2019,24
+000-MGVY1643,JAN343131,ST-SWS290 (Scolty Centre),Alpha Taxis (Inverurie) Ltd.,7776,21/02/2019,04/02/2019,29/03/2019,12
+000-NLAH8944,JAN342214,ST-SWS289 (Easter Anguston Farm),Alpha Taxis (Inverurie) Ltd.,5952,21/02/2019,28/01/2019,29/03/2019,12
+000-AVQK9833,Scottish Government,Natural Gas - Scottish Procurement Framework SP-12-005,Total Gas & Power Ltd,9206036.3,01/04/2014,01/04/2014,31/03/2019,12
+000-JPPL8518,(blank),DX Post,DX Network Services Limited,63855.4,01/03/2019,01/01/2019,31/03/2019,12
+000-FAUE3326,20086202,CATO Suite,Causeway,38080,07/04/2016,07/04/2016,06/04/2019,24
+000-JVKC4373,000-JVKC4373,"Collection, Recovery and Disposal of Gas Cylinders",Synergy Recycling,31000,30/04/2018,02/05/2018,01/05/2019,12
+000-XBBC7771,000-XBBC7771,Disposal of Asbestos Waste,Taylors Industrial Services Limited,35032,05/07/2018,09/07/2018,08/07/2019,12
+000-NJHM4793,1129/ACP/601,"Supply of Floor Cleaning Equipment Framework - Lots 1, 3 & 5",Capital Power Clean Ltd,0,15/09/2016,15/09/2016,14/09/2019,12
+000-FKVE3553,1129/ACP/601,"Supply of Floor Cleaning Equipment Framework - Lots 1, 2, 3, 4 & 5",Arrow Supplies (Division of Nilfisk),0,15/09/2016,15/09/2016,14/09/2019,12
+000-KVPH1142,1129/ACP/601,"Supply of Floor Cleaning Equipment Framework - Lots 1, 2, 3, 4 & 5",Vaclensa PLC,0,15/09/2016,15/09/2016,14/09/2019,12
+000-RWUH9524,1129/ACP/601,"Supply of Floor Cleaning Equipment Framework - Lots 2, 3 & 4",Instock Disposables Limited,0,15/09/2016,15/09/2016,14/09/2019,12
+000-VCPV9726,1129/ACP/601,Supply of Floor Cleaning Equipment Framework - Lots 2 & 5,Truvox International Ltd,0,15/09/2016,15/09/2016,14/09/2019,12
+000-EURR7581,688/AST/501,Provision of Catering Services at Woodhill House and Gordon House - including refurbishment,Sodexo Limited,200000,24/09/2017,24/09/2017,23/09/2019,0
+000-VRWG3538,20113310,iTrent - Payroll & HR System,Midland Software Limited,1035000,28/09/2012,28/09/2012,27/09/2019,48
+000-GGDU4294,20073311,Bomgar,Softcat Limited,20000,31/10/2014,31/10/2014,30/09/2019,12
+000-XCUT7949,(blank),Treatment and Disposal of Waste Tyres,Sapphire Energy Recovery Ltd,35000,30/08/2018,01/10/2018,30/09/2019,0
+000-HFKP5772,18268,Mintlaw Public Toilets,KW Contractors Limited,85882.59,07/06/2019,15/07/2019,04/10/2019,0
+000-RQKY2338,17901,Ellon Primary School - Kitchen Provision,Burns Construction (Aberdeen) Ltd,638685.66,09/05/2019,09/05/2019,09/10/2019,0
+000-YLNK6327,AUG361872,T-SA299L20 (camphill),Watermill Coaches Ltd,856,08/08/2019,14/08/2019,11/10/2019,24
+000-DAPT9465,AUG361872,T-SA299J20 (camphill),Kp Taxis,6241.5,08/08/2019,13/08/2019,11/10/2019,24
+000-TGQK7563,AUG362073,T-SA688Y20 (St Andrews ASN School),Alpha Taxis,3000,15/08/2019,21/08/2019,11/10/2019,24
+000-HWKL7373,AUG362723,T-NA706L20 (Meldrum Academy),Alpha Taxis,2750,15/08/2109,21/08/2019,11/10/2019,24
+000-RBYV5585,AUG362073,T-SA688X20 (St Andrews ASN School),Watermill Coaches Ltd,8350,14/08/2019,21/08/2019,11/10/2019,24
+000-XWHW3414,AUG362723,T-NA567P20 (Mintlaw Academy),Watermill Coaches Ltd,2850,14/08/2019,21/08/2019,11/10/2019,24
+000-ULJD7688,AUG362723,T-NA567N20 (Mintlaw Academy),Watermill Coaches Ltd,4850,14/08/2019,21/08/2019,11/10/2019,24
+000-MMRE9781,AUG362073,T-NA611A20 (Balmedie Primary),Watermill Coaches,4850,14/08/2019,21/08/2019,11/10/2019,24
+000-DCGW8712,AUG362073,T-SA866D20 (Portlethen to Stonehaven Leisure Centre),Dash Cabs Contracts Ltd,350,14/08/2019,22/08/2019,11/10/2019,24
+000-MYAK1661,AUG362073,T-SA071K20 (Kemnay Academy),Central Taxis (Abdn) Ltd,1250,14/08/2019,21/08/2019,11/10/2019,24
+000-XTNV6873,AUG362073,T-NA567O20 (Mintlaw Academy),Kininmonth Cabs,240,14/08/2019,21/08/2019,11/10/2019,24
+000-MEJE3951,(blank),Visible Learning - Pupil Equity Fund,Osiris,267930,16/10/2017,16/10/2017,15/10/2019,12
+000-PECY2952,AUG362129,ST-SWN250,Watermill Coaches Ltd,1034,08/08/2019,13/08/2019,19/10/2019,12
+000-RTVX7526,18185/3,Portlethen Primary School - Nursery Alterations,Bancon Construction Limited,587182.15,22/05/2019,21/05/2019,21/10/2019,0
+000-ANUJ9176,(blank),Rescue Assist (LogMeIn),Logmein Technologies UK Limited,510,24/10/2018,24/10/2018,24/10/2019,0
+000-WFVM3821,18333,Gordon Primary - FRA Works,R Davidson Joiner & Builder,43911,07/08/2019,11/10/2019,25/10/2019,0
+000-MPJB6487,JUN357031,ST-SWN302 (Various Westhill Area),Elmbank Taxis,2580,19/06/2019,24/06/2019,26/10/2019,24
+000-DAEM8346,JUL358879,ST-SWN249 (Various Inverurie Area),Alpha Taxis (Inverurie) Ltd.,4065,09/07/2019,15/07/2019,26/10/2019,24
+000-AHYJ3874,AUG362129,ST-SWS306,Bains Chauffeur Drive,2541,08/08/2019,12/08/2019,26/10/2019,12
+000-LDFE9878,JUL361076,ST-SWS303,Kp Taxis,4675,09/08/2019,26/10/2019,26/10/2019,12
+000-EKLD3417,JUL361076,ST-SWS304,Central Taxis (North East) Ltd,2750,09/08/2019,13/08/2019,26/10/2019,12
+000-YNNT8278,JUL361076,ST-SWS305,Alpha Taxis (Inverurie) Ltd.,576,09/08/2019,26/10/2019,26/10/2019,12
+000-EMTV4637,MAY654208,st-sws297,Central Taxis (Aberdeen) Limited  `,4488,24/05/2019,27/05/2019,26/10/2019,12
+000-LUXH5842,JUN357225,ST-SWS296,Premier Coaches (Kintore) Limited,3072,27/06/2019,01/07/2019,26/10/2019,12
+000-WWFN3946,(blank),SWN207,Central Taxis (North-East) Limited,11220,30/10/2017,30/10/2017,26/10/2019,0
+000-FVRT7538,(blank),SWN207,Central Taxis (North-East) Limited,11220,30/10/2017,30/10/2017,26/10/2019,0
+000-EXMV5751,(blank),SWN217,Central Taxis (North-East) Limited,26000,30/10/2017,30/10/2017,26/10/2019,0
+000-UTCF9142,(blank),SWN203,Central Taxis (North-East) Limited,20280,30/10/2017,30/10/2017,26/10/2019,0
+000-BQRU2889,(blank),SWN210,Central Taxis (North-East) Limited,6240,30/10/2018,30/10/2018,26/10/2019,0
+000-EYEG9139,(blank),SWN201,Central Taxis (North-East) Limited,2600,30/10/2017,30/10/2017,26/10/2019,0
+000-CGNY6954,(blank),SWN216,Central Taxis (North-East) Limited,5200,30/10/2017,30/10/2017,26/10/2019,0
+000-YCHA6751,(blank),SWN208,AA Taxis Portsoy Limited,4160,30/10/2017,30/10/2017,26/10/2019,0
+000-NGWR6943,(blank),SWN218,AA Taxis Portsoy Limited,9984,30/10/2017,30/10/2017,26/10/2019,0
+000-HMTK6479,(blank),SWN220,Bains Chauffeur Drive,4680,30/10/2017,30/10/2017,26/10/2019,0
+000-GAEU5458,(blank),SWN219,Bains Chauffeur Drive,2600,30/10/2017,30/10/2017,26/10/2019,0
+000-JFGL2668,(blank),SWN213,JJs Taxis Macduff,21886.8,30/10/2017,30/10/2017,26/10/2019,0
+000-QVJB3722,(blank),SWN215,JJs Taxis Macduff,5574.4,30/10/2017,30/10/2017,26/10/2019,0
+000-QBBH6583,(blank),SWS217,AJS Contract Cars  Ltd,5197.92,30/10/2017,30/10/2017,26/10/2019,0
+000-MTCV9895,(blank),SWS220,AJS Contract Cars  Ltd,7277.92,30/10/2017,30/10/2017,26/10/2019,0
+000-CNMH2276,(blank),SWS209,AJS Contract Cars  Ltd,33271.68,30/10/2017,30/10/2017,26/10/2019,0
+000-UTFD3977,(blank),SWS202 - Stonehaven Community Centre,E&H Taxis,5261.36,30/10/2017,30/10/2017,26/10/2019,0
+000-HQJR2799,(blank),SWS240 - Invercarron,E&H Taxis,2118.48,30/10/2017,30/10/2017,26/10/2019,0
+000-UEVX5873,(blank),SWS211 - Cairnlee,A&I Taxis Limited,25979.2,30/10/2017,30/10/2017,26/10/2019,0
+000-DCYG7949,(blank),SWS203 - Clashfarquhar,A&I Coaches,24704.16,30/10/2017,30/10/2017,26/10/2019,0
+000-GNEJ5747,(blank),SWS205 - Clashfarquhar,A&I Coaches,9984,30/10/2017,30/10/2017,26/10/2019,0
+000-UTQT1549,(blank),SWS208 - Beannacher,A&I Coaches,23649.6,30/10/2017,30/10/2017,26/10/2019,0
+000-XUKX8184,(blank),SWS210 - Easter Anguston Farm,A&I Coaches,21453.12,30/10/2017,30/10/2017,26/10/2019,0
+000-DDXB2355,(blank),SWS235 - Flycup/Inspire,Garioch Taxis,18772,30/10/2017,30/10/2017,26/10/2019,0
+000-PXNM8754,(blank),SWS243 - Westhill Community Church,Garioch Taxis,7665.84,30/10/2017,30/10/2017,26/10/2019,0
+000-DEBE9842,(blank),SWS200 -  Forestview,Mojo's Taxis,19760,30/10/2017,30/10/2017,26/10/2019,0
+000-PHPQ7452,(blank),SWS206 - Forrestview,Mojo's Taxis,21840,30/10/2017,30/10/2017,26/10/2019,0
+000-NFMK9431,(blank),SWS282 (Miltown),Alpha Taxis (Inverurie) Ltd.,6364,20/12/2018,03/01/2019,26/10/2019,12
+000-AQUM6684,Jun321153,SWS281 (Clashfarquhar),Kenny's Taxis,1176,20/12/2018,03/01/2019,26/10/2019,12
+000-KXXB6163,Jun321153,SWS284 (Pitscurry),Alpha Taxis (Inverurie) Ltd.,588,20/12/2018,03/01/2019,26/10/2019,12
+000-JGMX6416,Jun321153,SWS239 (Benchmark Resource Centre),Elmbank Taxis,2156,20/12/2019,03/01/2019,26/10/2019,12
+000-DDCR9119,Jun321153,SWN240 (Jarvis Court),Kininmonth Cabs,1960,20/12/2018,03/01/2019,26/10/2019,12
+000-UKUP6724,SWS285,SWS285,Kenny's Taxis,2640,21/03/2019,01/04/2019,26/10/2019,0
+000-KDQK5638,SWS288,SWS288,Central Central Taxis (Aberdeen) Limited,2100,21/03/2019,01/04/2019,26/10/2019,0
+000-AUAV2368,SWN243,SWN243,Central Taxis (North East) Limited,2640,21/03/2019,01/04/2019,26/10/2019,0
+000-MPAW1954,MAR347785,ST-SWS291 (Inspire Soaps),Alpha Taxis (Inverurie) Ltd.,1824,13/03/2019,19/03/2019,26/10/2019,12
+000-JKQK3455,MAY355451,ST-SWN248 (Wood Recylability),Terion Taxis,2800,06/06/2019,10/06/2019,26/10/2019,12
+000-NCYH8734,MAY354914,ST-SWS299,L&B Taxis,5040,29/05/2019,03/06/2019,26/10/2019,12
+000-HJTW6178,MAY355445,ST-SWS300,Alpha Taxis,720,06/06/2019,11/06/2019,26/10/2019,12
+000-QNHM6375,MAY354914,ST-SWS298,Alpha Taxis,2688,29/05/2019,03/06/2019,26/10/2019,12
+000-XRLV4811,MAY353636,ST-SWN247,JJs Taxis Macduff,1235.1,15/05/2019,22/05/2019,26/10/2019,12
+000-FVWY3354,(blank),Swimming Pool Chemicals,Brenntag,96000,11/10/2018,01/11/2018,31/10/2019,12
+000-QXDR5774,20078935,Tranman,Civica UK Limited,14866.62,01/11/2015,01/11/2015,31/10/2019,12
+000-EEVC3662,SP-15-016,IT Consumables - Scottish Procurement Framework SP-15-016 Call-off,Banner Group Ltd,102846.06,01/11/2016,01/11/2016,31/10/2019,12
+000-YNKG6166,000-YNKG6166,Design and Print of Walking & Cycling Maps,Oxford Cartographers,20000,10/11/2016,10/11/2016,10/11/2019,0
+000-VTLG6392,10960007,UKPMS,WDM,16000,11/11/2016,11/11/2016,11/11/2019,0
+000-GNLQ5341,10002415,CIPFA Asset Manager,CIPFA,0,11/11/2016,11/11/2016,11/11/2019,0
+000-UGAR8281,17606,MACRAE HOUSE TYPES (17606),Insulated Render Systems (scotland) Ltd,3223334.08,26/04/2019,26/04/2019,15/11/2019,0
+000-REUE4497,(blank),Spydus Library Management System,"Civica UK Limited,Scottish Consortium of Public Libraries",30269,19/11/2018,19/11/2018,18/11/2019,12
+000-WQGY1561,(blank),Link-ABNWHH-STNVWM-NEOS-J34492,Neos Networks Limited aka SSE Enterprise Telecoms,160090,25/11/2008,25/11/2008,24/11/2019,0
+000-FEHG6737,18389,Udny School - Electrical & Toilet Upgrade,EDS Ltd,238831.66,10/07/2019,15/07/2019,29/11/2019,0
+000-NJNH3952,18348/1,Peterhead Buchan House - Extension,Robertson Construction Eastern Limited,80945.5,20/12/2018,20/12/2018,29/11/2019,0
+000-QXQV3155,20104455,Corporate Arrears Recovery System (CARS),Merchant Software Limited,27000,01/12/2015,01/12/2015,30/11/2019,12
+000-UWFW7984,(blank),IHS Markit - Info4localgov Portal subscription for 1 year,IHS Global Limited,40855.06,09/11/2018,01/12/2018,30/11/2019,0
+000-KQAP2972,(blank),Consultancy Services,Cube Ultra,125000,20/11/2017,01/12/2017,30/11/2019,0
+000-GPHE3635,(blank),Consultancy Services,Hill Dickenson LLP,48000,14/03/2019,14/03/2019,30/11/2019,0
+000-RYHD6877,(blank),Servicing of Mobile and Static Waste and Recycling Compactor Units,R & G Ironside,13490,30/11/2018,26/11/2018,02/12/2019,0
+000-TCRF1388,18205,"Deveron Building, Huntly Gordons School - Demolition",Chris Wright & Sons Ltd,59600,05/02/2019,27/05/2019,20/12/2019,0
+000-HXVW2581,MA 06 6163,Macduff Harbour Dive Survey 2016-2019,Arch Henderson LLP,15000,22/07/2016,22/07/2016,31/12/2019,0
+000-YTTL8778,Timemaster ref.no 18049,"Completion of Saltoun Square, Fraserburgh",Moxon Ltd,55351.4,01/04/2019,01/04/2019,31/12/2019,3
+000-LAUF9535,Timemaster no.18049,"Completion of Saltoun Square, Fraserburgh",David Narro Associates Ltd.,16225,01/04/2019,01/04/2019,31/12/2019,3
+000-DTFX4347,1002/ACE/301,"Lot 1 & 2 - Framework Agreement for E-Books, E-Audio Books",Bibliotheca Limited,0,(blank),01/01/2017,31/12/2019,(blank)
+000-FVPE3142,1002/ACE/301,"Lot 1 & 2 - Framework Agreement for E-Books, E-Audio Books",Bolinda UK,0,(blank),01/01/2017,31/12/2019,(blank)
+000-REEU3684,1002/ACE/301,"Lot 1 & 2 - Framework Agreement for E-Books, E-Audio Books",Overdrive Inc,0,(blank),01/01/2017,31/12/2019,(blank)
+000-XTEG6738,1002/ACE/301,Lot 1 - Framework Agreement for E-Books,Wheelers Book Club Limited,0,(blank),01/01/2017,31/12/2019,(blank)
+000-GAGH4219,1002/ACE/301,Lot 3 - Framework Agreement for E-Magazines,Ulverscroft Large Print Books Ltd,0,(blank),01/01/2017,31/12/2019,(blank)
+000-RBPE4828,1002/ACE/301,Lot 3 - Framework Agreement for E-Magazines,W.F. Howes Limited,0,(blank),01/01/2017,31/12/2019,(blank)
+000-RMDD6436,1002/ACE/301,Lot 4 - Framework Agreement for E-Music,Library Ideas LLC,0,(blank),01/01/2017,31/12/2019,(blank)
+000-LYBY8123,000-FJDQ1591,Employee Assistance Service,Theraputic Counselling Services,195000,01/01/2017,01/01/2017,31/12/2019,24
+000-MPJR5779,000-MPJR5779,Food & Drink Innovation Awards March 2017 - AV Presentation,AVC Media,38460,01/01/2017,01/01/2017,31/12/2019,0
+000-YYPG7264,20103272,Elector8,Democracy Counts,12500,29/09/2016,(blank),31/12/2019,12
+000-TEPR8217,20103272,ElectorScan,Democracy Counts,16175,29/09/2016,01/01/2010,31/12/2019,12
+000-DWMA4744,18179,Macduff Ind Estate - Fire Damage Repairs,Morrison Construction Scotland,410984.32,23/05/2019,02/09/2019,10/01/2020,0
+000-QKKF4719,18135/3,"Fraserburgh Academy - Alterations to HE, Art, Drama and other areas",Bancon Construction Limited,1514422.64,02/07/2019,02/07/2019,17/01/2020,0
+000-CFLY6928,751/ASF/405,Confidential Waste,Shred-it Limited,200000,01/05/2014,01/05/2014,31/01/2020,0
+000-PUFG7736,n/a,Street Lighting Electrical Testing Works 2019-20- Aberdeenshire Council,A&R Services,45000,10/07/2019,15/07/2019,31/01/2020,0
+000-LPFM6823,617,"Supply & Delivery of Library Books, Educational Textbooks & Multimedia Supplies - SXL Framework 0617 Call-off","Askews and Holts Library Svces Ltd,Bertram Books,Blackwell UK Ltd,Books Asia,Bright Red Publishing Ltd,Browns Books,CHANGEOVER,GLOWWORM BOOKS AND GIFTS LTD,Harper Collins Publishers Limited,HODDER GIBSON,John Smith & Son Group Ltd,Kelvin Books Ltd,Library Magna Books Ltd,Oxford University Press,Pearson Education Limited,Peters Bookselling Services,Prim-Ed Publishing Limited,Scholastic Ltd,Scotia & Chameleon Books Ltd,Star Books,Trans Uk Supplies Limited,Ulverscroft Large Print Books,Waterstones Booksellers Ltd T/A Waterstones",1800000,01/02/2018,01/02/2018,31/01/2020,24
+000-JQLA8647,(blank),Ski Trip P6/7 - Slains/Arnage/Tipperty/Foveran School,Abernethy Trust,12800,29/03/2019,29/03/2019,07/02/2020,0
+000-THRJ7247,10322714,Capita Software Support,Capita Business Services Limited,61263.15,19/02/2014,19/02/2014,18/02/2020,0
+000-XJGQ2647,20114399,BECS Team Netsol,Team Netsol Ltd,11750,26/02/2016,26/02/2016,25/02/2020,12
+000-EVJW9153,SXL 0216,Education & Office Furniture - SXL Framework 0216 - Call-Off,"Apleona HSG Limited (Previously Known as Bilfinger Europa Facility Management Limited),Azzurro Ltd,British Thornton ESF Limited,Claremont Office Furniture Ltd,Educational and Municipal Equipment Ltd t/a EME Furniture,EQUIP4WORK Ltd t/a Office Furniture Online,Findel Educational Supplies Limited,Furniture @ Work Ltd,Gopak Ltd,Langstane Press Limited,Sharp Business Systems UK plc,Sico Europe Limited,Spaceright Europe Limited,The Consortium Limited,Wagstaff School Furniture Limited,YPO,Wagstaff Bros. Limited",450000,09/05/2017,09/05/2017,29/02/2020,0
+000-TRHM7124,SXL 0216  (TM 17684),Education & Office Furniture - SXL Framework 0216 - Call Off - Macduff Key Depot,Sharp Business Systems Uk Plc,12421.84,21/08/2018,09/05/2017,29/02/2020,0
+000-VMDK1563,000-VMDK1563,"Supply, Installation & Maintenance of an Enclosed Combustion Biogas Flare at Crow's Nest Landfill Site, Banchory",Landfill Systems Maintenance Ltd,55000,01/12/2016,01/12/2016,01/03/2020,0
+000-NCGA7777,itt 27479,NA706H20 (Meldrum Academy),Watermill Coaches Ltd,3700,14/12/2018,07/01/2019,03/03/2020,12
+000-VYPV3246,itt27479,SA660B20 (Kintore Primary),AJS Contract Cars  Ltd,4497,14/12/2018,07/01/2019,03/03/2020,12
+000-EQWM2245,000-EQWM2245,Environmental Health Consultancy 2017-20,WSP UK Limited,40000,01/03/2017,10/03/2017,09/03/2020,0
+000-HCUB5738,SP-17-021,IT Peripherals - Scottish Procurement Framework SP-17-021 Call-off,Computacenter (UK) Limited,0,14/03/2018,14/03/2018,13/03/2020,0
+000-FQJW4819,000-NEME4134,Loss Adjuster Fees,sedgwick International UK,10000,01/04/2019,01/04/2019,31/03/2020,0
+000-NFAN8687,18348,Peterhead Buchan House - Extension,Robertson Construction Eastern Limited,1580270.28,18/07/2019,19/08/2019,31/03/2020,0
+000-JKDX1851,615,Electrical Materials - SXL Framework 0615,"Rexel UK (T/A Parker Merchanting/Senate Electrical),City Electrical Factors Ltd,Edmundson Electrical (T/A Edmundson Walsall),Holland House Electrical Company Limited,Stax Trade Centres PLC T/A D F Wishart & Company Limited,Tristar Lighting & Design Ltd,Yesss (a) Electrical Ltd",426962.92,01/04/2016,01/04/2016,31/03/2020,0
+000-BWBN2519,1002/ACE/301,WF Howes - Press Reader,WF Howes,7277,06/11/2018,01/12/2018,31/03/2020,12
+000-DXFE8359,1002/ACE/301,CLONE -  Lot 3 - Framework Agreement for E-Magazines,W.F. Howes Limited,11194.98,01/04/2019,01/04/2019,31/03/2020,0
+000-NNKX1962,1002/ACE/301,CLONE -  Lot 3 - Framework Agreement for E-Magazines,W.F. Howes Limited,11446,01/04/2019,01/04/2019,31/03/2020,0
+000-GPGB1711,20024533,Licensing - GLAMIS Support and Maintenance,Northgate Information Solutions UK Limited,42500,01/04/2016,01/04/2016,31/03/2020,12
+000-RLCD6155,(blank),Scottish Government Oracle ULA,The Scottish Government,450000,01/04/2016,01/04/2016,31/03/2020,0
+000-UVYR7225,(blank),Business Objects Licences for Social Work,Influential Software Services Ltd,45763.38,01/04/2016,01/04/2016,31/03/2020,12
+000-HVKV7376,20010482,Omega,Concept Informatics,69000,01/04/2016,01/04/2016,31/03/2020,0
+000-FMMW3937,(blank),Real Time Electronic Screen Hardware and Software maintenance,21st Century Passenger Systems Ltd,172000,09/04/2018,01/04/2018,31/03/2020,0
+000-YXNB4735,(blank),Franking Machine Lease and Meter Resets - WHH & GH,Pitney Bowes,77455.72,31/05/2018,01/04/2018,31/03/2020,0
+000-PCGR4383,(blank),Provision of Out of Hours Call Services,NHS Grampian,20000,25/03/2019,01/04/2019,31/03/2020,0
+000-NEME4134,850/ACG/400,Provision of Insurance Covers,Risk Management Partners Limited,0,01/04/2015,01/04/2015,31/03/2020,0
+000-YNHG8127,(blank),Macduff & Inverurie Houses - Smart Solar & Storage (LCITP),IPower Energy Limited,40000,01/08/2019,(blank),01/04/2020,0
+000-LCAY9465,(blank),Advertising and Public Information Notices,TMP Worldwide Ltd,1700000,01/11/2018,01/11/2018,17/04/2020,0
+000-RCJH6688,20085408,Uniform (planning & building control),iDox Systems,155000,30/04/2013,01/04/2015,28/04/2020,12
+000-AHTR4675,515,Groceries & Provisions - SXL Framework 0515 Call-off,"Bestway Wholesale Ltd T/a Batleys Foodservice,Brake Bros Ltd",6340000,01/05/2016,01/05/2016,30/04/2020,0
+000-KEMW3877,000-KEMW3877,Apply4Homes - 2018-2020,Home Connections Lettings Limited,67150,05/06/2018,01/05/2018,30/04/2020,24
+000-VQWD5517,(blank),Treatment of Co-Mingled Recycling,Enva Scotland Limited,2403430,08/04/2019,01/05/2019,30/04/2020,12
+000-WDBK7439,Subscription Plan 342-96162812 Renewal date 09.05.19,AutoCAD Subscription Contract 2019/2020,Cadline Ltd,40595,25/04/2019,09/05/2019,08/05/2020,0
+000-DDAB1927,Fraserburgh,Conservation Accredited Architectural Services,NB Planning and Architecture,0,30/10/2017,09/11/2017,09/05/2020,10
+000-PJEP8345,SXL 0815,Domestic Furniture & Furnishings - Lot 1 New Furniture - SXL Framework 0815 - Call-Off,The Furnishing Service Ltd,2000000,13/05/2017,13/05/2017,12/05/2020,0
+000-UEDF9143,20094334,Iken - Legal Case Management,Iken Business Limited,47500,01/04/2015,01/04/2015,21/05/2020,12
+000-BUKH4529,(blank),Claim Control - Insurance Claims Management System,Alphatec,12564.5,31/05/2018,31/05/2018,30/05/2020,12
+000-UQGF6385,(blank),Profile Security - Extension of Out of Hours Security Cover,Profile Security Ltd,150000,02/07/2018,31/05/2020,31/05/2020,0
+000-UUWB4978,20111490,Covalent - Corporate Performance Management (CPM),Covalent Software Limited,34500,20/06/2015,20/06/2015,01/06/2020,12
+000-YAQU4192,20102349,Depot Performance System,EP Morris,24000,11/11/2016,(blank),01/06/2020,0
+000-WDFH9136,(blank),Treatment/Recycling of Rigid Plastics (1 Year Trial),Wood Recyclability Ltd,30000,03/06/2019,03/06/2019,02/06/2020,0
+000-EAYM2356,000-HAKR2375,Supply of Horticultural and Ground Maintenance Materials,"Craigmarloch Nurseries Ltd,fergusons roses,J. A. Jones and Sons (Churchtown) Ltd.,Pentland Plants,Rigby Taylor Ltd,SCOTBARK,Terra Firma (Scotland) Limited",1145000,12/06/2017,12/06/2017,12/06/2020,24
+000-PBFX4184,000-PBFX4184,1E NOMAD Peer to Peer Patch Management Software,Softcat Limited,97900,01/06/2018,01/06/2018,13/06/2020,24
+000-HPBL7462,20008589,My Voice Solution,People Matters Network Ltd,22500,28/05/2014,28/05/2014,18/06/2020,0
+000-QMPN6412,000-QMPN6412,SIP Trunks 2018,Gamma Telecom Ltd,25200,26/06/2018,26/06/2018,25/06/2020,12
+000-YUFY4397,No,Aberdeen Football Club Community Trust (AFCCT) Health and Wellbeing PEF Initiative,AFCCT in conjunction with Schools PEF Funding,150000,14/06/2019,01/07/2019,29/06/2020,0
+000-YWHC5885,(blank),World Book Online,JCS Online Resources Ltd,10519.2,18/04/2018,01/07/2018,30/06/2020,0
+000-GCWE4956,920/ASF/400,Sheriff Officer Services,Stirling Park Llp,1200000,23/05/2016,01/07/2016,01/07/2020,24
+000-CUNB2381,Jun321153,NA069G20 (Banff Academy),Portsoy Taxis Limited,11400,01/07/2019,21/08/2019,03/07/2020,24
+000-RTEK9899,Jun321153,NA484H20 (Banff Primary),Portsoy Taxis Limited,11020,01/07/2019,21/08/2019,03/07/2020,24
+000-BWHC5629,Jun321153,NA484i20 (Banff Primary),Portsoy Taxis Limited,9500,01/07/2019,21/08/2019,03/07/2020,12
+000-YBTK6767,Jun321153,NA706K20 (meldrum Academy),Elmbank Taxis,10260,01/07/2019,21/08/2019,03/07/2020,24
+000-KHGN2183,Jun321153,NA088A20 (Tweeddale Riding School),Central Taxis (North East) Ltd,2090,01/07/2019,21/08/2019,03/07/2020,24
+000-LNGD6193,Jun321153,NA472A20 (New Deer School),Central Taxis (North East) Limited,380,01/07/2019,21/08/2019,03/07/2020,24
+000-FBNG2226,Jun321153,NA632j20 (Ellon Academy),Central Taxis (North East) Limited,5700,01/07/2019,21/08/2019,03/07/2020,24
+000-KMAX8543,JUN325513,"SA201A20 (Nescol, Aberdeen)",L&B Taxis,2280,01/07/2019,21/08/2019,03/07/2020,24
+000-GRCN9517,Jun321153,SA024E20 (Kellands School),Alpha Taxis,3344,01/07/2019,21/08/2019,03/07/2020,24
+000-KUGH9843,Jun321153,NA875G20 (Turriff Academy),Watermill Coaches Ltd,18050,01/07/2019,21/08/2019,03/07/2020,24
+000-NHJK7525,Jun321153,NA082A20 (Turriff School),Watermill Coaches Ltd,18430,01/07/2019,21/08/2019,03/07/2020,24
+000-LAWH5172,Jun321153,"SA201C20 (Nescol, Gallowgate)",Newmachar Coaches,2831,01/07/2019,21/08/2019,03/07/2020,24
+000-FFFY9685,Jun321153,NA420i20 (Fraserburgh Academy),Classy Taxis Ltd,1216,01/07/2019,21/08/2019,03/07/2020,24
+000-UTDJ5796,Jun321153,NA420H20 (Fraserburgh Academy),Classy Taxis Ltd,380,01/07/2019,21/08/2019,03/07/2020,24
+000-KVHL6894,Jun321153,NA443D20 (Fraserburgh North School),Classy Taxis Ltd,4750,01/07/2019,21/08/2019,03/07/2020,24
+000-XCYA4546,Jun321153,NA420J20 (Fraserburgh Academy),Kininmonth Cabs,9300.5,01/07/2019,21/08/2019,03/07/2020,24
+000-AJDG7385,Jun321153,NA404P20 (Anna Ritchie School),Kininmonth Cabs,4921,01/07/2019,21/08/2019,03/07/2020,24
+000-QAMA5383,Jun321153,NA632i20 (Ellon Academy),Kininmonth Cabs,4541,01/07/2019,21/08/2019,03/07/2020,24
+000-ATLE3578,Jun321153,NA923B20 (Troup House),Kininmonth Cabs,4544.8,01/07/2019,21/08/2019,03/07/2020,24
+000-LJFA9357,Jun321153,SA660C20 (Kintore Primary),Kininmonth Cabs,10440.5,01/07/2019,21/08/2019,03/07/2020,24
+000-LNVM3578,Jun321153,NA400A20 (NESCOL Fraserburgh),Kininmonth Cabs,642.2,01/07/2019,21/08/2019,03/07/2020,24
+000-BQNB4882,Jun321153,SA201B20 (Nescol Gallowgate),Kp Taxis,2440.36,01/07/2019,21/08/2019,03/07/2020,24
+000-NXYM3642,Jun321153,NA875F20 (Turriff Academy),Kp Taxis,9699.1,01/07/2019,21/08/2019,03/07/2020,24
+000-HVUQ9417,Jun321153,SA145B20 (Gilcomstoun Primary),AJS Contract Cars  Ltd,10446.2,01/07/2019,21/08/2019,03/07/2020,24
+000-EHNE6382,Jun321153,SA097K20 (Inverurie Academy),AJS Contract Cars  Ltd,10446.2,01/07/2019,21/08/2019,03/07/2020,24
+000-MPNR6797,Jun321153,SA848A20 (Mill O Forest School),AJS Contract Cars  Ltd,10446.2,01/07/2019,21/08/2019,03/07/2020,24
+000-TTDP9324,Jun321153,SA007B20 (Johnshaven primary),Kenny's Taxis,9120,01/07/2019,21/08/2019,03/07/2020,24
+000-UUNH8687,Jun321153,SA842H20 (Mackie Academy),Kenny's Taxis,9120,01/07/2019,21/08/2019,03/07/2020,24
+000-XFRQ1744,itt 27479,SA024D20 (Kellands School),Sorrells Taxis,21492.5,14/12/2019,07/01/2019,03/07/2020,12
+000-GVPK3233,itt_28844,SA994B20 (Orchard Brae),Central Taxis (Aberdeen) Limited,37250,25/03/2019,15/04/2019,03/07/2020,12
+000-MCVC4678,itt_28844,NA069F20 (Banff Academy),Portsoy Taxis Limited,19500,25/03/2019,15/04/2019,03/07/2020,12
+000-QGQT7791,itt_28844,SA818J20 (carronhill School),Safedrive Taxis Limited,15000,25/03/2019,15/04/2019,03/07/2020,12
+000-JVRU3373,itt_28844,SA852C20 (Newtonhill),Dash Cabs,8125,15/04/2019,15/04/2019,03/07/2020,12
+000-FTPW1849,SS604H19a,SS604H19a Alford Academy,Watermill Coaches Limited,178410,16/08/2016,16/08/2016,03/07/2020,0
+000-YRAK3121,NP458B20,NP458B20 Kininmonth Primary,Central Taxis (Aberdeen) Ltd,45360,22/08/2016,22/08/2016,03/07/2020,24
+000-DQBP7221,NP695B20,NP695B20 Tipperty Primary,Central Taxis (North East) Ltd,34200,16/08/2016,16/08/2016,03/07/2020,0
+000-NHDN1613,NP402D20,NP402D20 Aberchirder Primary,Deveron Coaches Ltd,105640,16/08/2016,16/08/2016,03/07/2020,0
+000-VMMP1799,SS604C19a,SS604C19a Alford Academy,Watermill Coaches Limited,158460,16/08/2016,16/08/2016,03/07/2020,0
+000-JXQD8581,000-JXQD8581,Aberdeenshire Transportation Dynamic Purchasing System - Additional Support Needs (Lot 4),"A&I Coaches Ltd,Central Taxis (North East) Ltd,Portsoy Taxis Limited,Bains Chauffuer Drive,Elmbank Taxis,Watermill Coaches Ltd,Kininmonth Cabs,Classy Taxis Ltd,AA Taxis Portsoy Limited,Alpha Taxis (Inverurie) Ltd.,Turriff Coaches & Cabs,AJS Contract Cars  Ltd,Falcon Coach Hire Limited,Premier Coaches (Kintore) Ltd,Cadgers Taxis,Bains Coaches,E&H Taxis,Safedrive Taxis Ltd,Riverside Garage",3143478.84,05/10/2018,29/10/2018,03/07/2020,12
+000-PWWB6295,Portal Ref: 453455,Award of Multiple Call off Agreements available: North Mainstream School transport Services,AJS Contract Cars Ltd,187324.8,08/07/2016,16/08/2016,03/07/2020,0
+000-WCCB4494,Portal Ref: 453455,Award of Multiple Call off Agreements available: North Mainstream School transport Services,Central Taxis (North East) Limited,187324.8,08/07/2016,16/08/2016,03/07/2020,0
+000-CARJ2284,Portal Ref: 453455,Award of Multiple Call off Agreements available: North Mainstream School transport Services,DEVERON COACHES LIMITED,187324.8,08/07/2016,16/08/2016,03/07/2020,0
+000-RXKL4321,Portal Ref: 453455,Award of Multiple Call off Agreements available: North Mainstream School transport Services,Portsoy Taxis Limited,187324.8,08/07/2016,16/08/2016,03/07/2020,0
+000-JEKG6254,NP464E20,NP464E20 Turriff Primary,Watermill Coaches Limited,71060,06/07/2018,21/08/2018,03/07/2020,0
+000-NAJP6135,itt27479,NA443A20 (Fraserburgh North School),Kininmonth Cabs,8975,14/12/2018,07/01/2019,03/07/2020,12
+000-GXMY3399,(blank),SA325B20 (Linn Moor),Kininmonth Cabs,8700,14/12/2018,07/01/2019,03/07/2020,12
+000-QKBW8691,itt27479,NA932A20 (Cornhill Campus),Kininmonth Cabs,9375,14/12/2018,07/01/2019,03/07/2020,12
+000-VGLA2277,itt 27479,NA420G20 (Fraserbugh Academy),Kininmonth Cabs,8475,14/12/2018,07/01/2019,03/07/2020,12
+000-BTCA5451,itt 27479,SA325C20 (Linn Moor VSA School),Kininmonth Cabs,2995,14/12/2018,07/01/2019,03/07/2020,12
+000-BMJA3355,itt27479,NA420F20 (Fraserburgh Academy),Classy Taxis Ltd,3500,14/12/2018,07/01/2019,03/07/2020,12
+000-NCMA2388,itt 27479,NA922B20 (Auchterellon Primary),Terion Taxis,6250,14/12/2018,07/01/2019,03/07/2020,12
+000-LNMM3725,itt27479,NA468F20 (Mintlaw Primary),Kininmonth Cabs,6725,14/12/2018,07/01/2019,03/07/2020,12
+000-KBLD3657,itt27479,NA706F20 (Meldrum Academy),Kininmonth Cabs,0,14/12/2018,07/01/2019,03/07/2020,12
+000-YUQQ7415,itt 27479,SA688O20 (St Andrews ASN School),Elmbank Taxis,35000,14/12/2018,07/01/2019,03/07/2020,12
+000-NNKH9393,itt27479,SA688P20 (St Andrews ASN School),Elmbank Taxis,13500,14/12/2018,07/01/2019,03/07/2020,12
+000-AJQQ8997,itt27479,NA567H20 (Mintlaw Academy),Kininmonth Cabs,2780,14/12/2018,07/01/2019,03/07/2020,12
+000-CQBR2119,itt 27479,NA931A20 (Meiklemill primary),Watermill Coaches Ltd,11750,14/12/2018,07/01/2019,03/07/2020,12
+000-QLMJ9792,itt 27479,NA923A20 (Troup House),Classy Taxis Ltd,11875,14/12/2018,07/01/2019,03/07/2020,12
+000-CLUG5611,itt 27479,SA688Q20 (St Andrews ASN School),Alpha Taxis (Inverurie) Ltd.,1000,14/12/2018,07/01/2019,03/07/2020,12
+000-CQQM6927,itt27479,NA468G20 (Mintlaw Academy),AJS Contract Cars  Ltd,12495,14/12/2018,07/01/2019,03/07/2020,12
+000-MEEQ9557,itt27479,NA431A20 (Crimond Primary),Watermill Coaches Ltd,11750,14/12/2018,07/01/2019,03/07/2020,12
+000-UVGA3452,itt 27479,NA484G20 (Banff Primary),Portsoy Taxis Limited,19500,03/01/2019,07/01/2019,03/07/2020,12
+000-RAWM1373,NS467R20,NS467R20 Mintlaw Academy,Watermill Coaches Ltd,55480,03/08/2018,21/08/2018,03/07/2020,0
+000-VLCR7135,NS705T20,NS705T20 Meldrum Academy,Premier Coaches (Kintore) Limited,63080,03/08/2018,21/08/2018,03/07/2020,0
+000-PTHF9515,NP413B20,NP413B20 Boddam School,Central Taxis (North East) Ltd,19745,20/09/2018,24/09/2018,03/07/2020,0
+000-KGLB9426,NP465C20,NP465C20 Maud School,Central Taxis (North East) Ltd,47740,25/10/2018,29/10/2018,03/07/2020,0
+000-BHRT5118,NP471D20,NP471D20 New Deer School,Central Taxis (North East) Ltd,22165,25/10/2018,29/10/2018,03/07/2020,0
+000-UVYR6312,itt_28844,NA567L20 (Mintlaw Academy),Kininmonth Cabs,2217.5,25/03/2019,15/04/2019,03/07/2020,12
+000-MUDE5257,itt_28844,NA404N20 (Anna Ritchie),Kininmonth Cabs,3950,25/03/2019,15/04/2019,03/07/2020,12
+000-UMPP5723,itt_28844,NA567M20 (Mintlaw Academy),Kininmonth Cabs,3475,25/03/2019,15/04/2019,03/07/2020,12
+000-BUYH5195,itt_28844,NA404L20 (Anna Ritchie School),Kininmonth Cabs,1795,25/03/2019,15/04/2019,03/07/2020,12
+000-VCDX4688,itt_28844,NA706J20 (Meldrum Academy),Kininmonth Cabs,5225,25/03/2019,15/04/2019,03/07/2020,12
+000-QJDA8523,itt_28844,NA632H20 (Ellon Academy),Central Taxis (North East) Limited,2000,25/03/2019,15/04/2019,03/07/2020,12
+000-PPVX8476,itt_28844,SA688U20 (St Andrews ASN School),Central Taxis (North East) Limited,27500,25/03/2019,15/04/2019,03/07/2020,12
+000-JJDB4938,itt_28844,NA443C20 (Fraserburgh North School),Central Taxis (North East) Limited,15000,25/03/2019,15/04/2019,03/07/2020,12
+000-DCWY8592,itt_28844,NA475D20 (Peterhead Academy),Central Taxis (North East) Limited,12500,25/03/2019,15/04/2019,03/07/2020,12
+000-CDAU3843,itt_28844,NA567K20 (Mintlaw Academy),Central Taxis (North East) Limited,4375,25/03/2019,15/04/2019,03/07/2020,12
+000-UXQH1862,itt_28844,SA071G20 (Kemnay Academy),Allways Taxis (Inverurie) Limited,4390,25/03/2019,15/04/2019,03/07/2020,12
+000-VTVV7971,itt_28844,SA688T20 (St Andrews ASN School),Allways Taxis (Inverurie) Limited,8077.5,25/03/2019,15/04/2019,03/07/2020,12
+000-VURL6312,itt_28844,NA069E20 (Banff Academy),DEVERON COACHES LIMITED,22500,25/03/2019,15/04/2019,03/07/2020,12
+000-DATA6892,itt_28844,SA816A20 (Banchory-Devenick School),Central Taxis (Aberdeen) Limited,8500,25/03/2019,15/04/2019,03/07/2020,12
+000-EKFJ8722,itt_28844,SA299H20 (Camphill),Central Taxis (Aberdeen) Limited,22250,25/03/2019,15/03/2019,03/07/2020,12
+000-CNWL6214,itt_28844,SA007A20 (JohnshavenPrimary),Kenny's Taxis,1900,25/03/2019,15/04/2019,03/07/2020,12
+000-WUCQ8784,itt_28844,NA875E20 (Turriff Academy),Portsoy Taxis Limited,17000,25/03/2019,15/04/2019,03/07/2020,12
+000-UMKN1328,itt_28844,SA957A20 (Port Elphinestone primary),Watermill Coaches Ltd,24250,25/03/2019,15/04/2019,03/07/2020,12
+000-URQY5938,itt_28844,SA818I20 (Carronhill ASN School),A&I Coaches Ltd,20587.5,25/03/2019,15/04/2019,03/07/2020,12
+000-FPTQ3344,itt_28844,SA088E20 (Alford Primary),L&B Taxis,20000,25/03/2019,15/04/2019,03/07/2020,12
+000-BYEQ2889,itt_28844,SA964B20 (Aberlour Centre),L&B Taxis,6800,25/03/2019,15/04/2019,03/07/2020,12
+000-TWGC1464,itt_28844,SA964A20 (Aberlour School),L&B Taxis,19125,25/03/2019,15/04/2019,03/07/2020,12
+000-GHGE9875,itt_28844,NA069C20 (Banff Academy),AJS Contract Cars  Ltd,1249.5,25/03/2019,15/04/2019,03/07/2020,12
+000-EKDC3372,itt_28844,SA071I20 (Kemnay Academy),Premier Coaches (Kintore) Limited,2100,25/03/2019,15/04/2019,03/07/2020,12
+000-RVEN7911,itt_28844,SA088D20 (Alford Primary),Premier Coaches (Kintore) Limited,23000,25/03/2019,15/04/2019,03/07/2020,12
+000-UKNV9285,itt_28844,SA097J20 (inverurie Academy),Premier Coaches (Kintore) Limited,1500,25/03/2019,15/04/2019,03/07/2020,12
+000-ETKF6294,itt_28844,SA688S20 (St Andrews ASN School),Premier Coaches (Kintore) Limited,4900,25/03/2019,15/04/2019,03/07/2020,12
+000-EPJN9937,itt_28844,SA688V20 (St Andrews ASN School),Premier Coaches (Kintore) Limited,3000,25/03/2019,15/04/2019,03/07/2020,12
+000-CUWU1552,NP497A20,NP497A20 - Tyrie School,Kineil Coaches Limited,256500,16/08/2015,16/08/2015,04/07/2020,0
+000-HVXR2856,NS441B20,NS441B20 - Fraserburgh Academy,Kineil Coaches Limited,365750,16/08/2015,16/08/2015,04/07/2020,0
+000-QPME5237,NS467C20,NS467C20 - Mintlaw Academy,Kineil Coaches Limited,270750,16/08/2015,16/08/2015,04/07/2020,0
+000-RWYK6164,NS705P20,NS705P20 - Meldrum Academy,Bains Coaches,209000,16/08/2015,16/08/2015,04/07/2020,0
+000-QTBJ3797,NS477D20,NS477D20 - Peterhead Academy,Watermill Coaches Limited,225150,16/08/2015,16/08/2015,04/07/2020,0
+000-QEPE7422,NS705O20,NS705O20 - Meldrum Academy,Bains Coaches,152000,16/08/2015,16/08/2015,04/07/2020,0
+000-JHKA5913,NS644E20,NS644E20 - The Gordon Schools,Shearer of Huntly Limited,165300,16/08/2015,16/08/2015,04/07/2020,0
+000-KCBU2547,NS644F20,NS644F20 - The Gordon Schools,Shearer of Huntly Limited,270750,16/08/2015,16/08/2015,04/07/2020,0
+000-JPKX1583,NS644H20,NS644H20 - The Gordon Schools,Shearer of Huntly Limited,170050,16/08/2015,16/08/2015,04/07/2020,0
+000-KTAR6261,NS644J20,NS644J20 - The Gordon Schools,DEVERON COACHES LIMITED,247000,16/08/2015,16/08/2015,04/07/2020,0
+000-GUXE8214,NS644N20,NS644N20 - The Gordon Schools,Shearer of Huntly Limited,331550,16/08/2015,16/08/2015,04/07/2020,0
+000-DCMT6484,NS644O20,NS644O20 - The Gordon Schools,Shearer of Huntly Limited,227050,16/08/2015,16/08/2015,04/07/2020,0
+000-ANXC5755,F-NS631Z20,F-NS631Z20 - Ellon Academy,Victoria Coaches,218500,16/08/2015,16/08/2015,04/07/2020,0
+000-JFTA3428,NS467A20,NS467A20 - Mintlaw Academy,Watermill Coaches Limited,210900,16/08/2015,16/08/2015,04/07/2020,0
+000-NRQF1443,NS467F20,NS467F20 - Mintlaw Academy,Watermill Coaches Limited,220400,16/08/2015,16/08/2015,04/07/2020,0
+000-PHYF5342,NS467M20,NS467M20 - Mintlaw Academy,Watermill Coaches Limited,201400,16/08/2015,16/08/2015,04/07/2020,0
+000-YYYB5163,NS441C20,NS441C20 - Fraserburgh Academy,Watermill Coaches Limited,220400,16/08/2015,16/08/2015,04/07/2020,0
+000-FGNP3317,NS441E20,NS441E20 - Fraserburgh Academy,Watermill Coaches Limited,220400,16/08/2015,16/08/2015,04/07/2020,0
+000-QHLE8891,NS441G20,NS441G20 - Fraserburgh Academy,Watermill Coaches Limited,211850,16/08/2015,16/08/2015,04/07/2020,0
+000-YAUD1543,NS477A20,NS477A20 - Peterhead Academy,Victoria Coaches,228000,16/08/2015,16/08/2015,04/07/2020,0
+000-TBJX5212,NS477C20,NS477C20 - Peterhead Academy,Victoria Coaches,228000,16/08/2015,16/08/2015,04/07/2020,0
+000-YUBN6571,NS477F20,NS477F20 - Peterhead Academy,Victoria Coaches,245100,16/08/2015,16/08/2015,04/07/2020,0
+000-JYGD5865,NS631B20,NS631B20 - Ellon Academy,Watermill Coaches Limited,234650,16/08/2015,16/08/2015,04/07/2020,0
+000-WKJY6977,NS631C20,NS631C20 - Ellon Academy,Ian Bruce Coach Hire Limited,201400,16/08/2015,16/08/2015,04/07/2020,0
+000-GJXP7436,NS631D20,NS631D20 - Ellon Academy,Watermill Coaches Limited,206150,16/08/2015,16/08/2015,04/07/2020,0
+000-GNPT5646,NS631F20,NS631F20 - Ellon Academy,Watermill Coaches Limited,253650,16/08/2015,16/08/2015,04/07/2020,0
+000-RENM3548,NS631G20,NS631G20 - Ellon Academy,Watermill Coaches Limited,272650,16/08/2015,16/08/2015,04/07/2020,0
+000-CGBT1833,NS631H20,NS631H20 - Ellon Academy,Watermill Coaches Limited,215650,16/08/2015,16/08/2015,04/07/2020,0
+000-FQPJ8756,NS631J20,NS631J20 - Ellon Academy,Watermill Coaches Limited,206150,16/08/2015,16/08/2015,04/07/2020,0
+000-UHWW5762,NS631E20,NS631E20 - Ellon Academy,Victoria Coaches,256500,16/08/2015,16/08/2015,04/07/2020,0
+000-ATQB1529,NS631I20,NS631I20 - Ellon Academy,Victoria Coaches,323000,16/08/2015,16/08/2015,04/07/2020,0
+000-AJTU4519,NS705D20,NS705D20 - Meldrum Academy,Watermill Coaches Limited,210900,16/08/2015,16/08/2015,04/07/2020,0
+000-DQQW7827,NS705F20,NS705F20 - Meldrum Academy,Watermill Coaches Limited,210900,16/08/2015,16/08/2015,04/07/2020,0
+000-UHBF7146,NP464B20,NP464B20 - Markethill School,Turriff Coaches & Cabs,142500,16/08/2015,16/08/2015,04/07/2020,0
+000-QVGG2578,NS408A-R20,NS408A-R20 - Banff Academy,DEVERON COACHES LIMITED,256500,16/08/2015,16/08/2015,04/07/2020,0
+000-WNAL9317,NS408B-R20,NS408B-R20 - Banff Academy,DEVERON COACHES LIMITED,218500,16/08/2015,16/08/2015,04/07/2020,0
+000-TLGN3278,NS631A-R20,NS631A-R20 - Ellon Academy,Watermill Coaches Limited,225150,16/08/2015,16/08/2015,04/07/2020,0
+000-MERK6727,NMC-G20,NMC-G20 - Mintlaw Music Centre,Kineil Coaches Limited,30000,16/08/2015,16/08/2015,04/07/2020,0
+000-KNYN1733,NMC-H20,NMC-H20 - Mintlaw Music Centre,DEVERON COACHES LIMITED,55000,16/08/2015,16/08/2015,04/07/2020,0
+000-RGHE3183,NMC-I20,NMC-I20 - Mintlaw Music Centre,Kineil Coaches Limited,47500,16/08/2015,16/08/2015,04/07/2020,0
+000-BTEJ6524,NP406A20,NP406A20 - Auchnagatt Primary,Ian Bruce Coach Hire Limited,207100,16/08/2015,16/08/2015,04/07/2020,0
+000-MBBP5348,NP409B20,NP409B20 - Banff Primary,AJS Contract Cars Limited,52231,16/08/2015,16/08/2015,04/07/2020,24
+000-YDHB3195,NP452A20,NP452A20 - Hatton Cruden Primary,Victoria Coaches,251750,16/08/2015,16/08/2015,04/07/2020,0
+000-HRQK8711,NP452B20,NP452B20 - Hatton Cruden Primary,Victoria Coaches,156750,16/08/2015,16/08/2015,04/07/2020,0
+000-HWFQ4936,NP448C20,NP448C20 - Fyvie Primary,Watermill Coaches Limited,201400,16/08/2015,16/08/2015,04/07/2020,24
+000-JBRU5586,NP448D20,NP448D20 - Fyvie Primary,Watermill Coaches Limited,210900,16/08/2015,16/08/2015,04/07/2020,24
+000-TRYK8795,NP456A20,NP456A20 - King Edward Primary,Turriff Coaches & Cabs,123500,16/08/2015,16/08/2015,04/07/2020,0
+000-LNVU1458,NP431A20,NP431A20 - Crimond Primary,Central Taxis (North-East) Limited,61750,16/08/2015,16/08/2015,04/07/2020,0
+000-WYXL8769,NP462B20,NP462B20 - Longside Primary,Victoria Coaches,150100,16/08/2015,16/08/2015,04/07/2020,0
+000-NJMY5214,NP462C20,NP462C20 - Longside Primary,Victoria Coaches,166250,16/08/2015,16/08/2015,04/07/2020,0
+000-NMEW4774,NP610A20,NP610A20 - Auchterellon Primary,Watermill Coaches Limited,225150,16/08/2015,16/08/2015,04/07/2020,0
+000-PKNC3113,NP485A20,NP485A20 - Rathen Primary,Watermill Coaches Limited,172900,16/08/2015,16/08/2015,04/07/2020,0
+000-JXDK7468,NP485B20,NP485B20 - Rathen Primary,Watermill Coaches Limited,182400,16/08/2015,16/08/2015,04/07/2020,0
+000-JMYF5352,NP626A20,NP626A20 - Cultercullen Primary,Central Taxis (Aberdeen) Limited,142500,16/08/2015,16/08/2015,04/07/2020,0
+000-GYPA1725,NP626B20,NP626B20 - Cultercullen Primary,Central Taxis (Aberdeen) Limited,133000,16/08/2015,16/08/2015,04/07/2020,0
+000-BGQR5446,NP628B20,NP628B20 - Drumblade Primary,Shearer of Huntly Limited,208050,16/08/2015,16/08/2015,04/07/2020,0
+000-QHHN9852,NP643B20,NP643B20 - Gordon Primary,Shearer of Huntly Limited,155800,16/08/2015,16/08/2015,04/07/2020,0
+000-DVFD7631,NP691A20,NP691A20 - Slains Primary School,Watermill Coaches Limited,215650,16/08/2015,16/08/2015,04/07/2020,0
+000-QBNQ3683,SP659A19,SP659A19 - Kellands Primary,AJS Contract Cars Limited,41784.8,16/08/2015,16/08/2015,04/07/2020,24
+000-UDUP4884,SS115E19,SS115E19 - Bridge of Don Academy (City),AJS Contract Cars Limited,30202.4,16/08/2015,16/08/2015,04/07/2020,0
+000-LLBV5873,NMC-A20,NMC-A20 - Mintlaw Music Centre,Victoria Coaches,21250,16/08/2015,16/08/2015,04/07/2020,0
+000-WFMF1811,NMC-B20,NMC-B20 - Mintlaw Music Centre,Victoria Coaches,21250,16/08/2015,16/08/2015,04/07/2020,0
+000-BCKH6277,NMC-F20,NMC-F20 - Mintlaw Music Centre,Victoria Coaches,39375,16/08/2015,16/08/2015,04/07/2020,0
+000-GFLX5587,NP402A20,NP402A20 - Aberchirder Primary School,Shearer of Huntly Limited,227050,16/08/2015,16/08/2015,04/07/2020,0
+000-HTVT4232,NP612E20,NP612E20 - Balmedie Primary School,AJS Contract Cars Limited,37753,16/08/2015,16/08/2015,04/07/2020,0
+000-LQFM9166,NP613B20,NP613B20 - Barthol Chapel School,Premier Coaches (Kintore) Limited,134900,16/08/2015,16/08/2015,04/07/2020,0
+000-TVBK2527,NP612C20,NP612C20 - Balmedie Primary School,Cadgers Taxis,66500,16/08/2015,16/08/2015,04/07/2020,0
+000-UHMY5483,NP612A20,NP612A20 - Balmedie Primary School,Central Taxis (Aberdeen) Limited,142500,16/08/2015,16/08/2015,04/07/2020,0
+000-CPME3111,NP612B20,NP612B20 - Balmedie Primary School,Central Taxis (Aberdeen) Limited,128250,16/08/2015,16/08/2015,04/07/2020,0
+000-PVQP7156,NP612D20,NP612D20 - Balmedie Primary School,Central Taxis (Aberdeen) Limited,142500,16/08/2015,16/08/2015,04/07/2020,0
+000-HXNY5513,Portal Ref: 434975,"Award of Call off Agreements: NS408D20a & NS408G20a, Banff Academy",Watermill Coaches Ltd,275388,03/03/2016,07/03/2016,04/07/2020,0
+000-LAMP6593,NS408D20a,NS408P20 Banff Acadamey,DEVERON COACHES LIMITED,98800,29/08/2016,29/08/2016,05/07/2020,48
+000-TDHV7966,NS441K20,NS441K20 Fraserburgh Academy,Watermill Coaches Limited,43320,16/08/2016,16/08/2016,05/07/2020,48
+000-HGEQ7762,SP619C19,SP619C19 Banchory Primary,J D Peace & Co Aberdeen Ltd,27360,29/08/2016,29/08/2016,05/07/2020,0
+000-KLXM6357,F-SS604L19,F-SS604L19 Alford Academy Feeder,RS Taxis and Minicoach Hire,33985.3,16/08/2016,16/08/2016,05/07/2020,0
+000-VKQM2432,F-SS604M19,F-SS604M19 Alford Academy Feeder,RS Taxis and Minicoach Hire,33985.3,16/08/2016,16/08/2016,05/07/2020,0
+000-RNAH1466,SMC-C19a,SMC-C19a Music Centre,Premier Coaches (Kintore) Ltd,129960,16/08/2016,16/08/2016,05/07/2020,0
+000-VTGX2343,SMC-C19a,SMC-P19a Music Centre,Premier Coaches (Kintore) Ltd,95760,16/08/2016,16/08/2016,05/07/2020,0
+000-TRYA5732,SP645B19,SP645B19 Hatton Fintray Primary,AJS Contract Cars  Ltd,42738.6,16/08/2016,16/08/2016,05/07/2020,0
+000-WTBX1851,SP651B19,SP651B19 Keig Primary,AJS Contract Cars  Ltd,42738.6,16/08/2016,16/08/2016,05/07/2020,0
+000-TRFD2964,SP651C19,SP651C19 Keig Primary,AJS Contract Cars  Ltd,42738.6,16/08/2016,16/08/2016,05/07/2020,0
+000-JFUF8912,SP697C19a,SP697C19a Towie Primary,Premier Coaches (Kintore) Ltd,107160,16/08/2016,16/08/2016,05/07/2020,0
+000-EMKJ8297,SP829A19a,SP829A19a Finzean Primary,A M & J Brown (Allan and Black),112860,16/08/2016,16/08/2016,05/07/2020,0
+000-UCVC2968,SS604B19a,SS604B19a Alford Academy,Premier Coaches (Kintore) Ltd,141360,16/08/2016,16/08/2016,05/07/2020,0
+000-KYKB9386,SS810F19a,SS810F19a Banchory Academy,Premier Coaches (Kintore) Ltd,99180,16/08/2016,16/08/2016,05/07/2020,0
+000-QQLN8211,(blank),NP422A20 Burnhaven School,AJS Contract Cars  Ltd,41218,05/06/2017,13/07/2017,05/07/2020,24
+000-ENHF1182,(blank),NS496W20 - Turriff Academy,Watermill Coaches Limited,43890,22/08/2017,22/08/2017,05/07/2020,0
+000-HNMY9155,(blank),NP669B20 Meiklemill Primary,Central Taxis (North East) Ltd,29925,22/08/2017,22/08/2017,05/07/2020,0
+000-EKXG5994,(blank),NP490B20 St Fergus Primary,Central Taxis (North East) Ltd,31350,22/08/2017,22/08/2017,05/07/2020,0
+000-PWFK1122,(blank),NS408M20 Banff Academy,W&G Taxis and Coach Hire,94050,22/08/2017,22/08/2017,05/07/2020,0
+000-QEVK6366,Portal Ref: 459810,"Award of Multiple Call off Agreements: F-NS705Y20 Meldrum Academy (feeder), SP619C19 Cluny School...",DEVERON COACHES LIMITED,124558,24/08/2016,29/08/2016,05/07/2020,0
+000-KCUA8435,Portal Ref: 459810,"Award of Multiple Call off Agreements: F-NS705Y20 Meldrum Academy (feeder), SP619C19 Cluny School...",J.D.Peace & Co (ABDN) Ltd,124558,24/08/2016,29/08/2016,05/07/2020,0
+000-HRLB8914,Portal Ref: 517717,Award of Call Off Agreement - NS496X20 - Turriff Academy,SHEARER OF HUNTLY LTD,50065,03/11/2017,06/11/2018,05/07/2020,0
+000-HVXL5884,F-NS408Q20,F-NS408Q20 Banff Academy,SHEARER OF HUNTLY LTD,16720,06/06/2018,18/06/2018,05/07/2020,0
+000-NFXG8237,NP612F20,NP612F20 Balmedie Primary,Watermill Coaches Ltd,37051,14/02/2018,15/02/2018,05/07/2020,0
+000-ECTK6864,NP440C20,NP440C20 Fordyce Primary,Portsoy Taxis Limited,17568,04/09/2018,10/09/2018,05/07/2020,0
+000-WJDU5453,NP433B20,NP433B20 Crudie Primary,W&G Taxis and Coach Hire,32395,08/10/2018,01/10/2018,05/07/2020,0
+000-ECLB8952,NP671B20,NP671B20 Methlick Primary,Central Taxis (North East) Limited,22187.5,24/09/2018,25/09/2018,05/07/2020,0
+000-CNEU4658,NP495B20,NP495B20 Stuartfield Primary,Watermill Coaches Limited,15686,25/10/2018,29/10/2018,05/07/2020,0
+000-VGXK2273,NS408N-R20,NS408N-R20 Banff Academy,Deveron Coaches Ltd,108300,11/08/2017,22/08/2017,05/07/2020,0
+000-YUNA2394,NS408O-R20,NS408O-R20 Banff Academy,Deveron Coaches Ltd,108300,11/08/2017,22/08/2017,05/07/2020,0
+000-HDRN2884,F-NS644D20,F-NS644D20 - The Gordon Schools,Reids of Rhynie,178600,16/08/2015,16/08/2015,06/07/2020,24
+000-ANRK5446,F-NS644O20,F-NS644O20 - The Gordon Schools,Reids of Rhynie,155800,16/08/2015,16/08/2015,06/07/2020,24
+000-GLDM8353,F-NS644P20,F-NS644P20 - The Gordon Schools,Reids of Rhynie,155800,16/08/2015,16/08/2015,06/07/2020,24
+000-XQGD7281,F-NS644U20,F-NS644U20 - The Gordon Schools,RGS Motor Services,49400,16/08/2015,16/08/2015,06/07/2020,24
+000-CQUT1968,NP648A20,NP648A20 - Insch School,Reids of Rhynie,165300,16/08/2015,16/08/2015,06/07/2020,24
+000-BYAX3927,NP648B20,NP648B20 - Insch School,Reids of Rhynie,165300,16/08/2015,16/08/2015,06/07/2020,24
+000-CPGA2883,NP648C20,NP648C20 - Insch School,Reids of Rhynie,155800,16/08/2015,16/08/2015,06/07/2020,24
+000-UPUD7282,NP656A20,NP656A20 - Kennethmont School,Reids of Rhynie,146300,16/08/2015,16/08/2015,06/07/2020,24
+000-HGAJ8992,NP663A20,NP663A20 - Largue School,RGS Motor Services,150100,16/08/2015,16/08/2015,06/07/2020,24
+000-BUJA5363,NP667A20,NP667A20 - Logie Durno School,RGS Motor Services,142500,16/08/2015,16/08/2015,06/07/2020,24
+000-HUVB7931,NP671A20,NP671A20 - Methlick School,RGS Motor Services,147250,16/08/2015,16/08/2015,06/07/2020,24
+000-BYKL3387,NS408L20,NS408L20 - Banff Academy,Stagecoach Bluebird,228712.5,16/08/2015,16/08/2015,06/07/2020,0
+000-UFXB3149,NS441D20,NS441D20 - Fraserburgh Academy,Stagecoach Bluebird,183796.5,16/08/2015,16/08/2015,06/07/2020,24
+000-CUMA6145,NS441J20,NS441J20 - Fraserburgh Academy,Stagecoach Bluebird,236806.5,16/08/2015,16/08/2015,06/07/2020,24
+000-DALP3758,NS467G20,NS467G20 - Mintlaw Academy,Stagecoach Bluebird,203176.5,16/08/2015,16/08/2015,06/07/2020,24
+000-ECRY9114,NS631K20,NS631K20 - Ellon Academy,Bains Coaches,209000,16/08/2015,16/08/2015,06/07/2020,0
+000-RVGJ9816,NS631N20,NS631N20 - Ellon Academy,Bains Coaches,114000,16/08/2015,16/08/2015,06/07/2020,0
+000-JCWW7487,NS644C20,NS644C20 - The Gordon Schools,Stagecoach Bluebird,236806.5,16/08/2015,16/08/2015,06/07/2020,24
+000-KVQD2444,NS644G20,NS644G20 - The Gordon Schools,Stagecoach Bluebird,263368.5,16/08/2015,16/08/2015,06/07/2020,24
+000-LRNE8642,NS644I20,NS644I20 - The Gordon Schools,Stagecoach Bluebird,229168.5,16/08/2015,16/08/2015,06/07/2020,24
+000-KMAM5487,NS705G20,NS705G20 - Meldrum Academy,RGS Motor Services,152000,16/08/2015,16/08/2015,06/07/2020,0
+000-KDHA5864,NS705K20,NS705K20 - Meldrum Academy,Stagecoach Bluebird,206606,16/08/2015,16/08/2015,06/07/2020,0
+000-DVBL2478,NS705Q20,NS705Q20 - Meldrum Academy,RGS Motor Services,180500,16/08/2015,16/08/2015,06/07/2020,0
+000-TMER8159,NP637A20,NP637A20 - Forgue Primary School,Stagecoach Bluebird,208306.5,16/08/2015,16/08/2015,06/07/2020,24
+000-DLRF1818,NS408C-R20,NS408C-R20 - Banff Academy,Stagecoach Bluebird,147924.5,16/08/2015,16/08/2015,06/07/2020,0
+000-FVKK7528,NS408E20,NS408E20 - Banff Academy,Stagecoach Bluebird,208192.5,16/08/2015,16/08/2015,06/07/2020,0
+000-ARFG4863,NS408F20,NS408F20 - Banff Academy,Stagecoach Bluebird,246952.5,16/08/2015,16/08/2015,06/07/2020,0
+000-MMLU9482,NS408H20,NS408H20 - Banff Academy,Stagecoach Bluebird,212296.5,16/08/2015,16/08/2015,06/07/2020,24
+000-PHEJ5229,NS644D20,NS644D20 - The Gordon Schools,Stagecoach Bluebird,193800,16/08/2015,16/08/2015,06/07/2020,24
+000-HGVW7564,NS644K20,NS644K20 - The Gordon Schools,Alex Milne Coaches,232750,16/08/2015,16/08/2015,06/07/2020,0
+000-CCEK3383,NS644L20,NS644L20 - The Gordon Schools,Stagecoach Bluebird,173042.5,16/08/2015,16/08/2015,06/07/2020,24
+000-XFEC7119,NS496G20,NS496G20 - Turriff Academy,Alex Milne Coaches,304000,16/08/2015,16/08/2015,06/07/2020,0
+000-WPHD1422,NS496H20,NS496H20 - Turriff Academy,Alex Milne Coaches,161500,16/08/2015,16/08/2015,06/07/2020,0
+000-KLXF5788,NS496I20,NS496I20 - Turriff Academy,Alex Milne Coaches,228000,16/08/2015,16/08/2015,06/07/2020,0
+000-UYEV2993,NS496P20,NS496P20 - Turriff Academy,Stagecoach Bluebird,108300,16/08/2015,16/08/2015,06/07/2020,0
+000-LAAU7225,NS477B20,NS477B20 - Peterhead Academy,Watermill Coaches Limited,221350,16/08/2015,16/08/2015,06/07/2020,0
+000-PDJW9319,NP458A20,NP458A20 - Kininmonth Primary School,Kineil Coaches Limited,265050,16/08/2015,16/08/2015,06/07/2020,24
+000-TXAH3334,NS467J20,NS467J20 - Mintlaw Academy,Kineil Coaches Limited,270750,16/08/2015,16/08/2015,06/07/2020,0
+000-LBMF6711,NS467P20,NS467P20 - Mintlaw Academy,Kineil Coaches Limited,264100,16/08/2015,16/08/2015,06/07/2020,0
+000-BVQY8461,NS467E20,NS467E20 - Mintlaw Academy,Kineil Coaches Limited,294500,16/08/2015,16/08/2015,06/07/2020,0
+000-PJAR8666,F-NS644Q20,F-NS644Q20 - The Gordon Schools,Reids of Rhynie,45600,16/08/2015,16/08/2015,06/07/2020,24
+000-YDYG8279,NS705C20,NS705C20 - Meldrum Academy,Kineil Coaches Limited,365750,16/08/2015,16/08/2015,06/07/2020,0
+000-APRM1395,NS705H20,NS705H20 - Meldrum Academy,Kineil Coaches Limited,280250,16/08/2015,16/08/2015,06/07/2020,0
+000-UFKW1836,NS705J20,NS705J20 - Meldrum Academy,Kineil Coaches Limited,280250,16/08/2015,16/08/2015,06/07/2020,24
+000-UXAW8692,NS705L20,NS705L20 - Meldrum Academy,Kineil Coaches Limited,251750,16/08/2015,16/08/2015,06/07/2020,0
+000-DAWD2947,NS496E20,NS496E20 - Turriff Academy,Stagecoach Bluebird,359309,16/08/2015,16/08/2015,06/07/2020,24
+000-HEHX5569,NS496F20,NS496F20 - Turriff Academy,Stagecoach Bluebird,369949,16/08/2015,16/08/2015,06/07/2020,24
+000-QMRD8599,NS496L20,NS496L20 - Turriff Academy,Stagecoach Bluebird,133076,16/08/2015,16/08/2015,06/07/2020,24
+000-GCYV7616,SS649G19,SS649G19 - Inverurie Academy,Watermill Coaches Limited,187720,16/08/2015,16/08/2015,06/07/2020,0
+000-AWVH3221,F-NS644R20,F-NS644R20 - The Gordon School,AJS Contract Cars Limited,71231,16/08/2015,16/08/2015,06/07/2020,0
+000-KHWM9573,NP402B20,NP402B20 - Aberchirder Primary School,AJS Contract Cars Limited,71231,16/08/2015,16/08/2015,06/07/2020,0
+000-BRCT7132,NP417B20,NP417B20 - Bracoden Primary School,Alex Milne Coaches,166250,16/08/2015,16/08/2015,06/07/2020,0
+000-DAJM3682,NP448B20,NP448B20 - Fyvie Primary School,Alex Milne Coaches,171000,16/08/2015,16/08/2015,06/07/2020,0
+000-XXRQ5717,NP464D20,NP464D20 - Markethill Primary School,Alex Milne Coaches,171000,16/08/2015,16/08/2015,06/07/2020,0
+000-DMCJ3231,NP471A20,NP471A20 - New Deer Primary School,Alex Milne Coaches,171000,16/08/2015,16/08/2015,06/07/2020,0
+000-RBXP5641,NP618A20,NP618A20 - Clatt Primary School,AJS Contract Cars Limited,71231,16/08/2015,16/08/2015,06/07/2020,0
+000-WHPM9425,NP640B20,NP640B20 - Gartly Primary School,AJS Contract Cars Limited,71231,16/08/2015,16/08/2015,06/07/2020,0
+000-AKHE9377,NP642B20,NP642B20 - Glass Primary School,AJS Contract Cars Limited,71231,16/08/2015,16/08/2015,06/07/2020,0
+000-GXDB7661,NP686A20,NP686A20 - Rhynie Primary School,AJS Contract Cars Limited,71231,16/08/2015,16/08/2015,06/07/2020,0
+000-BTRR6777,NP699A20,NP699A20 - Udny Green Primary School,AJS Contract Cars Limited,71231,16/08/2015,16/08/2015,06/07/2020,0
+000-RBTN6368,NS467H20,NS467H20 - Mintlaw Academy,Alex Milne Coaches,190000,16/08/2015,16/08/2015,06/07/2020,0
+000-MPLM5971,NS705N20,NS705N20 - Meldrum Academy,Cadgers Taxis,104500,16/08/2015,16/08/2015,06/07/2020,0
+000-TEKF2284,NP481A20,NP481A20 - Port Erroll Primary School,Central Taxis (North-East) Limited,22800,16/08/2015,16/08/2015,06/07/2020,0
+000-KBBY7442,NP638C20,NP638C20 - Foveran Primary School,Central Taxis (North-East) Limited,61750,16/08/2015,16/08/2015,06/07/2020,0
+000-HBHD5117,NP691B20,NP691B20 - Slains Primary School,Central Taxis (North-East) Limited,49400,16/08/2015,16/08/2015,06/07/2020,0
+000-XMKM8222,NP695A20,NP695A20 - Tipperty Primary School,Central Taxis (North-East) Limited,49400,16/08/2015,16/08/2015,06/07/2020,0
+000-WQTF9543,NS477G20,NS477G20 - Peterhead Academy,Central Taxis (North-East) Limited,19000,16/08/2015,16/08/2015,06/07/2020,0
+000-PRUN4169,F-NS441Y20,F-NS441Y20 - Fraserburgh Academy,Classy Taxis Limited,29421.5,16/08/2015,16/08/2015,06/07/2020,0
+000-JHTB7472,F-NS441Z20,F-NS441Z20 - Fraserburgh Academy,Classy Taxis Limited,69350,16/08/2015,16/08/2015,06/07/2020,0
+000-ETCM6638,F-NS705S20,F-NS705S20 - Meldrum Academy,Cheynes Coaches,104500,16/08/2015,16/08/2015,06/07/2020,0
+000-NDPW2266,F-NS705T20,F-NS705T20 - Meldrum Academy,Cheynes Coaches,104500,16/08/2015,16/08/2015,06/07/2020,0
+000-RAKM5186,F-NS705Z20,F-NS705Z20 - Meldrum Academy,Cheynes Coaches,104500,16/08/2015,16/08/2015,06/07/2020,0
+000-KVBY6815,NP417A20,NP417A20 - Bracoden Primary School,Classy Taxis Limited,123500,16/08/2015,16/08/2015,06/07/2020,0
+000-DLYN3639,NP468A20,NP468A20 - Mintlaw Primary School,Classy Taxis Limited,92691.5,16/08/2015,16/08/2015,06/07/2020,0
+000-HMYW5954,NP486A20,NP486A20 - Rosehearty Primary School,Classy Taxis Limited,81700,16/08/2015,16/08/2015,06/07/2020,0
+000-WRMG5491,NP486B20,NP486B20 - Rosehearty Primary School,Classy Taxis Limited,84550,16/08/2015,16/08/2015,06/07/2020,0
+000-KYVQ6854,NP489A20,NP489A20 - St Combs Primary School,Classy Taxis Limited,69350,16/08/2015,16/08/2015,06/07/2020,0
+000-JXLW3523,NP490A20,NP490A20 - St Fergus Primary School,Classy Taxis Limited,99750,16/08/2015,16/08/2015,06/07/2020,0
+000-QQQP8447,NP494A20,NP494A20 - Strichen Primary School,Classy Taxis Limited,102581,16/08/2015,16/08/2015,06/07/2020,0
+000-BKPB4972,NP627B20,NP627B20 - Daviot Primary School,Cheynes Coaches,166250,16/08/2015,16/08/2015,06/07/2020,0
+000-UGFL4823,NP684A20,NP684A20 - Rayne North School,Cheynes Coaches,151525,16/08/2015,16/08/2015,06/07/2020,0
+000-EDTH4374,NP684B20,NP684B20 - Rayne North School,Cheynes Coaches,151525,16/08/2015,16/08/2015,06/07/2020,0
+000-XFQG8143,NS441F20,NS441F20 - Fraserburgh Academy,Classy Taxis Limited,82650,16/08/2015,16/08/2015,06/07/2020,0
+000-XHDM1352,NS441H20,NS441H20 - Fraserburgh Academy,Classy Taxis Limited,73150,16/08/2015,16/08/2015,06/07/2020,0
+000-WWGT7578,NS441I20,NS441I20 - Fraserburgh Academy,Classy Taxis Limited,82650,16/08/2015,16/08/2015,06/07/2020,0
+000-GJCT1829,NS467L20,NS467L20 - Mintlaw Academy,Classy Taxis Limited,123500,16/08/2015,16/08/2015,06/07/2020,0
+000-HQQX2493,F-NS705U20,F-NS705U20 - Meldrum Academy,J & M Burns,78850,16/08/2015,16/08/2015,06/07/2020,0
+000-DMBG1875,F-NS705V20,F-NS705V20 - Meldrum Academy,J & M Burns,28500,16/08/2015,16/08/2015,06/07/2020,0
+000-LUVF5153,F-NS705W20,F-NS705W20 - Meldrum Academy,J & M Burns,14250,16/08/2015,16/08/2015,06/07/2020,0
+000-CKNN5847,NP499B20,NP499B20 - Whitehills School,J & M Burns,146300,16/08/2015,16/08/2015,06/07/2020,0
+000-JEUU4821,NP613A20,NP613A20 - Barthol Chapel School,J & M Burns,153900,16/08/2015,16/08/2015,06/07/2020,0
+000-TTJB7821,NP670A20,NP670A20 - Meldrum Primary School,J & M Burns,167200,16/08/2015,16/08/2015,06/07/2020,0
+000-KMNU9559,NP670B20,NP670B20 - Meldrum Primary School,J & M Burns,203300,16/08/2015,16/08/2015,06/07/2020,0
+000-WTYH4237,NP680A20,NP680A20 - Pitmedden Primary School,J & M Burns,140600,16/08/2015,16/08/2015,06/07/2020,0
+000-BRBR9191,NP694B20,NP694B20 - Tarves Primary School,J & M Burns,167200,16/08/2015,16/08/2015,06/07/2020,0
+000-LGFC5326,NS705B20,NS705B20 - Meldrum Academy,J & M Burns,212800,16/08/2015,16/08/2015,06/07/2020,0
+000-NCEX9848,NS705I20,NS705I20 - Meldrum Academy,J & M Burns,181450,16/08/2015,16/08/2015,06/07/2020,0
+000-LTNW4679,NS705R20,NS705R20 - Meldrum Academy,J & M Burns,241300,16/08/2015,16/08/2015,06/07/2020,0
+000-HLQM3243,NS467K20,NS467K20 - Mintlaw Academy,Kineil Coaches Limited,211380,18/04/2016,18/04/2016,06/07/2020,24
+000-PVTU4515,NS467D20,NS467D20 - Mintlaw Academy,Kineil Coaches Limited,203250,18/04/2016,18/04/2016,06/07/2020,24
+000-YRDB4916,NS441A20,NS441A20 - Fraserburgh Academy,Kineil Coaches Limited,266664,18/04/2016,18/04/2016,06/07/2020,24
+000-PRRX6649,NMC-J,NMC-J Music Centre (Mintlaw),Kininmonth Cabs,0,16/08/2015,16/08/2015,06/07/2020,0
+000-YFRB8392,NP437A20,NP437A20 Fetterangus School,Kininmonth Cabs,0,16/08/2015,16/08/2015,06/07/2020,0
+000-KBXC5747,NP448A20,NP488A20 Fyvie School,Kininmonth Cabs,0,16/08/2015,16/08/2015,06/07/2020,0
+000-YELV1363,NP465A20,NP465A20 Maud School,Kininmonth Cabs,0,16/08/2015,16/08/2015,06/07/2020,0
+000-AMCW7737,NP471C20,NP471C20 New Deer School,Kininmonth Cabs,0,16/08/2015,16/08/2015,06/07/2020,0
+000-DJFW3242,NP473A20,NP473A20 New Pitsligo & St Johns School,Kininmonth Cabs,0,16/08/2015,16/08/2015,06/07/2020,0
+000-HCKF8392,NP485C20,NP485C20 Rathen School,Kininmonth Cabs,0,16/08/2015,16/08/2015,06/07/2020,0
+000-LFMW5765,NS467Q20,NS467Q20 Mintlaw Academy,Kininmonth Cabs,0,16/08/2015,16/08/2015,06/07/2020,0
+000-ERGG7977,Portal Ref: 413208,"Award of Call off Agreement: NP460A20 Lochpots School, Fraserburgh",Watermill Coaches Ltd,18620,11/09/2015,14/09/2015,06/07/2020,0
+000-CRDE5211,Portal Ref: 425694,Award of Call off Agreement: NP468B20 Portsoy Primary,Portsoy Taxis Limited,23517,23/12/2015,06/06/2016,06/07/2020,0
+000-WFMX9882,NS408Q20,NS408Q20 Banff Academy,Classy Taxis Ltd,37510,09/10/2018,29/10/2018,06/07/2020,0
+000-CAKR8854,000-CAKR8854,Inclusive Music Making,Drake Music Scotland,146000,04/09/2017,04/09/2017,10/07/2020,24
+000-KJLC5454,20085408,Uniform (environmental),iDox Systems,85245,30/04/2013,01/04/2015,13/07/2020,24
+000-ULDP7223,20085408,Uniform (property),iDox Systems,49999.95,30/04/2013,01/04/2015,13/07/2020,24
+000-KGNF4617,20118564,Oracle SUN Server Unix Hardware Maint,Oracle,40000,15/07/2014,15/07/2014,14/07/2020,12
+000-UYET4623,NP699B20,NP699B20 - Udny Green Primary School,Central Taxis (North-East) Limited,59375,19/11/2015,19/11/2015,16/07/2020,0
+000-WEEM4361,Portal Ref: 427195,Award of Call off Agreement: NP44020 Fordyce School,DEVERON COACHES LIMITED,51720,12/01/2016,18/01/2016,16/07/2020,0
+000-KNVD8777,915,Catering Sundries - SXL Framework 0915,"Instock Disposables Ltd,Alliance Disposables Limited,BFS Group Limited (T/A 3663 Catering Equipment),Brake Bros Ltd,Bunzl UK Ltd (T/A Lockhart Catering),Bunzl UK Limited T/A Bunzl Catering Supplies,GMC Corsehill,Nisbets PLC,Tri-star Packaging Supplies Limited,Unico Limited",660000,20/10/2016,20/10/2016,31/07/2020,0
+000-GHPW8169,20122845,Teleform,ePartner Consulting Limited,12600,01/08/2015,01/08/2015,31/07/2020,0
+000-RJTX3632,20093230,AssetBank,Bright Interactive,15000,10/01/2014,(blank),31/07/2020,12
+000-ARDC2459,20114793,Confirm,Pitney Bowes,382500,08/08/2015,08/08/2015,01/08/2020,0
+000-QLGP8186,NL1,NL1 Aberdeen - Banff,Stagecoach Bluebird,194296,16/08/2015,16/08/2015,15/08/2020,24
+000-PNQP8829,NL2,NL2 Aberdeen - Whitehills,Stagecoach Bluebird,9622.6,16/08/2015,16/08/2015,15/08/2020,24
+000-LMLG7623,NL3,NL3 Aberdeen - Fyvie,Stagecoach Bluebird,7417.8,16/08/2015,16/08/2015,15/08/2020,24
+000-FFEA5824,NL4,NL4 Aberdeen - Turriff,Stagecoach Bluebird,286,16/08/2015,16/08/2015,15/08/2020,24
+000-RLGN6185,NL5,NL5 Macduff-Fordyce-Sandend-Cullen,Stagecoach Bluebird,49974.6,16/08/2015,16/08/2015,15/08/2020,24
+000-TUQH5195,NL6,NL6 Macduff/Turriff-Aberchirder-Huntly,Stagecoach Bluebird,664250.6,16/08/2015,16/08/2015,15/08/2020,24
+000-QNCH8511,NL7,NL7 Banff-Gardenstown/Fraserburgh,Stagecoach Bluebird,158763.8,16/08/2015,16/08/2015,15/08/2020,24
+000-GEMY5613,NL8,NL8 Banff - Fraserburgh,Stagecoach Bluebird,95368,16/08/2015,16/08/2015,15/08/2020,24
+000-LKTU7521,NL9,NL9 Fraserburgh - Banff,Stagecoach Bluebird,318266,16/08/2015,16/08/2015,15/08/2020,24
+000-CYEB5947,NL10,NL10 Gardenstown - Fraserburgh,Stagecoach Bluebird,20823.4,16/08/2015,16/08/2015,15/08/2020,24
+000-ALBK6865,NL11,NL11 Rosehearty - Fraserburgh,Stagecoach Bluebird,54007.2,16/08/2015,16/08/2015,15/08/2020,24
+000-GPNE4934,NL12,NL12 St Combs - Fraserburgh,Stagecoach Bluebird,109889,16/08/2015,16/08/2015,15/08/2020,24
+000-LWDH6288,NL13,NL13 Fraserburgh - New Pitsligo,Stagecoach Bluebird,204053.2,16/08/2015,16/08/2015,15/08/2020,24
+000-PACR8934,NL14,NL14 Turriff-Mintlaw/Fraserburgh,Stagecoach Bluebird,54444,16/08/2015,16/08/2015,15/08/2020,24
+000-PFWH6771,NL29,NL29 Boddam/Invernettie-Peterhead,Stagecoach Bluebird,130055,16/08/2015,16/08/2015,15/08/2020,24
+000-FVVK7395,NL30,NL30 Peterhead/Ellon-Dyce,Stagecoach Bluebird,657683,16/08/2015,16/08/2015,15/08/2020,24
+000-WEWP9188,NL31,NL31 Ellon Town Service,Stagecoach Bluebird,607683,16/08/2015,16/08/2015,15/08/2020,24
+000-AVBF1312,NL33,NL33 Ellon - Newburgh,Stagecoach Bluebird,71760,16/08/2015,16/08/2015,15/08/2020,24
+000-EYVA1675,NL34,NL34 Fraserburgh-New Pitsligo-Ellon,Stagecoach Bluebird,283077.6,16/08/2015,16/08/2015,15/08/2020,24
+000-RKDA9952,NL35,NL35 Ellon - Aberdeen,Stagecoach Bluebird,377,16/08/2015,16/08/2015,15/08/2020,24
+000-EEVQ5144,NL40,NL40 Aberchirder/Turriff/Rothienorman-Inverurie,Stagecoach Bluebird,320364.2,16/08/2015,16/08/2015,15/08/2020,24
+000-UKTB7191,NL41,NL41 Fraserburgh - Inverurie,Stagecoach Bluebird,14764,16/08/2015,16/08/2015,15/08/2020,24
+000-HXDX1938,NL43,NL43 New Byth-Woodhead-Inverurie,Stagecoach Bluebird,19968,16/08/2015,16/08/2015,15/08/2020,24
+000-YNBM1172,NL44,NL44 Kingseat-Hatton of Fintray-Inverurie,Burns Coaches,30680,16/08/2015,16/08/2015,15/08/2020,24
+000-XQAL6583,NL45,NL45 Kingseat-Kinmuck-Inverurie,Burns Coaches,30680,16/08/2015,16/08/2015,15/08/2020,24
+000-NHVQ8142,NL47,NL47 Ellon - Inverurie,Stagecoach Bluebird,502725.6,16/08/2015,16/08/2015,15/08/2020,24
+000-RVEB5353,NL48,NL48 Oldmeldrum - Inverurie,Stagecoach Bluebird,25123.8,16/08/2015,16/08/2015,15/08/2020,24
+000-TBDX9373,NL49,NL49 Inverurie Town Service,Stagecoach Bluebird,461541.6,16/08/2015,16/08/2015,15/08/2020,24
+000-JXNK9994,NL50,NL50 Rhynie-Clatt-Auchleven-Inverurie,Stagecoach Bluebird,600.6,16/08/2015,16/08/2015,15/08/2020,24
+000-CJHG5269,NL51,NL51 Alford - Huntly,Stagecoach Bluebird,446447.2,16/08/2015,16/08/2015,15/08/2020,24
+000-GVAD5958,NL52,NL52 Lumsden - Insch,Bains Coaches,208000,16/08/2015,16/08/2015,15/08/2020,24
+000-NCPG8717,NL53,NL53 Insch - Inverurie,Stagecoach Bluebird,301672.8,16/08/2015,16/08/2015,15/08/2020,24
+000-RLYU5976,NL55,NL55 Aberdeen - Traves/Methlick,Stagecoach Bluebird,575715.4,16/08/2015,16/08/2015,15/08/2020,24
+000-YAQV5196,NL56,NL56 Aberdeen - Pitmedden/Methlick,Stagecoach Bluebird,168090,16/08/2015,16/08/2015,15/08/2020,24
+000-DLGN7517,NL57,NL57 Tarves - Ellon,Stagecoach Bluebird,184886,16/08/2015,16/08/2015,15/08/2020,24
+000-YFTD8685,NL58,NL58 Aberdeen - Methlick,Stagecoach Bluebird,44655,16/08/2015,16/08/2015,15/08/2020,24
+000-FNQE6829,NL59,NL59 Aberdeen - Tarves/Methlick,Stagecoach Bluebird,233129,16/08/2015,16/08/2015,15/08/2020,24
+000-UQPQ3854,NL60,NL60 Aberdeen - Tarves,Stagecoach Bluebird,1279.2,16/08/2015,16/08/2015,15/08/2020,24
+000-TCCH9478,NS496B-L,NS496B-L Maud - Turriff,Stagecoach Bluebird,210782.5,16/08/2015,16/08/2015,15/08/2020,24
+000-PTEU7489,NS496E-L,NS496E-L Turriff Town Service and Circular,Stagecoach Bluebird,584420.2,16/08/2015,16/08/2015,15/08/2020,24
+000-RBMM3113,NS496P-L,NS496P-L Turriff Circular,Stagecoach Bluebird,133076,16/08/2015,16/08/2015,15/08/2020,24
+000-GEWQ9376,NS644A-L,NS644A-L Alford - Huntly,Stagecoach Bluebird,186390,16/08/2015,16/08/2015,15/08/2020,24
+000-HNLE8438,NS644K-L,NS644K-L Huntly - Inverurie,Stagecoach Bluebird,235174.5,16/08/2015,16/08/2015,15/08/2020,24
+000-EQPE9899,NL62,NL62 Oldmeldrum - Westhill - Kirkhill Industrial Estate,Bains Coaches,134400,18/04/2016,18/04/2016,15/08/2020,24
+000-PUCQ7828,DRT2,Central Buchan A2B Dial-a-bus,Kininmonth Cabs,536465,16/08/2015,16/08/2015,16/08/2020,0
+000-NPEQ2434,(blank),Macduff and Stonehaven Harbours Dredging Framework,Peter Madsen Rederi A/S,220720,30/08/2018,30/08/2018,30/08/2020,12
+000-KHNM1545,(blank),Weighbridge Computerisation (Waste Services),Avery Weigh-Tronix,29157,08/03/2017,31/08/2017,30/08/2020,24
+000-CRAB3492,JUL290426,Inspection and Compilation of Energy Performance Certificates (EPCs) for Non Domestic Properties throughout Aberdeenshire,CCDP LLP,32735,01/09/2017,01/09/2017,31/08/2020,0
+000-DQQH2933,000-DQQH2933,EV Charging units - Banchory & Banff,SWARCO UK LTD (formally APT Controls Limited),15147,26/07/2017,01/08/2017,31/08/2020,0
+000-UVEX9575,10294776,Bodet Kelio,Auto Time Systems Northern Ltd,37000,22/03/2015,22/03/2015,31/08/2020,0
+000-LFJG7476,10870011,NBS Building & Electrical,NBS,33000,03/08/2017,03/08/2017,31/08/2020,0
+000-HUBD2799,(blank),Non Domestic EPCs,CCDP LLP,21000,14/05/2017,01/09/2017,31/08/2020,12
+000-BJEB5471,(blank),Waste Management - Woodhill House,EIS Waste Services Ltd,68000,04/06/2018,01/07/2018,31/08/2020,12
+000-DCDR8422,000-DCDR8422,Treatment & Recovery/Recycling of Wood waste - Lot 1,Keenan Recycling Ltd,280000,01/09/2017,01/09/2017,31/08/2020,12
+000-YCYP8218,000-DCDR8422,Treatment & Recovery/Recycling of Wood Waste - Lot 2,Suez Recycling and Recovery UK Ltd (formerly SITA UK),87000,01/09/2017,01/09/2017,31/08/2020,12
+000-JKJA7531,(blank),Insurance Broker,Arthur J Gallagher,5250,31/08/2018,03/09/2018,02/09/2020,12
+000-VNHW4771,000-VNHW4771,Roads Winter Bureau Services,"Aberdeen City Council,Aberdeenshire Council,Highland Council,Moray Council,Angus Council,Perth & Kinross Council,Dundee City Council",240000,(blank),01/10/2017,30/09/2020,(blank)
+000-PUPL8556,(blank),Servicing & Maintenance of Weighbridges,Avery Weigh-Tronix,49354,30/08/2018,01/10/2018,30/09/2020,0
+000-XGCJ1236,000-XGCJ1236,Cleaning of Communal Waste Bins - Sheltered Housing,Bin Cleaned (Aberdeen) Ltd,36880,09/10/2017,09/10/2017,08/10/2020,12
+000-GAYP6772,18023,Sprinkler Installations to Sheltered Housing (18023),K W Contractors Ltd,2205056.93,26/04/2019,15/04/2019,16/10/2020,0
+000-GUDV5719,(blank),Servicing of Pakawaste Rotocrush Equipment,Pakawaste Limited,8100,19/10/2018,19/10/2018,18/10/2020,0
+000-KXPG9282,000-HLTY4667,Transported School Meal Deliveries for Aberdeenshire Council,"A & M Taxis,Elma McKandie,Kininmonth Cabs,Sheridan Myers Management Services LLP,Valerie Urquhart",526452,31/10/2017,31/10/2017,29/10/2020,12
+000-MEDB2331,(blank),Water Coolers,Eden Springs,0,31/10/2018,(blank),31/10/2020,24
+000-RRYE6587,(blank),Servicing of Bergmann Jumbo Rollpackers,Bergmann Direct Ltd,40608,01/11/2018,01/11/2018,31/10/2020,0
+000-EHAT7614,(blank),SXL Framework 0117 - Recycle & Refuse Containers Lot 1 (2 wheeled bins),"Abfallbehalter & Container Weber UK Ltd,Craemer UK Ltd,ESE World Ltd,One 51 ES Plastics (UK) Ltd T/A MGB Plastics,Plastic Omnium Urban Systems Limited,SSI Schaefer Ltd",425000,03/11/2017,03/11/2017,02/11/2020,12
+000-BYMP8793,(blank),SXL Framework 0117 - Recycle & Refuse Containers Lot 2 (Wheeled & Non-Wheeled Containers over 500L),"Abfallbehalter & Container Weber UK Ltd,Craemer UK Ltd,ESE World Ltd,Plastic Omnium Urban Systems Limited,SSI Schaefer Ltd,Egbert H Taylor & Co Ltd,Storm Environmental Ltd,Straight Manufacturing Ltd",228000,03/11/2017,03/11/2017,02/11/2020,12
+000-XBQF3588,(blank),SXL Framework 0117 - Recycle & Refuse Containers Lot 4 (Kitchen Waste Containers),"Craemer UK Ltd,Egbert H Taylor & Co Ltd,Straight Manufacturing Ltd,Ridley Recycling Limited T/A Peter Ridley Waste Systems",19000,03/11/2017,03/11/2017,02/11/2020,12
+000-JKTX4116,(blank),SXL Framework 0117 - Recycle & Refuse Containers Lot 5 (Urban Waste Containers),"Broxap Ltd,Glasdon UK Ltd,Leafield Environmental Limited,Plastic Omnium Urban Systems Limited,Wybone Limited",240000,03/11/2017,03/11/2017,02/11/2020,12
+000-YHHN3568,(blank),SXL Framework 0117 - Recycle & Refuse Containers Lot 6 (Virgin & Recycling Content Sacks and Liners),"Biobags (Scotland) Limited,British Polythene Limited,Cromwell Polythene Ltd,Eximex UK Ltd,Imperial Polythene Products Limited,Sphere Professional UK Ltd",25000,03/11/2017,03/11/2017,02/11/2020,12
+000-XPMQ5938,(blank),SXL Framework 0117 - Recycle & Refuse Containers Lot 7 (Compostable Sacks & Liners),"Biobags (Scotland) Limited,British Polythene Limited,Cromwell Polythene Ltd,Imperial Polythene Products Limited,Sphere Professional UK Ltd",525000,03/11/2017,03/11/2017,02/11/2020,12
+000-GVKB4193,(blank),Winter Maintenance,GRITIT LTD,104000,08/11/2018,21/11/2018,11/11/2020,24
+000-MGEG3477,alexander.bain@aberdeenshire.gov.uk,Alex Bain,PowerLanguage Ltd,90000,22/11/2015,12/11/2015,12/11/2020,24
+000-EWHY6286,(blank),iDox Uniform - License Management System,Idox,84336,13/11/2018,13/11/2018,12/11/2020,36
+000-FVTN8752,(blank),Joint Equipment Store Management System,Msoft eSolutions,53000,23/01/2017,19/11/2018,18/11/2020,0
+000-HVMT7128,2113,Online School Payments - SXL Framework 2113 Call-off,"Cash Registers (Buccleuch) Limited,Cavendish Communication Projects Ltd T/a Wisepay,Parentpay Ltd",130033.32,27/11/2014,27/11/2014,26/11/2020,24
+000-RHCK3893,(blank),Conject - 2 year provision of Project Control platform,Oracle Corporation UK Limited,46548,30/11/2018,01/12/2018,30/11/2020,0
+000-NCVF2361,000-NCVF2361,Scotland Excel Framework - Treatment of Organic Waste 0816 - Lot 1 (Food Waste),Keenan Recycling Ltd,2074000,01/12/2017,01/12/2017,30/11/2020,12
+000-EEGN4357,000-EEGN4357,Scotland Excel Framework - Treatment of Organic Waste 0816 - Lot 2 (Garden Waste),Keenan Recycling Ltd,1426000,01/12/2017,01/12/2017,30/11/2020,0
+000-LYAD4946,20121004,AXLR8 FOI Request System,AXLR8,18000,11/12/2014,11/12/2014,10/12/2020,0
+000-CAMY2119,AS/AC/959/ACG/403,Hosting Services for Data Centre Provision  - Scottish Procurement Framework SP-14-004,Brightsolid,3000000,04/12/2015,04/12/2015,17/12/2020,24
+000-ACLG5958,(blank),Scotland Excel Framework - Vehicle Parts 0116 (Lot 4 Sweeper Brushes),Brush Technology Limited,75000,26/03/2018,01/04/2018,31/12/2020,0
+000-PFWB5747,116,Vehicle Parts - SXL Framework 0116   Call-off,"A M Phillip Trucktech Ltd,Aebi Schmidt Uk Ltd,Arnold Clark Automobiles Ltd (T/A Arnold Clark),Clark Commercials,DAF Truck Ltd (Norscot Truck and Van Ltd),Dennis Eagle Ltd,Dingbro Ltd.,Farid Hillend Engineering Limited,Faun Zoeller Uk Limited,Prime Industrial & Janitorial Supplies Ltd,Scarab Sweepers Ltd,Sonitex T/a Premier Windscreens,Windscreens Scotland Ltd T/a National Windscreens",1666628.04,16/01/2017,16/01/2017,31/12/2020,0
+000-UPCP8347,(blank),Insight Commvault Backup Solution (Oriium),Insight Direct,649320,03/04/2014,03/04/2014,31/12/2020,12
+000-FQEM7454,(blank),Removal & Disposal of Landfill Leachate,Taylors Industrial Services Limited,147906,11/12/2018,01/01/2019,31/12/2020,12
+000-GHNY2464,(blank),Removal & Disposal of Interceptor Waste,Lanes Group Plc,190995,11/12/2018,01/01/2019,31/12/2020,12
+000-BCCH8178,(blank),Invest Aberdeen Website,Imajica Brand Evolution Ltd,13000,01/01/2018,01/01/2018,01/01/2021,0
+000-EHLX4499,20047244,Gladstone MRM Plus 2,Gladstone MRM Limited,81500,17/01/2017,17/01/2017,16/01/2021,0
+000-AQAM3515,AC 201701,Electronic Ticket Machine (ETM) Back Office,Corvia (Ticketer),150000,27/01/2017,27/01/2017,27/01/2021,0
+000-NJVP5228,000-NJVP5228,Fire Engineer Consultancy Service,The Oakleaf Group,175000,13/02/2018,13/02/2018,12/02/2021,0
+000-DMGY8881,000-DMGY8881,Pre Paid Accounts and Associated Services,Prepaid Financial Services Limited,56000,26/02/2018,26/02/2018,12/02/2021,0
+000-XNVT2685,PFM Ref 18000/2,Supply of biomass pellets and chips,Puffin Pellets Limited,1571662.5,19/02/2018,19/02/2018,15/02/2021,0
+000-FFFK2631,717,Trade Materials - SXL Framework 0717 Call-off,"Arco Limited,Bell Decorating Group Limited,Brammer UK Limited T/A Buck & Hickman,Bunzl UK Limited T/A Greenham,Cromwell Tools Limited,Crown Paints Limited,Decco Limited T/A White Milne & Co,Highland Industrial Supplies Limited,Imperial Chemical Industries Limited T/A ICI Paints Akzonobel,Jewson Limited,MacGregor Industrial Supplies Limited,P.F. Cusack (Tools Supplies) Limited,PPG Architectural Coatings UK Limited,S.I.I.S. Limited,Stax Trade Centres PLC,Valtti Specialist Coatings Limited T/A Tikkurila UK",625854.08,17/02/2018,17/02/2018,16/02/2021,12
+000-WWCN2564,218,Power Tools - SXL Framework 0218 Call-off,"CMT Equipment Ltd,Gibb and Beveridge,Jewson Ltd,MacGregor Industrial Supplies,S.I.I.S.,White Milne (Decco) Ltd",0,17/06/2018,17/06/2018,16/02/2021,12
+000-MLCP5461,1917,Supply & Distribution of Milk - SXL Framework 1917 Call-off,GRAHAMS FAMILY DAIRY,2040000,01/03/2018,01/03/2018,28/02/2021,12
+000-MWEK7728,3643-6-5-IPAM,IP Address Manager (IPAM) Solution,Keldron,22655.25,15/03/2018,15/03/2018,16/03/2021,24
+000-RFDX9238,000-RFDX9238,Teacher Recruitment Agency Framework,"Recrutiment Direct UK,Uteach Ltd,Timeplan Education Group Ltd,Tara Engineering,Raeburn Group Limited,Worldteachers Recruitment Limited",50000,20/03/2017,20/03/2017,19/03/2021,0
+000-KGUW5829,20078935,Civica Icon ePayments,Civica UK Limited,519000,31/03/2017,31/03/2017,30/03/2021,24
+000-LTQY3446,SP-17-004,Supply of Electricity - Scottish Procurement National Framework,EDF Energy Customers Ltd,23567198,30/03/2018,01/04/2019,31/03/2021,36
+000-BVXW3231,107,Gymnasium and Fitness Equipment Maintenance - ESPO Framework 107 Call-off Gymnasium and Fitness Equipment Maintenance - ESPO Framework 536,Sportsafe UK Ltd.,15000,01/04/2018,01/04/2018,31/03/2021,12
+000-EYUA1198,20118564,eBusiness Suite,Oracle,593000,12/11/2015,12/11/2015,31/03/2021,0
+000-NXFG7811,000-RDJN8918,Nutritional Analysis Management Software,Fretwell-Downing Hospitality,2160,01/04/2017,01/04/2017,31/03/2021,12
+000-FMML6187,(blank),Pagers for Aberdeenshire Health & Social Care Partnership,PageOne Communications Ltd.,14094,13/03/2018,01/04/2018,31/03/2021,24
+000-MRXV7468,Portal Ref: 414061,Award of Fraserburgh 2021 Website,lamontdesign ltd,15120,18/09/2015,18/09/2015,31/03/2021,0
+000-KYFE5152,(blank),CRB Impact Cashless Catering in schools and cafés,Cunninghams Cash Registers T/A CRB Cunninghams,285073,30/08/2018,01/04/2018,31/03/2021,12
+000-RTXV2642,000-RTXV2642,"Supply, Installation and Maintenance of an Enclosed Combustion Landfill Gas Flare at Brandon Howe Landfill Site",Uniflare Ltd,35814,03/10/2017,03/10/2017,31/03/2021,0
+000-TRMC5646,(blank),ELC Infrastructure Delivery Programme,"PAUL WHALLEY,Audrey Hendry,Craig Clement,Allan Whyte,Colin Robertson,Neil Reid",27170000,01/01/2019,(blank),01/04/2021,12
+000-HTEJ2262,Project_5142,Volunteer Drivers Services for Children & Young People,Buchan Dial-A-Community Bus/Dab Plus,259685,03/03/2016,01/04/2016,01/04/2021,0
+000-EYPW3268,000-TTCT8345,"Aberdeenshire Citizens Panel - Lot 1 Citizen Panel, Lot 4 Adhoc Research",Craigforth,80000,01/04/2017,01/04/2017,01/04/2021,0
+000-MTHJ1618,000-TTCT8345,"Aberdeenshire Citizens Panel - Lot 2 General Satisfaction Research, - Lot 3 Housing/Tenant Research",IBP Strategy & Research,80000,01/04/2017,01/04/2017,01/04/2021,0
+000-JTQE7479,OCT259816,Advocacy Service,Advocacy North East Ltd,1216215,03/11/2017,01/04/2017,01/04/2021,12
+000-JYLY2473,(blank),Treatment of Plasterboard for Recycling,A & M Smith Skip Hire Limited,237000,09/04/2019,22/04/2019,21/04/2021,12
+000-VDLB5347,(blank),Consultancy Treasury Management Services,Link Treasury Services Limited,50500,30/04/2018,30/04/2018,29/04/2021,0
+000-JWKK7871,Sep-13,Scotland Excel Energy Efficiency Contractors 09-13 - Call Off (Insulation),Everwarm Group,2232000,01/06/2018,01/06/2018,31/05/2021,12
+000-LMEB1486,000-LMEB1486,Wireless Access Points (WLAN),XMA Limited,47002.5,29/06/2018,29/06/2018,28/06/2021,0
+000-UXPW4192,CRM70780,web CAPTURE and e CAPTURE back office integration,"Govtech Solutions Ltd,Northgate Public Services (UK) Ltd",537000,13/07/2017,13/07/2017,30/06/2021,0
+000-BYMJ1366,20024533,Revenues and Benefits (Apr 2018 to Jun 2021),Northgate Public Services (UK) Ltd,247570.15,01/04/2015,01/04/2018,30/06/2021,0
+000-WJXH6492,000-DPQE7528.,MultiVue - Master Data Management Solution (MDM),Civica UK Limited,248718,29/03/2018,29/04/2019,30/06/2021,0
+000-AJRK2639,000-AJRK2639,Treatment and Recycling/Composting of Soil and Turf Lot 1 and Lot 3,David Smith Contractors Ltd,120600,22/06/2018,02/07/2018,01/07/2021,24
+000-YRFT5489,(blank),Treatment and Recycling of Rubble Waste (Lot 1 & Lot 3),David Smith Contractors Ltd,148200,22/06/2018,02/07/2018,01/07/2021,24
+000-MKDQ3142,(blank),Treatment and Recycling/Composting of Soil and Turf - Lot 2,Bridgend Aggregates Ltd,12960,22/06/2018,02/07/2018,01/07/2021,24
+000-HKTY4127,(blank),Treatment and Recycling/Composting of Soil and Turf - Lot 4,A & M Smith Skip Hire Limited,82080,22/06/2018,02/07/2018,01/07/2021,24
+000-VLHX1717,(blank),Treatment and Recycling of Rubble Waste (Lot 2),Bridgend Aggregates Ltd,48760,22/06/2018,02/07/2018,01/07/2021,24
+000-LPGG1829,(blank),Treatment and Recycling of Rubble Waste (Lot 4),A & M Smith Skip Hire Limited,43200,27/05/2019,02/07/2019,01/07/2021,24
+000-WPEK5995,APR315942,Treatment of Soil and Turf for Recycling,"A & M Smith Skip Hire Limited,Bridgend Aggregates Ltd,David Smith Contractors",215640,22/06/2018,02/07/2018,02/07/2021,24
+000-TJHJ7269,(blank),Purchase & Maintenance of Microphones and Wireless works,Public-I Group Limited,75965.61,16/08/2018,20/08/2018,19/08/2021,24
+000-BVHK8735,000-BVHK8735,Non Domestic (Business) Rates Revaluation 2017,Ryden LLP,100000,24/08/2017,24/08/2017,23/08/2021,12
+000-KQQH7956,20078935,Civica EDM and Workflow,Civica UK Limited,109000,01/10/2015,01/10/2015,30/09/2021,0
+000-UUYK2777,000-UUYK2777,Treatment and Recycling of Glass Bottles & Jars (Colour Separated),MKD32 Ltd,338000,21/09/2018,01/10/2018,30/09/2021,12
+000-TRTN4384,MAY318425:,Outreach Housing Support Service - for clients who are homeless or at the risk of being homeless,The Salvation Army,1200000,04/09/2018,01/10/2018,01/10/2021,0
+000-HBXJ7864,217,Vehicle and Plant Hire - SXL Framework 0217 Call-off,"AB2000 LTD,ACL HIRE LTD,ACRE INDUSTRIAL & CLEANING SERVICES LTD,AEBI SCHMIDT UK LIMITED,Alloa Hire Centre Ltd T/A AHC Tools,AM PHILLIP TRUCKTECH LTD,Andrews Sykes Hire Ltd,Arnold Clark Finance Ltd,Arvill Limited T/A Arvill Plant and Tool Hire,Arvill Ltd,Arvill Plant And Tool Hire Ltd,Ashtead Plant Hire Company Limited,ASHTEAD PLANT HIRE COMPANY LTD,Avis Budget UK Ltd,B&B Contracts,BROWN PLANT HIRE,BRYSON TRACTORS LTD,C P DAVIDSON & SONS LTD,Campbell Plant Hire Ltd,CARDLEY LIMITED,Cebotec Ltd,Clee Hill Plant Limited,COOKS VAN HIRE LTD,Damm Environmental Ltd,Dawsonrentals Materials Handling Equipment Limited (Dawsonrentals Sweepers),Dawsonrentals Sweepers,DOHERTY & LAFFERTY LTD,ECON ENGINEERING LTD,Elev8 Access Platforms Ltd,Enterprise Rent-a-car uk Ltd,ENVIROCLEAN,ESSENTIAL FLEET SERVICES LTD,Europcar Group UK Limited,FMS Vehicle Rental Limited,FRASER C ROBB LIMITED,Gap Group Ltd,Groundwater Lift Trucks Ltd,Gullivers Truck Hire Ltd,HAMILTON INDUSTRIAL SERVICES LTD,HERTZ (UK) LTD,HILLHOUSE QUARRY GROUP LIMITED,HYNDFORD PLANT LTD,J MURDOCH WIGHT LTD,Jarvie Plant Ltd,John Jamieson trading as Jamieson Plant Hire & Contractors,KINGDOM ACCIDENT REPAIR CENTRE LTD,LOMOND PLANT LTD,M6 Vehicle Hire Limited,Mac Asphalt Ltd,MULHOLLAND PLANT SERVICES LTD,Multihog Uk Ltd,Murdoch Mackenzie Construction Limited,MV Commercial Ltd,Nationwide Platforms,Nd Brown Ltd,NORTHGATE VEHICLE HIRE,PALMARIS PLANT HIRE LTD,Ravenhill Limited,Richard Murray Plant Hire,RIVERSIDE TRUCK RENTAL LTD,ROBERT MCCARROLL,Sgm Contracts Ltd,SHB HIRE LTD,STONEYWOOD CARE SERVICES LTD (OUTREACH),SWEENEY PLANT & VECHICLE HIRE LTD,TOYOTA MATERIAL HANDLING UK LTD,Trash Uk Ltd,Turner Hire Drive Ltd,UNDERGROUND INSPECTION SERVICES LTD 1,Wh Malcolm Limited,William Hamilton & Sons Ltd,WM HAMILTON & SONS LTD",1466997,01/11/2017,01/11/2017,31/10/2021,0
+000-MFFH4335,417,Tyres for Vehicles and Plant - SXL Framework 0417 Call-off,"Kenway Tyres Ltd,Mcconechys Tyre Service Ltd,REDPATH TYRES LTD",1934175.32,01/11/2017,01/11/2017,31/10/2021,0
+000-MNTB2353,OJEU Journal Reference No: 2018/S 139-317882,Collection and Recycling of Scrap Metal and Lead Acid Batteries,Panda Rosa Metals,1300000,09/10/2018,01/11/2018,31/10/2021,12
+000-HQYG7628,JUL325898,Collection & Recycling of Scrap Metal & Lead Acid Batteries from Aberdeenshire Council Facilities,Panda Rosa Metals,1303984,09/10/2018,01/11/2018,01/11/2021,12
+000-GPCE7644,JUL324813,2018 Social Care - Early Years Services: Support for Families,Home-Start Garioch,660000,07/09/2018,03/12/2018,03/12/2021,24
+000-HDYQ6953,(blank),HV Maintenance,SSE Power Distribution Ltd,50000,01/01/2018,01/01/2018,31/12/2021,12
+000-MDKM3122,(blank),Systems Link,SystemsLink 2000 Limited,45000,05/01/2019,05/01/2019,04/01/2022,0
+000-WUWD9139,(blank),PV FIT Data Collection (Pilot),Rayleigh Instrucments Ltd,49000,17/07/2019,01/02/2018,01/02/2022,4
+000-CPFT5481,LOT 1 HTE-01525.1,VPN Remote Access,SOFTCAT Ltd,39707,28/02/2019,01/04/2019,27/02/2022,24
+000-CHXA4375,(blank),Courier Services - School Mail,Federal Express Ltd,25500,28/02/2019,01/03/2019,28/02/2022,0
+000-XFPE6594,998AST/501,Hard FM,FES FM Ltd,55000000,01/04/2017,01/04/2017,31/03/2022,24
+000-VETD7122,000-VETD7122,Pay and Display Machine Upgrade,Imperial Civil Enforcement Solutions,72275,25/03/2019,01/04/2019,31/03/2022,24
+000-NATM1439,10211280,SEEMiS,SEEMiS Group,1068000,14/11/2013,14/11/2013,31/03/2022,0
+000-QGLH5945,AC/1096/ASF/402,CADCorp Geographical Information Systems (GIS),Bramble Hub Limited - CadCorp,233000,01/04/2017,01/04/2017,31/03/2022,24
+000-TMQY9369,(blank),Managed Print Service and Bulk Print & Mailing Service,Xerox (UK) Ltd,15000000,(blank),01/04/2016,31/03/2022,(blank)
+000-YLYF5851,(blank),Pan Grampian Radio Network,Scot-Tel-Gould Ltd,3850000,09/04/2018,05/11/2012,31/03/2022,0
+000-TPCN5931,ABER-212473,Microsoft Agreement 2019-2022,Softcat Limited,3204000,09/02/2019,01/04/2019,31/03/2022,0
+000-BMWB6789,(blank),CareFirst,OLM Systems Limited,539258.02,01/04/2019,01/04/2019,31/03/2022,0
+000-DBJA8544,000-DBJA8544,Business Gateway,Elevator UK,7000000,(blank),01/04/2017,31/03/2022,(blank)
+000-DQMA1163,www.publiccontractsscotland.gov.uk,Independent Tester - Inverurie Community Campus,Currie & Brown,85500,31/10/2017,02/04/2018,02/04/2022,12
+000-QMGR1985,TS 002,Online Law Library Services,Lexis Nexis,46363,01/04/2019,14/04/2019,13/04/2022,0
+000-GNCC1764,(blank),Bottomline PT-X (Paybase replacement),Bottomline Technologies Limited,32732,01/07/2019,28/06/2019,27/06/2022,0
+000-CFWP2123,2917,Salt for Winter Maintenance - SXL Framework 2917 Call-off,"Compass Minerals Limited,Delmon UK Limited,Glasdon (UK) Limited,J.C. Peacock and Co. Limited,Salt and Grit Solutions Ltd,Wm Hamilton and Sons Limited",1167384.96,01/07/2018,01/07/2018,30/06/2022,0
+000-KJGG5378,(blank),MCSA Intel Server  Maintenance,MCSA Group Limited (previously Maindec),62134,30/06/2017,30/06/2017,27/07/2022,12
+000-HPHK1626,20122542,Kirona (Housing Repairs),Kirona,149000,01/08/2014,01/08/2014,31/07/2022,0
+000-FYXM6625,779/ASS/200,Housing Fully Integrated (Client & Contractor) Repairs and Planned Maintenance Management System (RPMM),Northgate Public Services (UK) Limited,558317.5,31/07/2014,31/07/2014,31/07/2022,24
+000-WWXJ1576,(blank),"Interpretation, Translation & Transcription Services",Global languaged services Ltd,160000,25/07/2018,01/08/2018,31/07/2022,0
+000-NPMW1435,20073311,Cherwell Service Management Tool (Licences and VPN) 2019-2022,Softcat Limited,404741.82,31/08/2019,31/08/2019,30/08/2022,0
+000-NFJC9798,000-NVQM3954,Election Services,"Idox Software Ltd,",751171,30/10/2018,01/11/2018,31/10/2022,0
+000-VCRX9858,(blank),Daisy Landline - Fixed Telephony Services,Daisy Communications Ltd,964323.84,26/02/2019,26/02/2019,25/02/2023,24
+000-NUQA1162,(blank),Daisy Mobile - MobileTelephony Services,Daisy Communications Ltd,1064005.76,26/02/2019,26/02/2019,25/02/2023,24
+000-EVQK7467,(blank),Scottish Government One Scotland Mapping,The Scottish Government,1088890,01/04/2013,01/04/2013,31/03/2023,0
+000-EQBB7345,(blank),Accelerated Reading and Five Star Maths Package - Kemnay Academy,Renaissance Learning,18533.4,16/04/2018,16/04/2018,15/04/2023,0
+000-LRCU4537,000-LRCU4537,Dynamic Purchasing System - Shire Transportation,"A&I Coaches Ltd,AA Taxis Portsoy Limited,ABC Methlick,AJS Contract Cars  Ltd,Allways Taxis (Inverurie) Limited,Alpha Taxis (Inverurie) Ltd.,Apex Taxis,Bains Chauffeur Drive,Bains Coaches,Bervie Cabs,Bob Hughes Taxis,Cadgers Taxis,Central Taxis (Abdn) Ltd,Central Taxis (North East) Ltd,Classy Taxis Ltd,Dash Cabs,Deveron Coaches Ltd,E&H Taxis,E & M Lees,Elmbank Taxis,Falcon Coach Hire Limited,J D Peace & Co Aberdeen Ltd,Ian W Bruce Coach Hire,Kenny's Taxis,Kineil Coaches Ltd,Kininmonth Cabs,Kp Taxis,L&B Taxis,Mojo's Taxis,Portsoy Taxis Limited,Premier Coaches (Kintore) Ltd,Reids of Rhynie,Riverside Garage,RGS Motor Services,RS Taxis and Minicoach Hire,Safedrive Taxis Ltd,Shearer Of Huntly Ltd,Sheilas Taxis,Sorrells Taxis ,Terion Taxis,Turriff Coaches & Cabs,Victoria Coaches,Watermill Coaches Ltd",134300000,31/05/2018,31/05/2018,30/05/2023,0
+000-YXBE8848,(blank),LPG Gas,Flogas Britain Ltd,755750,04/10/2018,01/10/2018,30/09/2023,0
+000-BFQU3215,(blank),Banking Services,Clydesdale Bank PLC,186000,19/11/2018,19/11/2018,19/11/2023,0
+000-UBKN1622,000-UBKN1622,Contact Centre Solution,Gamma Telecom Ltd,311800,24/01/2019,04/02/2019,31/01/2024,24
+000-PNRQ7914,(blank),The Supply of LPG to Aberdeenshire Quarries,Flogas Britain Limited,1500000,11/03/2019,01/04/2019,31/03/2024,0
+000-XDAM9919,AB531/HS453,Provision of Waste Mangement Services,Suez Recycling and Recovery UK Ltd (formerly SITA UK),142000000,26/10/2011,26/10/2011,25/10/2026,60
+000-MVQD7867,(blank),Gas Utilisation - Landfill Gas Microgen Project (Crow's Nest Landfill),NewEnCo Limited,192000,10/10/2016,01/04/2017,31/03/2027,120
+000-PNUJ6974,18205,New Build Gordon Primary School Nursery - Huntly,Burns Construction (Aberdeen) Ltd,2095383.69,12/06/2019,05/08/2019,(blank),0
+000-TBFC2734,(blank),Strathdon School Playground Upgrade,Sportsmasters Uk Ltd,31872.54,17/06/2019,(blank),(blank),0
+000-DFAK8753,(blank),Street Lighting 2019/20 Electrical Testing,Gordon Electrical Limited,73790,(blank),29/07/2019,(blank),(blank)
+000-TYJM8215,18049,"1-3 Saltoun Square, Fraserburgh Rainscreen Cladding",KR cladding Systems Ltd,110160,07/06/2019,07/06/2019,(blank),0
+000-DFGM5245,(blank),"Lease of Land - Millmoss, Turriff",R F Maxwell & Sons,27000,01/03/2003,01/03/2003,(blank),0
+000-KJQR7413,(blank),K and M (Wholesale Suppliers) Ltd,Not Applicable,35000,01/07/2019,01/07/2019,(blank),0
+000-VVTL7446,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply B&B Phase 10.,Marwood Electrical Co Limited,45582,09/07/2019,09/07/2019,(blank),0
+000-AYKP4514,Scotland Excel Framework,Aberdeenshire Council: Street Lighting Sapphire LED Convertion Garioch,INDO Lighting,28683.75,03/04/2019,03/04/2019,(blank),0
+000-QJLF1296,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: Boddam ASD,ASD Lighting PLC,14175,31/05/2019,31/05/2019,(blank),0
+000-CAPL4998,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: Boddam Retrofit/Pilzeo Scheme,James M Anderson,15122.44,31/05/2019,31/05/2019,(blank),0
+000-TWGL1443,18445,Smart Solar Storage Project,SSE Power Distribution Ltd,21500,09/05/2019,09/05/2019,(blank),0
+000-ARMU2779,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply Garioch 250 Lanterns,Urbis Schreder Limited,24500,30/05/2019,30/05/2019,(blank),0
+000-PFPW3965,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply B&B Phase 11.,Light & Energy Distribution,50185,19/07/2019,19/07/2019,(blank),0
+000-GNFL3431,(blank),Turriff Haughs underpass painting and repair,Aberdeen Marine Services Ltd,21325,23/05/2019,22/07/2019,(blank),0
+000-QRAG4619,(blank),Scotplay goods and works at Turriff Primary Sensory Garden,"Scotplay,Turriff Primary School,Fiona Eaton HT",14007.54,02/09/2019,(blank),(blank),6
+000-MNPX6345,n/a,Street Lighting Electrical Testing Works 2018-19 - Aberdeenshire Council,A&R Services,55000,31/07/2018,01/08/2018,(blank),0
+000-DWDM4276,Job Number: 10930,"Bridge Street, Banff - Public Realm",Halliday Fraser Munro Limited,19000,23/03/2018,(blank),(blank),0
+000-MFPG9344,18369,Banf Academy - Replacement Classroom Doors,D A & M Duguid,33775,01/10/2018,09/07/2018,(blank),0
+000-QKRM7635,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: B&B Ph1 2018-19,Light and Energy Distribution Limited a DistributionNOW company,21000,24/04/2018,24/04/2018,(blank),0
+000-UKMA8616,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: Garioch Ph 8 2018-19,Light and Energy Distribution Limited a DistributionNOW company,52965.92,18/10/2018,18/10/2018,(blank),0
+000-XFQV8481,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: K&M Phase 7 2018-19,Light and Energy Distribution Limited a DistributionNOW company,33552.3,04/10/2018,04/10/2018,(blank),0
+000-YARV7879,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: B&B Ph6- 2018-19,Marwood Electrical Co Limited,26662.5,04/12/2018,04/12/2018,(blank),0
+000-XWNC1892,(blank),"Sole supply and delivery of timber and building materials as specified under Scotland Excel Framework for lots 1,3,4,6,7",Jewsons (May Trade Under Other Name for Each Contract),615734.36,20/12/2018,08/12/2018,(blank),6
+000-JKWY5865,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: K&M Ph8- 2018-19,Marwood Electrical Co Limited,62225.91,27/12/2018,27/12/2018,(blank),0
+000-BWHB9698,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: B&B Ph 5 Retrofits,James M Anderson,13040,18/12/2018,18/12/2018,(blank),0
+000-AVGE3447,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: B&B Ph7- 2018-19,Urbis Schreder Limited,12878,07/12/2018,07/12/2018,(blank),0
+000-QUFW6641,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: B&B Ph8- 2018-19,Marwood Electrical Co Limited,22435,24/12/2018,24/12/2018,(blank),0
+000-HFLP7794,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: Formartine Ph8,Urbis Schreder Limited,18800,17/12/2018,17/12/2018,(blank),0
+000-BVTK4234,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: K&M Promenade Lanterns,James M Anderson,10681,27/12/2018,18/12/2018,(blank),0
+000-XALA7243,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: Formartine ASD Schemes,ASD Lighting PLC,31839.57,16/11/2018,16/11/2018,(blank),0
+000-XEBY1866,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: Formartine Retrofit Scheme,James M Anderson,95000,01/03/2019,01/03/2019,(blank),0
+000-WJTB4599,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: B&B Ph9,Urbis Schreder,44870,24/01/2019,24/01/2019,(blank),0
+000-PNKF2264,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply: Formartine ASD Schemes Ph2,ASD Lighting PLC,27050,21/01/2019,21/01/2019,(blank),0
+000-JARX7744,n/a,SCRIM SURVEYS FRAMEWORK 2019 – 2022,Pavement Testing Services Ltd,60000,22/04/2019,01/05/2019,(blank),0
+000-JTKX6251,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply Formartine Ph 9,Marwood Electrical Co Limited,31861,11/03/2019,05/03/2019,(blank),0
+000-YDCE3496,Scotland Excel Framework,Aberdeenshire Council: Street Lighting LED Lantern Supply Garioch  Ph 9,Marwood Electrical Co Limited,49321,15/04/2019,15/04/2019,(blank),0
+000-DLYG8554,(blank),School Flashing Signs Timer Replacement,Grasslin,15000,18/02/2019,18/02/2019,(blank),0
+000-NPTB6638,18276,Methlick Primary – fire alarm upgrade and playgroup refurb  (18276),R Davidson Joiner & Builder,54606.86,29/03/2018,09/07/2018,(blank),0
+000-GETL8935,Is/2018-19/021,Vehicle Restraint Sysyem Replacement 2018/19,Carl Saunders Fencing,58351.93,06/11/2018,10/12/2018,(blank),0
+000-AYBN1127,(blank),A93/200 - Bridge of Gairn Vehicle Restraint System,Aberdeenshire Council,32500,23/11/2018,(blank),(blank),0
+000-GWYK1122,000-GWYK1122,Deeside Way Drainage and Surface Upgrade - Park,CR Contracting (North) Ltd,15888.75,09/01/2019,21/01/2019,(blank),0
+000-EWTX1753,17584,Kintore Fountain Repairs,KW Contractors Limited,30629.44,20/03/2018,20/03/2018,(blank),0
+000-UQLA4813,(PFM) Reference 18141/2,Westhill Academy Internal Alterations 18141/2,R Davidson Joiner & Builder,87882,16/02/2018,16/02/2018,(blank),0
+000-KQCH2749,000-KQCH2749,Ellon Primary ASN Works 18147,R Davidson Joiner & Builder,64500,28/08/2017,28/07/2017,(blank),0
+000-YRAY6216,000-YRAY6216,Battlehill Wood Horse Logger,Ecological Logging S&K Lenihan & Sons,26000,19/02/2018,19/02/2018,(blank),0
+000-LRXT6174,000-LRXT6174,Hill of Banchory Path Improvement,Hunter Construction Ltd,8334.8,21/03/2018,21/12/2017,(blank),0
+000-YBMG1523,000-YBMG1523,Path Repairt and Upgrade Kemnay Riverside,CR Contracting (North) Ltd,23960.36,21/12/2017,27/12/2017,(blank),0
+000-NFFV5544,000-NFFV5544,Path Repair and Upgrade - Dunnottar,CR Contracting (North) Ltd,11943.5,15/02/2018,15/02/2018,(blank),0
+000-KBVR8273,(blank),Conservation of Carved Symbol Stones Collection Aat Tullich Church,Harper & Allan Masonry Ltd.,15684.64,19/06/2018,19/06/2018,(blank),12
+000-TLHM3354,TLHM3354,Construction of a Display Shelter to House Tullich Carved Symbol Stones Collection,Andrew Cowies Construction Ltd,89873.27,22/03/2019,22/03/2019,(blank),6
+000-DJPJ3779,18224,Oyne School – toilet upgrade (18224),KW Contractors Limited,31812.04,12/03/2018,26/03/2018,(blank),0
+000-FCKM4998,PFM 18252/2,Aboyne Academy Community Centre Replacement Theatre Seating,Galliford Try Construction Limited T/A Morrison Construction Scotland,75000,26/03/2018,26/03/2018,(blank),0
+000-REAW3639,00-REAW3639,Path Upgrade Port Elphinstone,Hunter Construction Ltd,21815.47,23/03/2018,23/03/2018,(blank),0
+000-NGBY4944,18185,Refurbishment of Portlethen Primary School Nursery,Morrison Construction Scotland,21015.23,17/08/2018,17/08/2018,(blank),0
+000-UDMY4487,(blank),Inverurie Library Refurbishment,The Design Concept Limited,27807,08/03/2018,08/05/2018,(blank),0
+000-DQNL8236,18031,Ballater Royal Station - Fit-Out Works,North Offshore Ltd,132326.2,16/05/2018,16/05/2018,(blank),0
+000-ADBR6659,Not on Procurement PPlan,Resurfacing at Ellon Bridge,Leiths (Scotland) Limited,13693.75,(blank),10/06/2018,(blank),(blank)
+000-VQRY4375,(blank),Macduff School Nursery - Enhancements,"Paul Whalley,Colin Robertson",17000,01/07/2018,(blank),(blank),0
+000-QCQN6324,(blank),Lairhillock School Nursery - ELC Enhancements,"Paul Whalley,Colin Robertson,Audrey Hendry",25000,01/09/2018,(blank),(blank),0
+000-AUNL4963,(blank),St Andrews School Nursery - ELC Enhancements,"Paul Whalley,Colin Robertson,Audrey Hendry",25000,01/09/2018,(blank),(blank),0
+000-TXMU3546,(blank),Tarves School Nursery - ELC Enhancements,"Paul Whalley,Colin Robertson,Audrey Hendry",48000,01/09/2018,(blank),(blank),0
+000-JRNX9645,(blank),Drumblade School Nursery - ELC Enhancements,"Paul Whalley,Colin Robertson,Audrey Hendry",48000,01/09/2018,(blank),(blank),0
+000-XBGR1499,(blank),Fraserburgh North - Nursery Work - Toilets and Security Enhancements,"Paul Whalley,Colin Robertson",20000,01/08/2018,(blank),(blank),0
+000-MNEP4194,18290-1,Clerkhill School - Alterations,Burns Construction (Aberdeen) Ltd,53912.51,26/09/2018,26/09/2018,(blank),0
+000-DRRR8673,17350,Westfield School Fraserburgh - New Corridor Door and Grabrail,D A & M Duguid,4683,27/08/2018,27/08/2018,(blank),0
+000-LLCL1638,(blank),Banff Primary School - ELC Enhancements,"Colin Robertson,Audrey Hendry",40000,01/08/2018,(blank),(blank),0
+000-XDDE6778,000-XDDE6778,Deeside Way - Surface Upgrade - Aboyne West,ASW Aberdeen Ltd,26411.25,07/11/2018,12/11/2018,(blank),3
+000-DEHV9531,"18300, 18032, 18237, 18326, 18327",Emergency Response for Fire and Storm damage,Galliford Try Construction Limited T/A Morrison Construction Scotland,383195.08,24/09/2018,24/09/2018,(blank),0
+000-HEPM6342,(blank),Alterations to the Fish Market at Macduff Harbour,Ken Barbour Ltd,59026.95,(blank),07/12/2018,(blank),(blank)
+000-MAFQ8853,(blank),U176K/010 Old Bervie Bridge Principal Inspection,Aberdeenshire Council,15000,07/12/2018,(blank),(blank),0
+000-RAKB8143,(blank),Fitting of Banff Springs caravan park bridge,A&A Civils Ltd.,12865,21/01/2019,(blank),(blank),0
+000-WUFP3176,Time master no. 18049,Harper & Allan Masonry Ltd.,"TBC,Harper & Allan Masonry Ltd.",16128,05/02/2019,05/02/2019,(blank),0
+000-DFXH2746,(blank),Purchase of Storage Containers (Used),Securastore Limited,18150,18/04/2019,18/04/2019,(blank),0
+000-HYWX5164,(blank),Westfield School Hub Play Area,G L Jones,30216,02/05/2019,01/05/2019,(blank),0
+000-PHKM7713,Timemaster 18049,"Completion of Saltoun Square, Fraserburgh",TuvSud,30000,01/04/2019,01/04/2019,(blank),3
+000-ARYX2684,18049,"Saltoun Square, Fraserburgh, Steel Stair",JBS Fabrication Ltd,22000,24/05/2019,21/05/2019,(blank),0
+000-GLTW3335,(blank),"Playpark at Strathburn Park, Inverurie",Wicksteed Leisure Limited,20000,30/04/2018,30/04/2018,(blank),1
+000-DPNX8844,(blank),Kirkton Of Skene,Russell Play,3438,25/01/2018,30/04/2018,(blank),0
+000-VLGV1863,(blank),PGL DALGUISE LTD PRIMARY 7 TRIP,"PGL, Parents and Teaching Staff",25393,19/06/2018,27/05/2019,(blank),0
+000-TCFF4557,000-TCFF4557,Occupational Health Provision,Iqarus Ltd,0,(blank),(blank),(blank),(blank)
+000-XTVN5595,(blank),Summerhill Park New Machar,Russell Leisure LTD,14156,19/02/2018,30/04/2018,(blank),1
+000-BCTX8438,(blank),Bremner Way Kemney,Kompan Scotland,3386.4,19/02/2018,30/03/2018,(blank),1
+000-QAPL4657,(blank),Sheltered Housing - White Goods for communal areas,Kate MC Donald - Sheltered Housing Manager,45000,01/06/2018,(blank),(blank),0
+000-GYNV5229,000-GYNV5229,Youth Music Initiative YMI Project 10.5 YMI Roadshow,Live Music now,21000,28/03/2018,09/04/2018,(blank),24
+000-LPJG1127,000-LPJG1127,YOUTH MUSIC INITIATIVE (YMI) Syrian Trad Project 10.5,Emma Smith,14530,27/03/2018,16/04/2018,(blank),24
+000-JUEH2979,17629,Laurencekirk Primary School - Play Equipment and Cellular Grass Surfacing,Hawthorn Heights Ltd,24166.8,24/07/2018,24/07/2018,(blank),0
+000-HUMM2289,(blank),Kingseat Enforcement (Site Clearance and Restoration),Russell Leisure Ltd (trading As Russell Play),46500,(blank),01/08/2018,(blank),(blank)
+000-LMUF3222,(blank),Fraserburgh 2021 -Heritage App and Community Engagement,Robert Gordons University,35000,30/07/2018,06/08/2018,(blank),2
+000-HBVD9946,(blank),Barnardos Northern Star Project,Barnardos Scotland,45000,22/08/2018,(blank),(blank),0
+000-FQWW7153,(blank),Library Self-Service Kiosk,Bibliotheca,23616,10/09/2018,(blank),(blank),12
+000-LEKC4712,(blank),Aberdeen  FC Community Trust,Aberdeen Football Club Community Trust,38000,22/08/2018,(blank),(blank),0
+000-HDLP6831,(blank),Spacekraft - Sensory Solutions for Special Needs,Anna Ritchie School,15341.64,28/09/2018,27/04/2018,(blank),0
+000-DLXB3479,(blank),Museum Grade Cases for Libraries,Show Guard Limited,12997,19/11/2018,19/11/2018,(blank),0
+000-EUPN8821,SXL 0216 (TM17982),Education & Office Furniture - SXL Framework 0216 - Call Off - Alford Depot,Sharp Business Systems Uk Plc,10436.58,14/11/2018,(blank),(blank),0
+000-LXGJ1959,(blank),YMI 10.1 Hip Hop Project,"Elphinstone Institute,University of Aberdeen",24600,16/10/2018,06/11/2018,(blank),24
+000-RLMV6321,(blank),YMI 11.1 Christine Kydd Ceilidhmakers,Christine Kydd,25650,16/10/2018,24/10/2018,(blank),24
+000-UQMK5129,(blank),YMI 11.7 Legends of the North East,"Elphinstone Institute,University of Aberdeen",18000,16/10/2018,06/11/2018,(blank),24
+000-YVMV8392,INV-00512,Reading Literacy Software - Bedrock,Bedrock Learning Limited,12000,03/12/2018,03/12/2018,(blank),0
+000-FXHV5233,(blank),Whitehils School - ELC Enhancements,"Audrey Hendry,Colin Robertson",15000,14/01/2019,(blank),(blank),0
+000-HLGP2773,Alex Bain,Dalguise - Portsoy Primary School Trip,Portsoy Primary School,18646.8,04/03/2019,04/03/2019,(blank),0
+000-FDVF4138,ENVS-0000258-JD-LL,Weighbridge Test Unit Scheme,The Fife Council,15000,01/04/2018,01/04/2018,(blank),0
+000-VGAN8887,HOSQ23328,Supply & Installation of a Replacement Weighbridge at Inverurie Waste Transfer Station,Avery Weigh-Tronix,31118.8,29/06/2018,29/06/2018,(blank),0
+000-ELGP2781,(blank),Westhill Electric Vehicle Charng Hub,SWARCO UK LTD (formally APT Controls Limited),75000,(blank),(blank),(blank),(blank)
+000-RXYL1966,(blank),Webcasting,Public-I Group Limited,30500,26/11/2018,01/11/2018,(blank),0
+000-JRRR4254,(blank),Call off Presentation & AV Portlethen Academy,AVMI,12990,03/07/2018,03/07/2018,(blank),0
+000-PEMG1547,(blank),Blue Badge Digital Services,Vatech Ltd,10000,17/12/2018,05/02/2019,(blank),0
+000-NFVT9672,(blank),Blue Badge Printing & Fulfilment,APS Group,11000,05/02/2019,05/02/2019,(blank),0
+000-ENEG5777,Not On Procurement Plan,Wrike Licences,Wrike,15000,(blank),(blank),(blank),(blank)
+000-QENN5676,(blank),Wrap Around Care,Wrap Around Care,3417115,11/10/2018,(blank),(blank),24
+000-YAHR3976,No contract reference,APT - Association for Psychological Therapies,Association for Psychological Therapies,15000,01/08/2006,01/06/2008,(blank),12
+000-EFUX1783,(blank),Service Design Training,Open Change,15100,30/04/2019,30/04/2019,(blank),0
+000-NVFA6773,000-NVFA6773,Legal Advisors - (Joint Schools),CMS Cameron McKenna Nabarro Olswang LLP,47755,01/08/2017,01/08/2017,(blank),0
+000-VYLB4529,(blank),Supply of Compostable Food Waste Bags,Cromwell Polythene Ltd,321216,09/10/2018,09/10/2018,(blank),0
+000-QDTN5221,17/290,Adoption Fees E&PS,JK Cameron Solicitors,15346.29,03/09/2014,(blank),(blank),0
+000-WUVP4421,Mr & Mrs B,Adoption Legal Fees,Grant Smith Law Practice,12100,06/12/2018,06/12/2018,(blank),0
+000-JUGE2153,(blank),Supply of 240L Wheeled Bins (Comb Lift),One 51 ES Plastics (UK) Ltd T/A MGB Plastics,55020,08/05/2019,10/05/2019,(blank),0
+000-GKXU7761,(blank),Supply of 240L Wheeled Bins (Diamond UpLift),Sulo UK Ltd,20526,08/05/2019,17/05/2019,(blank),0

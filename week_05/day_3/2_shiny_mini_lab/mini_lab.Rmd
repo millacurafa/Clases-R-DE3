@@ -1,0 +1,56 @@
+---
+title: "Basic Shiny Mini Lab"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+We want to make a new Shiny app which let's you compare the medal count between our top 5 countries. You'll need to start a new project.
+
+# MVP
+
+## Create the layout
+
+Create a sidebar layout, with the title 'Five Country Medal Comparison'.
+
+## Add inputs
+
+Create two sets of radio buttons, one with ID "season" the other with ID "medal", that lets you pick between the two seasons and the three medal types.
+
+## Add outputs
+
+Add the following plot to the output, but with inputs that depend on the two radio buttons.
+
+```{r, eval = FALSE}
+olympics_overall_medals %>%
+  filter(team %in% c("United States",
+                  "Soviet Union",
+                  "Germany",
+                  "Italy",
+                  "Great Britain")) %>%
+  filter(medal == <INPUT>) %>%
+  filter(season == <INPUT>) %>%
+ggplot() +
+  aes(x = team, y = count) +
+  geom_col()
+```
+
+# Extension
+
+## Adding colour 
+
+Make the colour of the bars depend on the type of medal that's being compared.
+
+<details>
+<summary>**Hint**</summary>
+You can use `case_when`, but you'll need to do it inside `renderPlot`.
+</details>
+
+## A whole new app
+
+Can you build a new app that explores the data in a different way? Perhaps using a different type of plot. Look at the widget gallery and try out different widget types too.

@@ -1,0 +1,632 @@
+---
+title: "Advanced query syntax part 2 - manipulating returned data"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+  author: "Del Middlemiss"<br>
+  date: "9th June 2019"
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives<br>
+
+* Be able to create column aliases using `AS`
+* Use `DISTINCT` to return unique records by column
+* Understand and be able to use aggregate functions
+* Be able to sort records and limit the number returned
+* Understand `GROUP BY` and `HAVING` for group level aggregation and filtering
+
+**Duration - 90 minutes**<br>
+
+This is a continuation of the lesson yesterday in which we learned how to filter data at the row level using the `WHERE` clause. We'll add to our query toolkit today! 
+
+<hr>
+
+# Setup (again)...
+
+We need to re-establish the R connection to the database.
+
+```{r}
+library(keyring)
+library(RPostgreSQL)
+
+keyring_unlock("local")
+username <- key_get("postgresql_username", keyring = "local") 
+password <- key_get("postgresql_password", keyring = "local")
+keyring_lock("local")
+db_connect <- dbConnect(drv = PostgreSQL(), user = username, password = password, dbname = "omni_employees", host = "localhost")
+rm(username, password)
+```
+
+Just so we don't forget, add in the disconnect statement at the end of the file, and then put our code in between the 'connect' and 'disconnect' blocks
+
+```{r, eval = FALSE, echo = TRUE}
+# keep moving this down, put code in between
+dbDisconnect(db_connect)
+```
+
+<hr>
+
+# Manipulating returned data
+
+After we have applied conditions to filter data in a `SELECT` statement, we can also manipulate what is returned. The easiest way to do this is to limit the returned fields!
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT id, first_name, last_name 
+           FROM employees 
+           WHERE department = 'Accounting'")
+```
+
+So here we return only the `id`, `first_name` and `last_name`.
+
+SQL offers additional operators to manipulate the return.
+
+# Aliases via `AS`
+
+<br>
+<div class='emphasis'>
+"Can we get a list of all employees with their first and last names combined together into one field called `full_name`?"
+</div><br>
+
+**Column aliases** are the way to solve problems like these! We use the `CONCAT()` function to **concatenate** (this is just a fancy way of saying 'join strings together') each pair of names into the full name. We set up a column alias using `AS full_name` to store the concatenated strings.  
+
+```{r}
+# use CONCAT() to join first_name to last_name, with a space in between
+# AS full_name sets up a column alias
+dbGetQuery(db_connect, 
+           "SELECT id, first_name, last_name, CONCAT(first_name, ' ', last_name) AS full_name 
+           FROM employees")
+```
+
+The new `full_name` column will be at the right of the output. We see a problem with this: some of the records now have single names for `full_name`, but this represents a problem with the underlying data. We could add in a `WHERE` clause to filter out these problem rows.
+
+<blockquote class='task'>
+**Task - 5 mins** Add a `WHERE` clause to the query above to filter out any rows that don't have both a first and second name.
+
+<details>
+<summary>**Hint**</summary>
+You need an `AND` combination of two `IS NOT NULL` conditions
+</details>
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT *, CONCAT(first_name, ' ', last_name) AS full_name 
+           FROM employees 
+           WHERE first_name IS NOT NULL AND last_name IS NOT NULL")
+```
+</details>
+</blockquote>
+
+It is good practise to use aliases when creating new columns or aggregate functions (which we will come onto soon) so that if someone else (including your future self!) uses your output that your column/result names have meaning. 
+
+# `DISTINCT()`
+
+<br>
+<div class='emphasis'>
+"Our database may be out of date! After the recent restructuring, we should now have six departments in the corporation. How many departments do employees belong to at present in the database?"
+</div><br>
+
+How do we solve this problem? It's not enough to simply return **all** the departments of the employees, as there will be a large amount of duplication. Instead, we need the **unique** list of departments. The `DISTINCT()` function returns a unique list.
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT DISTINCT(department) 
+           FROM employees")
+```
+
+# Aggregate functions
+
+<br>
+<div class='emphasis'>
+"How many employees started work for the corporation in 2001?"
+</div><br>
+
+The `COUNT()` aggregate function can help us with counting problems:
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT COUNT(*) 
+           FROM employees 
+           WHERE start_date BETWEEN '2001-01-01' AND '2001-12-31'")
+```
+
+In addition to `COUNT()`, we have the following aggregate functions:
+<br>
+
+| function | purpose |
+| --- | --- |
+| SUM() | sum of a column |
+| AVG() | average of a column |
+| MIN() | minimum value of a column |
+| MAX() | maximum value of a column |
+
+As mentioned above it's good practice to use an alias (using the `AS` function) to give meaning to the result, such as:
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT COUNT(*) AS total_employ_2001
+           FROM employees 
+           WHERE start_date BETWEEN '2001-01-01' AND '2001-12-31'")
+```
+
+
+<br>
+<blockquote class='task'>
+**Task - 10 mins** Design queries using aggregate functions and what you have learned so far to answer the following questions:<br>
+
+1. "What are the maximum and minimum salaries of all employees?"
+2. "What is the average salary of employees in the Human Resources department?"
+3. "How much does the corporation spend on the salaries of employees hired in 2018?"
+
+<details>
+<summary>**Solution**</summary>
+1.
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT MAX(salary) AS max_sal
+           FROM employees")
+
+dbGetQuery(db_connect, 
+           "SELECT MIN(salary) AS min_sal
+           FROM employees")
+```
+
+Could also do it in a single query:
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT MAX(salary) AS max_sal,
+           MIN(salary) AS min_sal
+           FROM employees")
+```
+
+<br>
+2.
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT AVG(salary)as avg_sal
+           FROM employees 
+           WHERE department = 'Human Resources'")
+```
+
+<br>
+3.
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT SUM(salary) AS total_sals_2018
+           FROM employees 
+           WHERE start_date BETWEEN '2018-01-01' AND '2018-12-31'")
+```
+</details>
+</blockquote>
+
+# Sorting by columns
+
+The `ORDER BY` operator lets us **sort** the returns of queries, either in descending (`DESC`) or ascending (`ASC`) order. The `ORDER BY` operator and associated keywords **always comes after** any `WHERE` clause.
+
+The `LIMIT` operator is a natural partner to `ORDER BY`: it lets us limit **how many** records are returned by a query.
+
+So, we saw before the minimum and maximum salaries of employees in the corporation. Let's find out which employees earn those salaries using the new operators!
+
+```{r}
+# first, the minimum salaried employee. Order employees by salary in *ascending* order, return the first
+# we need to be careful with NULLs here, let's filter out employees with NULL salary
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE salary IS NOT NULL 
+           ORDER BY salary ASC 
+           LIMIT 1")
+
+# next, the maximum salaried employee. Order employees by salary in *descending* order, return the first 
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE salary IS NOT NULL 
+           ORDER BY salary DESC 
+           LIMIT 1")
+```
+
+You see above we had problems in ordering with `NULL`s in the column we're sorting on. We can either filter them out with a `WHERE` clause, as we did above, or we can use the operators `NULLS FIRST` or `NULLS LAST` to specify where to put them in the list of records. These operators are always placed immediately after `DESC` or `ASC` for the respective column.
+
+Let's rewrite the queries above using these operators:
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           ORDER BY salary ASC NULLS LAST 
+           LIMIT 1")
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           ORDER BY salary DESC NULLS LAST 
+           LIMIT 1")
+```
+
+Finally, we can perform **multi-level sorts** on two or more columns:
+
+<br>
+<div class='emphasis'>
+"Order employees by full-time equivalent hours, highest first, and then alphabetically by last name." 
+</div>
+
+<br>
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           ORDER BY fte_hours DESC NULLS LAST, last_name ASC NULLS LAST")
+```
+
+<blockquote class='task'>
+**Task - 5 mins** Write a query to answer the following questions using the operators introduced in this section.
+
+<br>
+<center>"Get the details of the longest-serving employee of the corporation."</center>
+<center>"Get the details of the highest paid employee of the corporation in Libya."</center>
+<br>
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           ORDER BY start_date ASC NULLS LAST 
+           LIMIT 1")
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees 
+           WHERE country = 'Libya' 
+           ORDER BY salary DESC NULLS LAST 
+           LIMIT 1")
+```
+</details>
+</blockquote>
+
+## MODE
+
+How do we get 'the most common' value in a field? In statistics, this would correspond to the **mode**, but ANSI SQL (the specification language) does not offer a `MODE()` aggregate function (although PostgreSQL does as of version 9.4). So we need a way round that in cases where we are asked to find the most commly occuring records. For example if we were asked:
+
+<br>
+<div class='emphasis'>
+"Find the employees in the United States who work the most common full-time equivalent hours across the whole corporation."
+</div><br>
+
+We will use a combination of the functions we have learnt so far to do this. Let's first write a `SELECT` to find "the most common full-time equivalent (`fte_hours`) across the whole corporation". Let's think about the steps involved:
+
+1. filter out any employees with null `fte_hours`
+2. group employees by `fte_hours`
+3. count the number of employees in each group
+4. return the `fte_hours` of the group with the highest count
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT fte_hours
+           FROM employees
+           WHERE fte_hours IS NOT NULL
+           GROUP BY fte_hours
+           ORDER BY COUNT(fte_hours) DESC
+           LIMIT 1")
+```
+
+This is the most commonly worked value of `fte_hours` in the corporation. We will learn at the end of the lesson about subqueries and so how to use our result above to return the employees who worked this `fte_hours` amount. 
+
+# Grouping records
+
+Consider the following problem
+
+<br>
+<div class='emphasis'>
+"Find the number of employees within each department of the corporation." 
+</div><br>
+
+We could solve this manually, but it would be a real pain. First, we would need to get a list of the departments in the corporation (we saw how to do this earlier using `DISTINCT`), and then write a query using a `COUNT()` aggregate with a `WHERE` clause specifying each department in turn, something like
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT COUNT(id) AS number_employees 
+           FROM employees 
+           WHERE department = 'Legal'")
+```
+
+and so on 11 more times for each department. Annoying, and not very general code: we need to know the 12 departments before we start! Thankfully, SQL gives us the `GROUP BY` operator to automate this!
+
+## `GROUP BY`
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT department, COUNT(id) AS num_employees 
+           FROM employees 
+           GROUP BY department")
+```
+
+Yay, this looks more useful! Note what SQL has done here: it first **groups** records by a specified column (`department` in this case), and then applies the aggregate function (`COUNT()`) to **each group**.
+
+Let's see another few examples of grouping in queries:
+
+<br>
+<div class='emphasis'>
+"How many employees are there in each country?" 
+</div>
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT country, COUNT(id) AS num_employees 
+           FROM employees 
+           GROUP BY country")
+```
+
+<br>
+<div class='emphasis'>
+"How many employees in each department work either 0.25 or 0.5 FTE hours?" 
+</div>
+
+```{r}
+# note the combination of a WHERE clause to filter records and then a GROUP BY
+# could also use IN rather than BETWEEN here
+dbGetQuery(db_connect, 
+           "SELECT department, COUNT(id) AS num_fte_quarter_half 
+           FROM employees 
+           WHERE fte_hours BETWEEN 0.25 AND 0.5 
+           GROUP BY department")
+```
+
+You'll see here that we are counting the `id` column. You will have seen earlier that we used `COUNT(*)` which counts all rows returned. The difference between the two if there are any NULLS in the column. 
+
+Let's take a look at the difference using a column which has NULLS - the `first_name` column:
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT COUNT(first_name)
+           FROM employees")
+```
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT COUNT(*) 
+           FROM employees")
+```
+
+The difference in numbers comes because there are ? `NULL` entries for the `first_name` column and so doing `COUNT(first_name)` only returns the number of non-null `first_name` entries. 
+
+
+<br>
+<div class='emphasis'>
+"Find the longest time served by any one employee in each department." 
+</div>
+
+This is quite a difficult one! We can use the `NOW()` function to return the current date and time, and then calculate the time served by an employee as `NOW()-start_date`. So, the longest time served by any employee is `NOW()-MIN(start_date)`. This is the aggregate function we will apply to the records grouped by department.
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT department, NOW()-MIN(start_date) as longest_time_served 
+           FROM employees 
+           GROUP BY department")
+```
+
+Don't worry if `GROUP BY` takes a while to sink in! It's one of the more difficult concepts in SQL, but you'll feel more comfortable with practice. Speaking of which...
+
+<blockquote class='task'>
+**Task - 10 mins** Write two queries using `WHERE` and `GROUP BY` to solve the following problems:<br>
+<center>"1. How many employees in each department are enrolled in the pension scheme?"</center><br>
+<center>"2. Perform a breakdown by country of the number of employees that do not have a stored first name."</center><br>
+
+<details>
+<summary>**Hints**</summary>
+1. we need to apply a `WHERE` clause on `pension_enrol`.<br>
+2. remember the `IS NULL` operator.
+</details>
+
+<details>
+<summary>**Solution**</summary>
+1.
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT department, COUNT(id) as num_employees_pension 
+           FROM employees 
+           WHERE pension_enrol = TRUE 
+           GROUP BY department")
+```
+<br>
+2.
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT country, COUNT(id) as num_employees_no_first 
+           FROM employees 
+           WHERE first_name IS NULL 
+           GROUP BY country")
+```
+</details>
+</blockquote>
+
+## `HAVING`
+
+So far we've seen that the `WHERE` clause let's us filter **records**, but what if we wish to filter **groups** by some value of an aggregate function? This is where the `HAVING` operator comes in!
+
+Imagine one of our earlier queries had been even more specific:
+
+<br>
+<div class='emphasis'>
+"Show those departments in which at least 40 employees work either 0.25 or 0.5 FTE hours" 
+</div><br>
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT department, COUNT(id) as num_fte_quarter_half 
+           FROM employees 
+           WHERE fte_hours IN (0.25, 0.5) 
+           GROUP BY department 
+           HAVING COUNT(id) >= 40")
+```
+
+We've added in a `HAVING` clause **after** the `GROUP BY`, and notice that it filters using an **aggregate function** of a column of the original data.
+
+Let's try one more:
+
+<br>
+<div class='emphasis'>
+"Show any countries in which the minimum salary amongst pension enrolled employees is less than 21k."
+</div><br>
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT country, MIN(salary) as min_salary 
+           FROM employees 
+           WHERE pension_enrol = TRUE 
+           GROUP BY country 
+           HAVING MIN(salary) < 21000")
+```
+
+<br>
+Let's breakdown the two filtering steps:
+
+* First, **filter the records** to include only pension enrolled employees: `WHERE pension_enrol = TRUE`
+<br><br><center>...the filtered records are passed on to the grouping step...</center><br>
+* Group the filtered records by country, and then **filter the groups** to include only countries in which the minimum salary is < 21k: `HAVING MIN(salary) < 21000`
+
+<blockquote class='task'>
+**Task - 5 mins** This is about as tough as SQL will get for us! Write a query using `WHERE`, `GROUP BY` and `HAVING` to solve the following:
+
+<center>"Show any departments in which the earliest start date amongst grade 1 employees is prior to 1991"</center>
+
+<details>
+<summary>**Hint**</summary>
+* You can use `MIN(date)` to get the **earliest** value of a date column
+* `WHERE` will involve `grade`
+* `GROUP BY` will involve department
+* `HAVING` will involve `MIN()` of a column
+</details>
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT department, MIN(start_date) as earliest_start_date_grade_1
+           FROM employees
+           WHERE grade = 1
+           GROUP BY department
+           HAVING MIN(start_date) < '1991-01-01'")
+```
+</details>
+</blockquote>
+
+<hr>
+
+# Subqueries
+
+We're nearly finished, promise! Sometimes we would like to use a value **produced by one query in another**. This sounds abstract, but it's actually pretty common! As an example, consider this problem:
+
+<br>
+<div class='emphasis'>
+"Find all the employees in Japan who earn **over** the company-wide average salary."
+</div><br>
+
+We might think a straightforward way to do this is:
+
+```{r, eval = FALSE, echo = TRUE}
+dbGetQuery(db_connect, 
+           "SELECT *
+           FROM employees
+           WHERE country = 'Japan' AND salary > AVG(salary)")
+```
+
+but we get an error `ERROR:  aggregate functions are not allowed in WHERE`! 
+
+In fact, we need to use a **subquery** here. This is just one query *embedded inside another*
+
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT *
+           FROM employees
+           WHERE country = 'Japan' AND salary > (SELECT AVG(salary) FROM employees)")
+```
+
+If it helps, we can think of 'building this query up' in two steps. First, we write what we want to achieve using a fake name 'average_salary':<br>
+
+"SELECT *
+FROM employees
+WHERE country = 'Japan' AND salary > average_salary"
+
+We know we need to use a subquery to get 'average_salary', as it involves an aggregate function. So let's write the subquery:<br>
+
+"SELECT AVG(salary)
+FROM employees"
+
+Now wherever we see 'average_salary' in the first query, we replace it with the subquery in parentheses
+
+"SELECT *
+FROM employees
+WHERE country = 'Japan' AND salary > (SELECT AVG(salary) FROM employees)"
+
+
+<blockquote class='task'>
+**Task - 5 mins** Take the query we wrote to answer the question <br>
+<center>"Find all the employees in the United States who work the most common full-time equivalent hours across the corporation."</center><br>
+i.e. when we calculating a mode, and use it as a **subquery** in a new query to solve the original question
+
+**Hint**: remember, "the most common full-time equivalent hours across the corporation" is just a value which is provided by the query above. So wherever we see this phrase, we plug in the query we just wrote as a subquery.
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+dbGetQuery(db_connect, 
+           "SELECT * 
+           FROM employees
+           WHERE country = 'United States' AND fte_hours =
+           (SELECT fte_hours
+           FROM employees
+           WHERE fte_hours IS NOT NULL
+           GROUP BY fte_hours
+           ORDER BY COUNT(fte_hours) DESC
+           LIMIT 1)")
+```
+</details>
+</blockquote>
+
+
+```{r}
+dbDisconnect(db_connect)
+```
+
+<hr>
+
+# Recap - full query syntax
+
+Now we've completed our discussion of query syntax, here are **all** the different components of a `SELECT` query, the order in which they must appear, and whether they are required or optional <br>
+
+| Order | Keyword | Specifies | Required? |
+| --- | --- |--- | --- |
+| 1 | SELECT | Column to query | Yes |
+| 2 | AS | Column alias | No |
+| 3 | FROM | Table to query |  Yes |
+| 4 | WHERE | Row-level filter | No |
+| 5 | GROUP BY| Grouping for aggregates | No |
+| 6 | HAVING | Group-level filter | No |
+| 7 | ORDER BY | Sort order | No |
+| 8 | LIMIT | How many records to return | No |
+
+## Useful mnemonic for order of SQL
+
+| Keyword | Mnemonic |
+| --- | --- |
+| SELECT | So |
+| FROM | Few |
+| WHERE | Workers
+| GROUP BY| Go
+| HAVING | Home
+| ORDER BY | On Time
+

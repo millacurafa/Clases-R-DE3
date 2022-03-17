@@ -1,0 +1,514 @@
+---
+title: "Forms of functions"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "27th April - rev. 22nd July 2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives
+
+* Understand the shapes of functional families
+* Be able to choose an appropriate function for the data
+
+**Duration - 90 minutes**
+
+We are going to discuss the forms of various mathematical functions that we might use to fit to data. 
+
+We are interested in **bivariate** data with:
+
+* one **independent** variable (AKA predictor variable, explanatory variable), which we call $x$ by convention.
+* one **dependent** variable (AKA response variable, outcome variable) that we call $y$ by convention.
+
+Later in the course we'll also be interested in **multivariate** data, where we have more than one independent variable, but for now we stick to data with a single $x$.
+
+<hr>
+
+# The principle of parsimony
+
+How do we decide what function type to fit to data? The take the following principle as a guide.
+
+<br>
+<div class='emphasis'>
+**The principle of parsimony**, also known as **Occam's razor** is a fundamental scientific principle. 
+<br><br>
+In a general sense, it says that:
+
+<br>
+<center>
+*Given two or more 'explanations' of comparable quality, the _simplest_ explanation is the _best_ one.*
+</center>
+<br>
+
+Applied to statistics it tells us that:
+
+* fitting models should have as few adjustable parameters as possible (i.e. models should be simplified until they are 'minimal adequate')
+* experiments should have as few assumptions as possible
+* linear models should be tried prior to non-linear models
+
+<br>
+But don't take parsimony too far, keep in mind the following recommendation by Einstein:
+
+<br>
+<center>
+*'Everything should be made as simple as possible, but not simpler.'*
+</center>
+<br>
+
+</div>
+<br>
+
+<hr>
+
+# Lines
+
+The general form of a line is 
+
+$$y=a \times x+b$$
+We call $a$ the **gradient**. You can think of this as the answer to the question "How many units of $y$ do we travel if we travel one $x$ unit to the right?". 
+
+* A large positive value means a steep, upward sloping line. 
+    * e.g. $a=6$: we go $6$ units upward along $y$ for every $1$ unit rightward along $x$.  
+* A large negative value means a steep, downward sloping line.
+    * e.g. $a=-4$: we go $4$ units downward along $y$ for every $1$ unit rightward along $x$.
+
+<blockquote class='task'>
+**Task - 2 mins**. What does gradient $a=0$ mean? What does a line with $a=0$ look like?
+<details>
+<summary>**Solution**</summary>
+Following the same analyses as above, a gradient of $0$ means we don't move upward or downward along $y$ at all, no matter how far we move along $x$. So a line with $a=0$ will be parallel to the $x$-axis.  
+</details>
+</blockquote>
+
+Parameter $b$ is called the **intercept**. This answers the question "Where does the line cross the $y$-axis?"
+
+Let's plot a line 
+
+```{r}
+# let's write our own line function
+line <- function(x, a, b){
+  return(a * x + b)
+}
+
+# set up x vector and use line() to compute y values
+library(tidyverse)
+data <- tibble(
+  x = seq(-5, 5, 0.1),
+  y = line(x, a = 2, b = -1)
+)
+
+data %>%
+  ggplot(aes(x, y)) +
+  geom_line(col = "red") +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+
+```
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+* Play around plotting two or three different lines. 
+   - Try a line with $a=0$ and positive $b$.
+   - You can use `mutate()` to overwrite `y` in `data` from above
+* Can we use our `line()` function to plot a perfectly vertical line? 
+
+<details>
+<summary>**Solution**</summary>
+
+Let's try $a=-1$ and $b=2$
+```{r}
+data %>%
+  mutate(y = line(x, a = -1, b = 2)) %>%
+  ggplot(aes(x, y)) +
+  geom_line(col = "red") +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+and $a=0$ and $b=4$
+```{r}
+data %>%
+  mutate(y = line(x, a = 0, b = 4)) %>%
+  ggplot(aes(x, y)) +
+  geom_line(col = "red") +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+We can't use `line()` to draw a perfectly vertical line, as the gradient of such a line is mathematically not defined! We'd need to specify it instead as something like $x=2$
+</details>
+</blockquote>
+
+<blockquote class='task'>
+**Task - 5 mins [Harder]** What about if we know a little more about the line we want ahead of time. Say we know that we definitely want the line to pass through the points $(x=1,y=2)$ and $(x=3,y=6)$. What should parameters $a$ and $b$ be to satisfy these requirements?
+<details>
+<summary>**Solution**</summary>
+This is more a 'maths' question than an R problem! We solve this by substituting in the information that we have and then solving for the unknown parameters $a$ and $b$.
+
+$$y = a \times x + b$$
+
+So,
+
+$$2 = a \times 1 + b \; \; [I]$$ and
+$$6 = a \times 3 + b \; \; [II]$$
+
+Subtract equation $[I]$ from $[II]$:
+
+$$4 = a \times 2 \implies a = 2$$
+Now substitute $a=2$ into one of the equations, say into $[I]$:
+
+$$2 = 2 \times 1 + b \implies b = 0$$
+
+So the final equation of the line is
+
+$$y = 2 \times x + 0 \;\; \textrm{or} \;\; y = 2 \times x$$
+</details>
+</blockquote>
+
+Often, if we're fitting a line to data, we would like the line to go through the centroid, i.e. the line has to satisfy
+
+$$\bar{y}=a \times \bar{x} + b$$
+
+Let's see an example of some data for which a linear fit would be a good choice!
+
+```{r}
+noisy_line <- read_csv("data/noisy_line.csv")
+
+noisy_line_plot <- noisy_line %>%
+  ggplot(aes(x, y)) +
+  geom_point()
+noisy_line_plot
+```
+
+Now let's calculate the centroid position and add it to the plot
+
+```{r}
+centroid <- noisy_line %>%
+  summarise(
+    x = mean(x),
+    y = mean(y)
+  )
+centroid
+
+noisy_line_plot <- noisy_line_plot +
+  geom_point(aes(x = centroid$x, y = centroid$y), col = "red", size = 5)
+noisy_line_plot
+```
+
+So our best fit line has to pass through the centroid. You can think of this as finding the answer to the question "which line passing through the red dot (centroid) lies 'closest' to all the data points?". We'll see in the next lesson what we mean by 'closest'.
+
+We vary the gradient $a$ while respecting the equation $\bar{y}=a \times \bar{x} + b$. In practice, this means we treat $a$ as free, and reverse the equation to give us $b$: 
+
+$$b = \bar{y} - a \times \bar{x}$$
+
+```{r}
+get_intercept <- function(slope, centroid_x, centroid_y){
+  return(centroid_y - slope * centroid_x)
+}
+```
+
+
+```{r}
+slope = 0.5
+noisy_line_plot +
+  geom_abline(slope = slope, intercept = get_intercept(slope, centroid$x, centroid$y))
+```
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins**
+
+Play around with the code chunk above and try to find a `slope` that fits the data reasonably well.
+
+```{r, eval = FALSE}
+slope = 0.5
+noisy_line_plot +
+  geom_abline(slope = slope, intercept = get_intercept(slope, centroid$x, centroid$y))
+```
+
+<details>
+<summary>**Solution**</summary>
+
+We can estimate a reasonable slope by noting that, across the range of data, $x$ varies by $10$, while $y$ varies by $20$, so a slope of $2$ seems like a good guess
+
+```{r}
+slope = 2
+noisy_line_plot +
+  geom_abline(slope = slope, intercept = get_intercept(slope, centroid$x, centroid$y))
+```
+
+</details>
+</blockquote>
+<br>
+
+Most of the line fitting methods we will see in this course will put the 'best fit' line through the centroid by design!
+
+```{r}
+noisy_line_plot + 
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+We'll see what `method = "lm"` does in the next lesson!
+
+<hr>
+
+# Polynomials
+
+Polynomials are functions involving combinations of the following components:
+
+* constants (e.g. $2$, $-1$, $13.4$)
+* variables (e.g. $x$, $y$, $z$)
+* exponents (e.g. $x^2$, $y^3$, but only $0, 1, 2,...$ are allowed)
+* the variables have to be down 'on the line' (e.g. $x^2$ is polynomial, $2^x$ is not polynomial)
+
+We can combine the components by addition, subtraction, multiplication and division, except that **division by a variable is not allowed**! So a function involving a term like $\frac{2}{x}$ is not a polynomial. 
+
+For the moment, we're discussing bivariate data, so we'll limit ourselves to polynomials of the form
+
+$$y = \textrm{function of } x$$
+
+Note that a line is **also** a polynomial: it obeys all the rules above! But it's often convenient to think of lines as being separate to polynomials, because fitting lines to data is far more common than fitting polynomials.
+
+<hr>
+
+## Quadratics
+
+A quadratic is a polynomial where the highest power of $x$ is two. We call this the **degree** of the polynomial. So, a quadratic is a second degree (or degree-2) polynomial.
+
+The general form is
+
+$$y = a \times x^2 + b \times x + c \;\;\;\; (a \ne 0)$$
+
+As long as $a$ is non-zero, the curve is a quadratic. Let's create a `quadratic()` function that we can use to plot a few examples!
+
+```{r}
+quadratic <- function(x, a, b, c){
+  return(a * x**2 + b * x + c)
+}
+```
+
+The parameter $a$ determines whether the quadratic points 'up' or 'down' (you might like to think of this as 'happy' or 'unhappy'; positive $a$ means 'happy')
+
+```{r}
+# a is positive, 'happy' quadratic
+data %>%
+  mutate(y = quadratic(x, a = 1, b = 0, c = 0)) %>%
+  ggplot(aes(x, y)) +
+  geom_line(col = "red") +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+
+
+# a is negative, 'unhappy' quadratic
+data %>%
+  mutate(y = quadratic(x, a = -1, b = 0, c = 0)) %>%
+  ggplot(aes(x, y)) +
+  geom_line(col = "red") +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+```
+
+
+Let's have a look at some example data that may require a quadratic rather than a linear 'best-fit' line.
+
+```{r}
+noisy_quad <- read_csv("data/noisy_quad_1.csv")
+noisy_quad %>%
+  ggplot(aes(x, y)) +
+  geom_point()
+```
+
+We see that there is clear curvature in the data that could not be captured by a line. Let's look at another example. 
+
+```{r}
+noisy_quad <- read_csv("data/noisy_quad_2.csv")
+noisy_quad %>%
+  ggplot(aes(x, y)) +
+  geom_point()
+```
+
+Now we clearly see not just curvature, but the clear presence of a 'valley' (the curve decreases, levels off, and then increases again). The same would be true of a 'peak' (the curve increases, levels off, then decreases again).
+
+<br>
+<div class='emphasis'>
+Try a quadratic rather than a linear fit to your data if any or all of the following apply:
+
+* you see clear evidence of a 'peak' or 'valley' in the $(x,y)$ plot
+* you see clear evidence of curvature, i.e. the trend is clearly not linear
+</div>
+<br>
+
+<hr>
+
+## Overfitting, cubics and higher degree polynomials
+
+<br>
+<div class='emphasis'>
+It becomes increasingly risky to fit data with higher degree polynomials, as increasing the degree of polynomials makes them more 'wiggly'. We run the risk of using the ability of these functions to wiggle to fit the **noise** in the data **rather than the real trend**. This is a problem known as **overfitting**.   
+
+The principle of parsimony helps to protect us from overfitting: it suggests we should try more complex functions only after we have tried simpler functions and found them to be inadequate.
+</div>
+<br>
+
+Here's an example of what overfitting looks like, so you've seen the problem for yourself. The data in `underlying_quad.csv` was generated by applying a small amount of noise to a quadratic function. We therefore know that the underlying trend is quadratic. Let's see what happens if we fit this data with an 8th-order polynomial 
+
+$$y = a \times x^8 + b \times x^7 + c \times x^6 + d \times x^5 + e \times x^4 + f \times x^3 + g \times x^2 + h \times x + i$$
+
+All of these adjustable coefficients $a$ to $i$ give this function a lot of ability to 'wiggle'. 
+
+Don't worry too much about what the following R code is doing, just focus on the data and the fitted line.
+
+```{r}
+underlying_quad <- read_csv("data/underlying_quad.csv")
+underlying_quad %>%
+  ggplot(aes(x, y)) +
+  geom_point() +
+  geom_smooth(method = lm, formula = y ~ poly(x, 8), se = FALSE)
+```
+
+<blockquote class='task'>
+**Task - 5 mins** Discuss with the people around you any problems that you see with this fit. 
+
+* If the fitted curve passes through all the data points, is that enough evidence to claim that you have a 'good' fit? 
+* Are there any other considerations for a 'good' fit?
+* What about the intended purpose of your fit?
+
+<details>
+<summary>**Solution**</summary>
+We want our fit to be **predictive**! This is one of the main purposes of fitting a data set: we want reasonable estimates of $y$-values for $x$-values that **were not in the original data set**. The 'wiggles' in the overfitted curve make it useless for this purpose, we've fitted the random noise in the data rather than the underlying trend. 
+
+In other words, the overfitted curve will reproduce the $x$- and $y$-values **we already know** really well, but will perform badly when it comes to predicting $y$-values for $x$-values that were not present in the fitting data.
+</details>
+</blockquote>
+
+<br>
+<div class='emphasis'>
+Overfitting aside, it's usually safe to try a cubic rather than a quadratic fit to a data set where any or all of the following apply:
+
+* the curvature of the data is not well captured by a quadratic fit
+* there is evidence of the data set 'flattening' or 'turning back' on itself, e.g. increasing, decreasing, and then increasing again
+</div>
+<br>
+
+The general form of a cubic function is
+
+$$y = a \times x^3 + b \times x^2 + c \times x + d \;\;\;\; (a \ne 0)$$
+
+where $a$ must be non-zero for the function to qualify as cubic. If $a$ is positive, the curve goes down to the left and up to the right, and vice-versa for negative $a$.
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins** Following the patterns for the line and quadratic functions above, write a function to return a cubic curve. Try it out by plotting cubics with a few different choices for $a$, $b$, $c$ and $d$.  
+
+[**Hint**: you need to pass four coefficients $a$, $b$, $c$ and $d$ into this function, along with $x$. Coefficient $a$ goes with the highest power of $x$ and so on]<br><br>
+<details>
+<summary>**Solution**</summary>
+```{r}
+cubic <- function(x, a, b, c, d){
+  return(a * x**3 + b * x**2 + c * x + d)
+}
+```
+
+```{r}
+data %>%
+  mutate(y = cubic(x, 1, 0, 0, 0)) %>%
+  ggplot(aes(x, y)) +
+  geom_line(col = "red") +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+
+data %>%
+  mutate(y = cubic(x, -1, 0, 0, 0)) %>%
+  ggplot(aes(x, y)) +
+  geom_line(col = "red") +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+
+data %>%
+  mutate(y = cubic(x, 1, 0, -10, 0)) %>%
+  ggplot(aes(x, y)) +
+  geom_line(col = "red") +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0)
+
+```
+</details>
+</blockquote>
+<br>
+
+Let's investigate some example data for which a cubic rather than quadratic or linear fit is best. First, here is a dataset in which there is evidence of the data 'flattening out' or 'turning back' on itself.
+
+```{r}
+noisy_cubic <- read_csv("data/noisy_cubic_1.csv")
+noisy_cubic %>%
+  ggplot(aes(x, y)) +
+  geom_point()
+```
+
+You may need a cubic fit function to accurately represent such data. Also, we sometimes have data that is 'more curved' on one side of a peak or valley than on the other side. A quadratic cannot accurately follow such a trend, as **quadratics are symmetric about their peak or trough**, and so, again, you may need a cubic fit function.
+
+```{r}
+noisy_cubic <- read_csv("data/noisy_cubic_2.csv")
+noisy_cubic %>%
+  ggplot(aes(x, y)) +
+  geom_point()
+```
+
+<hr>
+
+# Recap
+
+<br>
+
+* What is the principle of parsimony? How does it apply to model fitting?
+<details>
+<summary>**Answer**</summary>
+The principle of parsimony says that, given two scientific 'explanations' of comparable quality, the simpler explanation is the better one. 
+<br><br>
+In relation to model fitting, we should try to fit the simplest models first, and proceed to fit more complex models (i.e. those with more adjustable parameters) only when the simple models have been found to be inadequate.
+</details>
+
+<br>
+
+* What function types did we cover in this lesson?
+<details>
+<summary>**Answer**</summary>
+We covered lines, quadratics and cubics, i.e. degrees-1, 2 and 3 polynomials.
+</details>
+
+<br>
+
+* In what order should we try to fit these function types to data?
+<details>
+<summary>**Answer**</summary>
+We should try to fit them in the order above: a line first, and then a quadratic if the data has significant curvature, and then a cubic if the data curvature is not adequately captured by the quadratic.
+</details>
+
+<br>
+
+* What is overfitting? Why is it a problem?
+<details>
+<summary>**Answer**</summary>
+Overfitting occurs when we have so many adjustable parameters in a model that we begin to fit the random variation in data in addition to the real underlying trend. 
+<br><br>
+An overfit model will not work well for the estimation of response variables for predictor variable values not present in the training data. In other words, it will fail as a 'predictive model'.  
+</details>
+
+<hr>
+
+# Additional resources
+
+* The [Khan Academy Algebra I course](https://www.khanacademy.org/math/algebra) is an excellent resource to dip into!

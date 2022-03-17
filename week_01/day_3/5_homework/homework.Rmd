@@ -1,0 +1,106 @@
+---
+title: "Homework"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Mhairi McNeill"<br>
+date: "4/06/2019"
+</div>
+
+In the CodeClan datasets package there are three datasets we want you to work with.
+
+* A data frame called `beer`
+* A matrix called `temp`
+* A list called `game_of_thrones`.
+
+The help files will tell you more about the datasets:
+
+* `beer`: A dataset with the brand, brewer, alcohol percentage, calories and grams of carbohydrates for 172 beers.
+* `temp`: A matrix which contains the maximum temperature for each month in Scotland over 106 years (1910 from 2015). Each row corresponds to a year and each column to a month (January to December).
+* `game_of_thrones`: a list of data about the book ‘A Game of Thrones’, including the names and genders of all the characters. Beware, this is a nested list!
+
+In this homework we want you to analyse these three datasets and summarise your most interesting findings. How to do this is up to you! Think about all the functions we’ve learnt about so far to manipulate and summarise data structures, and use them to find something interesting.
+
+<br>
+<div class='emphasis'>
+Try to find at least two interesting facts for each dataset.
+</div>
+<br>
+
+Write your code in a notebook, and remember the best practices you learned today for coding. Style your code according to the `tidyverse` principals: use the `styler` addin to help with this. Make the code easy for other people to read, and include some text in the notebook explaining the purpose of each code block.
+
+<br>
+<div class='emphasis'>
+If you need it, here is the code to install and load the datasets package:
+
+```{r, eval=FALSE}
+install.packages('devtools')
+devtools::install_github('codeclan/CodeClanData')
+library(CodeClanData)
+```
+</div>
+<br>
+
+# MVP 
+
+* Check that the three data sets are formatted in the appropriate format to work with.
+* Do some simple sums and means for numeric data.
+* Try selecting one or more interesting subsets of the data and apply sums and means to the subset(s).
+
+## Beer
+
+<br>
+<details>
+<summary>**Stuck for inspiration?**</summary>
+
+Here are a few of the questions that we chose to look at:
+
+* What are the mean values of all the numeric variables?
+* Which beer has the highest `percent`?
+* Perhaps think about splitting the beers into a few subsets based on their `percent`, e.g. high, medium and low.
+
+</details>
+<br>
+
+## Temperatures
+
+<br>
+<details>
+<summary>**Stuck for inspiration?**</summary>
+
+Here are a few of the questions that we chose to look at:
+
+* What was the average maximum temperature for each month?
+* What was the highest maximum monthly temperature recorded?
+
+</details>
+<br>
+
+## Game of Thrones
+
+<br>
+<details>
+<summary>**Stuck for inspiration?**</summary>
+
+Here are a few of the questions that we chose to look at:
+
+* How many characters are there in the book?
+* Extract all the details for one character.
+
+</details>
+<br>
+
+# Extension
+
+* Use some functions that we have not covered in class.
+* Learn about making basic plots in R and try some plots.
+
+

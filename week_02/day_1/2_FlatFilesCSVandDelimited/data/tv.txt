@@ -1,0 +1,24 @@
+0.5	married	73	14
+0.5	married	66	16
+0.7	not married	65	15
+0.8	not married	65	16
+0.8	married	68	9
+0.9	married	69	10
+1.1	married	82	12
+1.6	married	83	12
+1.6	married	81	12
+2	not married	72	10
+2.5	married	69	8
+2.8	not married	71	16
+2.8	not married	71	12
+3	not married	80	9
+3	not married	73	6
+3	not married	75	6
+3.2	not married	76	10
+3.2	not married	78	6
+3.3	married	79	6
+3.3	not married	79	4
+3.4	married	78	6
+3.5	not married	76	9
+3.6	not married	65	12
+3.7	not married	72	12

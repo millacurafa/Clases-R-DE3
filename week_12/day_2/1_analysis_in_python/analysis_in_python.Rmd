@@ -1,0 +1,534 @@
+---
+title: "Analysis in Python"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+# Learning Objectives
+
+* Understand what the `pandas` and `numpy` libraries do
+* Be able to do basic data manipulation in Python
+* Be able to create a range of plots using both matplotlib and Seaborn
+
+**Lesson Duration: 3 hours**
+
+```{r, echo = FALSE}
+library(reticulate)
+use_python("~/anaconda3/bin/python")
+```
+
+# Creating data frames
+
+`pandas` is an open source, BSD-licensed (i.e. open source) library providing high-performance, easy-to-use data structures and data analysis tools for the Python programming language. It's similar in motivations and uses to the `dplyr` library in R.
+
+The best way to learn `pandas` is just to get started using it! Let's create a new notebook, and name it `intro_to_dataframes`.
+
+Conventionally `Pandas` is imported as follows:
+
+```{python}
+import pandas as pd
+```
+
+The use of `pd` to indicate the `pandas` library is widespread: you should adopt this in your code too unless there is a compelling reason not to.
+
+It is easy to manually generate an ad-hoc dataframe, let's do it now:
+
+```{python}
+instructors_dataframe = pd.DataFrame({
+    'name': ["Del", "Aileen", "Mhairi", "Zsolt"],
+    'cohort': ["DE2", "DE2", "DE2", "E36"],
+    'favourite_number': [7, 12, 3, 9]},
+    index = [1,2,3,4])
+    
+instructors_dataframe
+```
+
+- Note that if you don't specify the index, then it will be automatically set as integers, starting from 0 (remember that Python is 0-indexed).
+
+Note that when you use a function from `pandas` you have to specify `pd` before the name, as in `pd.DataFrame()`. This is similar to how you unambiguously specify a function in R, for example `package::function()`. However, you **must** do this in Python and import the library as well. This is why we renamed `pandas` as `pd`: so we don't have to type `pandas.DataFrame()` every time! 
+
+As a next step, let's type in a new dataframe manually (don't worry, it'll be a small one!)
+
+```{python}
+finals_score_dataframe = pd.DataFrame({
+	 'class1': [88, 90, 67],
+	 'class2':[76, 80, 83],
+	 'class3': [56, 91, 99]
+	 })
+finals_score_dataframe
+```
+
+Let's take a look at a couple of methods that can help us find out more about our dataframe!
+
+If we want to get sets of the first or last values, we can use the `head()` or `tail()` functions. The default number of rows printed by these functions is always 5, unless we specify it with an argument:
+
+```{python}
+finals_score_dataframe.head()
+# or
+finals_score_dataframe.tail()
+# or get the last row
+finals_score_dataframe.tail(1)
+```
+
+We can see the dimensions by accessing the `shape` **property** (note that this is not a method - do not call it with the brackets, you'll get an error)
+
+```{python}
+finals_score_dataframe.shape
+```
+
+To check the column names, you can check them with the `columns` property (as above: this is a property not a method)
+
+```{python}
+finals_score_dataframe.columns
+```
+
+We can see a summarised list of details of a dataframe using the `.describe()` method:
+
+```{python}
+finals_score_dataframe.describe()
+```
+
+<br>
+<blockquote class='task'>
+
+Take a moment to look at the output of the `describe()` method. Are you clear what all of the entries correspond to?
+
+<details>
+<summary>**Solution**</summary>
+We have the count of entries, mean, standard deviation, minimum, maximum and 25%, 50% (median) and 75% quartiles 
+</details>
+</blockquote>
+<br>
+
+We can also access the variances via the `var()` method:
+
+```{python}
+finals_score_dataframe.var()
+```
+
+Now, how we can add more columns, and set/reset the indexes?
+
+- First, let's get the values for the new column we want to add.
+- Then assign these values to a new column name.
+- Finally we can set it as an index if we so desire!
+
+```{python}
+names = ["Alice", "Bob", "Carmen"]
+finals_score_dataframe["Name"] = names
+finals_score_dataframe.set_index('Name')
+```
+
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+* Search online for how to reset the index in a `pandas` dataframe.
+* What happens to the old index?
+
+<details>
+<summary>**Solution**</summary>
+
+```{python}
+finals_score_dataframe.reset_index()
+```
+
+The old index will be added as a regular column.
+
+</summary>
+</blockquote>
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+1. Turn this small table into a data frame called 'shoe_satisfaction'.
+
+```{r, echo = FALSE}
+age <- c(25, 56, 40)
+gender <- c("female", "female", "male")
+shoe_size <- c(7, 5, 13)
+is_satisfied <- c(TRUE, TRUE, FALSE)
+
+shoe_satisfaction <- data.frame(age, gender, shoe_size, is_satisfied)
+knitr::kable(shoe_satisfaction)
+```
+
+2. Run or access the following on the data frame:
+a. `head()`
+b. `describe()`
+c. `shape`
+
+3. Add another column to the data frame called `price` containing the following data: 33.50, 15.99, 39.99.
+
+<details>
+<summary>**Solution**</summary>
+
+1. 
+```{python}
+shoe_satisfaction = pd.DataFrame({
+  "age"          : [25, 56, 40],
+  "gender"       : ["female", "female", "male"],
+  "shoe_size"    : [7, 5, 13],
+  "is_satisfied" : [True, True, False]
+})
+
+```
+
+2. 
+```{python}
+shoe_satisfaction.head()
+```
+
+```{python}
+shoe_satisfaction.describe()
+```
+
+```{python}
+shoe_satisfaction.shape
+```
+
+3.
+```{python}
+shoe_satisfaction["price"] = [33.50, 15.99, 39.99]
+```
+
+</details>
+</blockquote>
+
+# Using `numpy`
+
+In R, all common statistical functions are part of the base language. However, in Python, we need to use another library to make these calculations straightforward.
+
+To apply an out of the box `mean()` method to our numbers, we should become acquainted with `numpy`. It is a package used for scientific computing ('NUMerical PYthon'), and comes with quite a few useful methods out of the box, especially when it comes to handling matrices.
+
+We can import it as follows:
+
+```{python}
+import numpy as np
+```
+
+Let's use `numpy`'s own mean method. Here's how we use it on a column of a data frame:
+
+```{python}
+np.mean(finals_score_dataframe['class1'])
+```
+
+We can also use the `apply()` method of a data frame to calculate the mean of every column. We'll need to make 'Name' an index again, since we don't want to calculate the mean of it.
+
+```{python}
+finals_score_dataframe = finals_score_dataframe.set_index("Name")
+```
+
+Notice we will not calling the method with the brackets - we are passing in the function name, and letting the `apply()` method call it for us.
+
+```{python}
+finals_score_dataframe.apply(np.mean, axis = 0)
+finals_score_dataframe.apply(np.mean, axis = 1)
+```
+
+Note the difference that `axis = 0` applies the method vertically over columns, while `axis = 1` applies it horizontally across rows.
+
+# Verbs in `pandas`.
+
+Now we'll see how to use the equivalent of the five `dplyr` verbs in `pandas`, along with reading in a CSV file using a more helpful function. 
+
+First, we import `pandas` and read in the CSV file:
+
+```{python}
+import pandas as pd
+prestige_dataframe = pd.read_csv("prestige_occupation.csv")
+prestige_dataframe
+```
+
+Here we see our data along with a helpful statement of the number of rows and columns at the bottom.
+
+<br>
+<blockquote class='task'>
+**Task - 5 mins**
+
+In using the `pandas` `read_csv()` function here we have a rather simple call, but we're relying on a large number of default parameters being set. Search online for the docs for this function and have a look at the available parameters.
+
+</blockquote>
+<br>
+
+Now we can start working with our data.
+
+## Select
+
+Subsetting data is fairly easy: using the square bracket notation, we can display one, or more columns.
+
+```{python}
+prestige_dataframe["income"]
+
+prestige_dataframe[["income", "prestige"]]
+```
+
+> Note that when you want to display more than one columns, you have to pass in a `list` within the square brackets.
+
+We can save the result of this into a new data frame if we want to.
+
+```{python}
+income_and_prestige = prestige_dataframe[["income", "prestige"]]
+```
+
+If you want to rename a column, the `replace()` method is the most straightforward:
+
+```{python}
+prestige_dataframe.rename(columns={"job":"job_title"})
+```
+
+This is a good place to mention the 'inplace' behaviour of `pandas`. By default, changes that mutate a data frame tend to be returned by `pandas` but not persisted. We can see this above, where it looks as if column `job` has indeed been renamed to `job_title`, but let's look again at the data frame
+
+```{python}
+prestige_dataframe.head()
+```
+
+Hmm, we're back to `job`. To persist the change, we either need to overwrite the data frame, as we saw earlier, or we can use the `inplace = True` argument
+
+```{python}
+prestige_dataframe.rename(columns={"job":"job_title"}, inplace = True)
+prestige_dataframe.head()
+```
+
+## Arrange
+
+You can sort data with the `sort_values()` method
+
+```{python}
+prestige_dataframe.sort_values("prestige", ascending = False)
+```
+
+By default it is going to be in an ascending order, where `NaN` values are placed at the end.
+
+## Filter
+
+If I want to select all the rows where the `type` is 'bc', we can do it as follows:
+
+First we need to check for the rows with the `type` 'bc':
+
+```{python}
+prestige_dataframe["type"] == "bc"
+```
+
+Using this, we can filter out the rows we need easily:
+
+```{python}
+blue_collar_prestige_dataframe = prestige_dataframe[prestige_dataframe["type"] == "bc"]
+blue_collar_prestige_dataframe
+```
+
+Python will look through our the logical list set up by `prestige_dataframe["type"] == "bc"`, and wherever it finds a `True` value, that row of the whole data frame will be included.
+
+## Mutate
+
+We've already seen how to create new columns. You can use the same method to change an existing column.
+
+```{python}
+prestige_dataframe['income'] = prestige_dataframe['income']/1000
+prestige_dataframe.head()
+```
+
+## Group by and summarise
+
+Grouping data can be done with the `groupby()` method, and then we can chain other methods to it, like `min()`, `max()`, or `mean()` to get more insight. Note however that if we don't call a summarising method at the end of the chain, `pandas` will not return us a new dataframe, but a `groupby` object. This is an example of what is called **lazy evaluation** - Python will try to defer 'concretising' data for as long as possible, because there is no point concretising data until it is actually needed, particularly when later operations may filter out rows or columns. The `magrittr` pipes in R perform a similar function. 
+
+```{python}
+prestige_dataframe.groupby('type')['income'].max()
+```
+
+```{python}
+prestige_dataframe.groupby('type').describe()
+```
+
+In the case that you want to return an entire row with specific conditions, you can use `loc()`:
+
+```{python}
+lowest_prestige_index = prestige_dataframe['prestige'].idxmin()
+prestige_dataframe.loc[lowest_prestige_index]
+```
+
+`idxmin()` returns the index of the row with the lowest value, and we then pass that in to `loc()` to pull out that whole row. Similarly, `idxmax()` returns the index of the row with the highest value.
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Return 2 rows at the same time, with the highest and lowest income! 
+
+[**Hint** - you can pass a list as an argument for `loc()`]
+
+<details>
+<summary>**Solution**</summary>
+
+```{python}
+lowest_income_index = prestige_dataframe["income"].idxmin()
+highest_income_index = prestige_dataframe["income"].idxmax()
+prestige_dataframe.loc[[lowest_income_index, highest_income_index]]
+```
+
+</summary>
+</blockquote>
+
+## Missing values
+
+What happens if some of the values are not available (NA) in a data frame? With Python, we can represent missing values with numpy's `nan` value:
+
+```{python}
+finals_score_dataframe = pd.DataFrame({
+	 'class1': [88, np.nan, 67],
+	 'class2':[76, 80, 83],
+	 'class3': [np.nan, 91, 99]
+	 })
+```
+
+The same thing happens if we read in a CSV file with missing values: `pandas` will automatically detect and assign `nan` values to all missing data.
+
+In R, if you try to calculate the mean of a column that contains a missing value the answer will be a missing value. However, in Python the same behaviour you see when you set `na.rm = TRUE` happens by default.
+
+```{python}
+finals_score_dataframe.apply(np.mean, axis = 0)
+```
+
+If you you want to substitute for the missing values, you can do so by using the `fillna()` method:
+
+```{python}
+finals_score_dataframe.fillna(0)
+```
+
+Note that, as earlier, to persist any changes you either have to save the return value of `fillna()` to a new variable, or you have to set the `inplace = True`, which forces in-place modification:
+
+```{python}
+finals_score_dataframe.fillna(0, inplace = True)
+```
+
+One of the tricky parts of learning `pandas` is knowing which functions return a value and which change the data frame in-place. In R all functions return a value.
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Find out how you can change `nan` values in different columns to different values - [Link to fillna() documentation](https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.fillna.html)
+
+Change the missing values in class 1 to 100; class 2 to 0; and class 3 to 50.
+
+```{python}
+import numpy as np
+finals_score_dataframe = pd.DataFrame({
+	 'class1': [88, np.nan, 67],
+	 'class2':[np.nan, 80, 83],
+	 'class3': [np.nan, 91, 99]
+	 })
+```
+
+
+<details>
+<summary>**Solution**</summary>
+
+For our `fillna()` method, we can pass in a `dict` in which keys are column names, and values are the `nan` substitutions for each column.
+
+Here we persist the changes by reassignment.
+
+```{python}
+finals_score_dataframe = finals_score_dataframe.fillna({"class1": 100, "class2": 0, "class3": 50})
+finals_score_dataframe
+```
+
+</summary>
+</blockquote>
+
+### Prestige data
+
+Let's use the `describe()` method to summarise the details of our dataframe:
+
+```{python}
+prestige_dataframe.shape
+prestige_dataframe.describe(include = 'all')
+```
+
+Flag `include = 'all'` tells `describe()` to include all columns and not just those containing numeric data. If we look in detail, we see a discrepancy in the counts of values, in that `type` has fewer values than the other columns. This means that the `type` column probably has missing data.
+
+After `pandas` reads in the data, the missing values will be described as `NaN`. We can count how many of these there are by using the combination of `.isna()` (or `isnull()`) and `.sum()` methods:
+
+```{python}
+prestige_dataframe.isnull().sum()
+```
+
+This gives us the exact number of cells where we have no values added.
+
+You can drop rows with `nan` values using the `.dropna()` method:
+
+```{python}
+prestige_dataframe.dropna(inplace = True)
+```
+
+This covers just the basics of dealing with missing data in Python, `pandas` offers many more possibilities.
+
+# Plotting with matplotlib/Seaborn
+
+Python has a wide range of tools that lets you create graphs and plots. These libraries are pretty different from `ggplot2`. First let's look at the `matplotlib` library which integrates with `pandas`.
+
+Let's import it (again, we stick to the common naming convention)!
+
+```{python}
+import matplotlib as plt
+```
+
+To see the plots in your Jupyter notebook, you'll need to use a special command at the start of the notebook.
+
+```
+%matplotlib inline
+```
+
+This special syntax with `%` is a Jupyter notebook magic command. These are commands that change how Jupyter notebooks interprets your code. In this case it insures that plots appear in the notebook.
+
+Creating a plot is fairly straightforward. You have to call the `plot()` method on the data frame you want to use (be aware that you can use subsets of your dataframe if required). We pass in an argument to specify the `kind` of plot.
+
+An example of a histogram using the `income` data:
+
+```{python}
+prestige_dataframe["income"].plot(kind = "hist")
+```
+
+Boxplot using the `education` data:
+
+```{python}
+prestige_dataframe["education"].plot(kind = "box")
+```
+
+Scatterplot using `education` and `prestige`, coloured by `income`:
+
+```{python}
+prestige_dataframe.plot(kind = "scatter", x = "prestige", y = "education", c = "income")
+```
+
+These plots do the job well enough, and are fine for day-to-day analysis tasks. However, if we want more polished looking plots, we might want to consider using the `seaborn` library! First, we need to import it, conventionally as `sns`:
+
+```{python}
+import seaborn as sns
+```
+
+Second, we have to know how `seaborn` handles different types of plots. If we want to create a histogram, we can use the `distplot()` method in `sns`:
+
+```{python}
+sns.distplot(prestige_dataframe['education'])
+```
+ 
+Note that Seaborn does not work well with `nan` values - we have to change them before we can create a histogram.
+
+Creating a box plot can be done similarly:
+
+```{python}
+sns.boxplot(data=prestige_dataframe)
+```
+
+Scatter plots created with the `regplot()` method are also much prettier than the base `matplotlib` equivalent:
+
+```{python}
+sns.regplot(x='prestige', y='education', data=prestige_dataframe)
+```
+
+Refer to the documentation for more customisation options and the different argument types. Libraries have different levels of quality when it comes to documentation, but generally speaking, open source Python libraries are well documented, and you can always contribute to them if you feel that there is room for improvement.
+

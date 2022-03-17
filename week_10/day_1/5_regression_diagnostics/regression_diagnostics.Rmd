@@ -1,0 +1,317 @@
+---
+title: "Regression diagnostics"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "2nd May 2019 - rev. 23rd July 2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives
+
+* Know how to get detailed output from an `lm()` model
+
+**Duration - 60 minutes**
+
+<hr>
+
+# Detailed `lm()` output
+
+Let's re-run the linear fit of `height` against `weight`
+
+```{r, message=FALSE}
+library(tidyverse)
+library(janitor)
+library(modelr)
+```
+
+```{r}
+height <- c(176, 164, 181, 168, 195, 185, 166, 180, 188, 174)
+weight <- c(82, 65, 85, 76, 90, 92, 68, 83, 94, 74 )
+sample <- tibble(
+  weight,
+  height
+)
+```
+
+We can get detailed output from the `model` object by using the base R `summary()` method, or the `glance()` and `tidy()` functions in the `broom` package.
+
+```{r}
+model <- lm(height ~ weight, data = sample)
+summary(model)
+```
+```{r}
+library(broom)
+tidy(model)
+```
+
+The `broom` package contains many 'tidier' functions to tidy the output of various regression models. `glance()` and `tidy()` both return tidy output, but we should clean up the names a little more
+
+```{r}
+glance_output <- clean_names(glance(model))
+glance_output
+tidy_output <- clean_names(tidy(model))
+tidy_output
+```
+
+OK, but what do all the values in the output mean? Let's start with the output from `glance()`
+
+## Goodness-of-fit
+
+The `glance()` function returns many parameters related to **how well** our model fits the data. Chief amongst these is the `r_squared` value
+
+```{r}
+glance_output$r_squared
+```
+
+People generally just refer to this as "r-squared", but its more formal name is the **coefficient of determination**. 
+
+<br>
+<div class='emphasis'>
+**$r^2$ AKA coefficient of determination**  
+
+$r^2$ can be interpreted as<br><br>  
+
+<center>_The proportion of the variation in the outcome variable that can be **explained** by<br> variation in the explanatory variable (or explanatory variables for multiple regression)_.</center><br>  
+  
+So, in the case above, our simple linear model says that $85.3\%$ of the variation in `height` in the sample data can be **explained** by variation in `weight`.  Be careful here though not to think of 'explained' as meaning 'caused by'. You could also think of 'explained' as meaning 'is predictable from'.
+
+The **higher** $r^2$, the **better** the line fits the data. Some special cases:
+
+| case | description |
+| --- | --- |
+| $r^2 = 1$<br>(the maximum value) | **All** of the variation in outcome is explained by variation in explanatory variable(s). All of the data points would lie upon the best fit line. |
+| $r^2 = 0$<br>(the minimum value) | **None** of the variation in outcome is explained by variation in explanatory variable(s). The best fit line would run parallel to the $x$-axis and be positioned at the `mean()` of the outcome values. | 
+
+**Special case for simple linear regression**  
+  
+For simple linear regression $r^2$ will equal the square of $r$, the **correlation coefficient**. This won't be true in multiple linear regression, because we have two or more explanatory variables, and they may be partially correlated with each other.
+</div>
+<br>
+
+The explanation of why $r^2$ is related to explained variation is quite involved: you can find a good video describing it [here](https://www.khanacademy.org/math/ap-statistics/bivariate-data-ap/assessing-fit-least-squares-regression/v/r-squared-or-coefficient-of-determination) if you're interested. However, you don't need to understand the maths, you just need to be able to interpret $r^2$. Really, all you need to know is that higher $r^2$ means a better fit!
+
+<br>
+<blockquote class='task'>
+**Task - 2 mins**
+
+We saw above that $r^2$ should be equal to the square of $r$ (the correlation coefficient) for simple linear regression. Test this out in the current case.
+
+<details>
+<summary>**Hint**</summary>
+Remember the `cor()` function
+</details>
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+sample %>%
+  summarise(cor_squared = cor(height, weight)^2)
+glance_output %>%
+  select(r_squared)
+```
+</details>
+</blockquote>
+
+We'll discuss more on the other measures of goodness-of-fit in later lessons on multiple regression!
+
+## Coefficients
+
+The coefficients and various properties related to them are reported by `tidy()`
+
+```{r}
+tidy_output
+```
+
+The main columns to note are:
+
+* `term` which labels the coefficients
+* `estimate` which contains the fitted values
+* `p_value` which contains the $p$-value for a hypothesis test of that coefficient
+
+<br>
+<blockquote class='task'>
+**Task - 2 mins**
+
+We said a 'hypothesis test of that coefficient', but it isn't really clear what's meant by this. Let's stop and think: 
+
+* What do you think the null hypothesis $H_0$ is in each case?
+* What's the alternative hypothesis $H_a$?
+* What type of test do you think this is? One-tailed or two-tailed?
+
+Discuss with the people around you!
+
+<details>
+<summary>**Solution**</summary>
+Here are the hypotheses:
+
+* $H_0$: $\textrm{coefficient} = 0$
+* $H_a$: $\textrm{coefficient} \ne 0$
+* This is a two-tailed test
+
+So, in each case, the test is whether the coefficient is **significantly different** from zero. It's important to understand that we get these $p$-values 'for free' from the matrix maths R uses to fit the model: R isn't doing any bootstrapping or anything of that sort behind the scenes. We'll see later how to bootstrap regression.
+
+</details>
+</blockquote>
+<br>
+
+As usual, if the $p$-value is less than our significance level ($\alpha$ values of $0.05$ or $0.01$ are typical), we can be reasonably certain that the coefficient is significantly different from zero.
+
+<br>
+<div class='emphasis'>
+But, there's a caveat. In order to trust and use these $p$-values, the **residuals** of the model have to fulfill certain conditions which you have to check. The residuals have to:
+
+* be independent of each other
+* be normally distributed
+* show no systematic increase or decrease in variation across the range of data
+
+The easiest way to check each of these is by looking at diagnostic plots.
+
+</div>
+<br>
+
+# Diagnostic plots
+
+The `ggfortify` package offers the `autoplot()` function to produce the diagnostic plots required for regression. You just pass in your `lm()` model object:
+
+```{r}
+library(ggfortify)
+autoplot(model)
+```
+
+and the function provides **four** diagnostic plots. We're going to be concerned here with the first three of these:
+
+## Residuals vs Fitted
+
+This plot tests the **independence** of residuals. Ideal behaviour would be for the residuals to be randomly scattered around a value $0$. The blue smoothed line helps you check this: you want to see the line stay close to zero (or, if you have little data, to wobble around zero). This plot looks fine for our case.
+
+## Normal Q-Q
+
+This **quantile-quantile** plot tests the **normality** of the residuals. Ideally, you would like all the points to lie close to the line. If this is so, the residuals are well-described as normally distributed. Again, aside from one outlier, this plot looks fine for our case.
+
+## Scale-Location
+
+This plot tests the **constancy of variation** of the residuals. Ideally, you want the residuals to occur in a band of fixed width above the $x$-axis. Again, the blue smoothed line helps to check this: you want to see the line stay close to a constant or positive value (or wobble around a constant value if you have little data). Again, this plot looks fine in our case.
+
+## Task
+
+<br>
+<blockquote class='task'>
+**Task - 15 mins**
+
+We provide two data sets: `distribution_1.csv` and `distribution_2.csv`. Fitting a simple linear regression to each of these distributions leads to problems with the residuals for two different reasons. See if you can identify the problem in each case!
+
+* Load the data set.
+* Fit a simple linear regression taking `y` as the outcome and `x` as the explanatory variable, saving the model object.
+* Check the diagnostic plots for the model object and identify the main problem you see with the residuals (use the `autoplot()` function).
+* Finally, plot the data and overlay the best fit line (use `add_predictions()` to add a `pred` column to the data set, and then plot via `geom_point()` and `geom_line()`). Does this plot help you interpret the problem you found in the residuals?
+
+<details>
+<summary>**Solution**</summary>
+
+**Distribution 1**  
+
+```{r}
+data1 <- read_csv("data/distribution_1.csv")
+model1 <- lm(y ~ x, data = data1)
+autoplot(model1)
+```
+
+The main problem here seems to be that the residuals aren't independent, there is a clear pattern in the `Residuals vs Fitted` plot. The residuals are all negative for low fitted values, become positive, and then negative again for high fitted values.
+
+```{r}
+data1 <- data1 %>%
+  add_predictions(model1) 
+
+data1 %>%
+  ggplot(aes(x = x)) +
+  geom_point(aes(y = y)) +
+  geom_line(aes(y = pred), col = "red")
+```
+
+Clearly, this data is not well described by a straight line fit: there is curvature in the plot. We see why we get mainly negative, then positive, then negative residuals.  
+  
+**Distribution 2**
+
+```{r}
+data2 <- read_csv("data/distribution_2.csv")
+model2 <- lm(y ~ x, data = data2)
+autoplot(model2)
+```
+
+The main problem here seems to be in the `Scale-Location` plot: the variation in the residuals gets progressively larger as the fitted value increases (the blue line slopes upward to the right).
+
+```{r}
+data2 <- data2 %>%
+  add_predictions(model2) 
+
+data2 %>%
+  ggplot(aes(x = x)) +
+  geom_point(aes(y = y)) +
+  geom_line(aes(y = pred), col = "red")
+```
+
+We see the data points fall close to the line for low value of $x$, but scatter more distantly around it as $x$ increases. We call data like this **heteroscedastic**: 'hetero' meaning 'differently' and 'scedastic' meaning 'scattered'.
+
+We shouldn't trust the $p$-values of the coefficient in either of these regression fits: the conditions for the residuals haven't been satisfied, meaning the hypothesis tests are unsafe. 
+
+</details>
+</blockquote>
+<br>
+
+<hr>
+
+# Bootstrapping regression
+
+We saw above that the hypothesis tests for regression coefficients reported in the model output are based upon the assumption that the residuals are normally distributed. This presents a problem, as some of the data you encounter in real life will fail these criteria. 
+
+Remember that bootstrapping helped us to put aside any worries about whether the sampling distribution was normal when we were calculating confidence intervals and performing hypothesis tests. It can also help us overcome this limitation of regression. 
+
+Let's see the workflow in `infer`: we're going to bootstrap to extract the `slope`, i.e. the coefficient of `x`. We'll re-use `distribution_2` from the task above.
+
+```{r}
+library(infer)
+
+# specify regression formula
+# stat = "slope" extracts the regression coefficient
+bootstrap_distribution_slope <- data2 %>%
+  specify(formula = y ~ x) %>%
+  generate(reps = 10000, type = "bootstrap") %>%
+  calculate(stat = "slope")
+
+slope_ci95 <- bootstrap_distribution_slope %>%
+  get_ci(level = 0.95, type = "percentile")
+slope_ci95
+
+bootstrap_distribution_slope %>%
+  visualise(bins = 30) +
+  shade_ci(endpoints = slope_ci95)
+```
+
+What is bootstrapping doing here? We resample `distribution_2` $10000$ times, and for each of those resamples, we run `lm()` and extract the `slope` (i.e. the `x` coefficient) and add it to our sampling distribution.
+
+The key point here is that $0$ is **not within** the $95\%$ confidence interval, so we can be confident at that level that the coefficient of `x` is significantly different from $0$. 
+
+Let's compare this bootstrapped CI with the one we get directly from the `lm()` output via `tidy()`
+
+```{r}
+# set conf.int = TRUE and conf.level to get a CI
+clean_names(tidy(model2, conf.int = TRUE, conf.level = 0.95))
+```
+
+Look at the row for the `x` term. The point estimate of the slope is $0.9955$, and the CI bounds are in `conf_low` and `conf_high`. In this case the bootstrapped coefficient CI is pretty close to what we get directly from the `lm()` output.
+
+<hr>
+
+# Recap

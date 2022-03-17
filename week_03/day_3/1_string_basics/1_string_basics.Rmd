@@ -1,0 +1,439 @@
+---
+title: "String Basics"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+
+# Learning Objectives:
+
+* Define strings in R
+* Concatenate strings
+* Format numbers as strings
+* Use Unicode in strings
+* Manipulate strings to achieve different results
+* Be aware of some of the common issues when working with strings
+
+**Lesson Duration: 90 mins**
+
+Although much of the data you will encounter in your career will take numerical forms, it's not the only sort you'll come across. Text will also play a part, both in terms of presentation and (perhaps more importantly) in data sources. Text mining in particlar will require lots of work with strings, you'll find out more about this later in the course. 
+
+In this lesson we'll look at some of the tools in R for working with strings.
+
+# Storing Strings in Variables
+
+Just like anything else in R, we can store a string in a variable. We define the string using quotation marks: either single (`''`) or double (`""`).
+
+```{r}
+single_quote_string <- 'This is a single-quote string'
+double_quote_string <- "Double-quotes work just as well"
+
+single_quote_string
+double_quote_string
+```
+
+
+It makes no difference if we use single or double quotes; both are valid ways of defining strings. However, we need to take care when we want to include a quotation mark **inside** a string. As you have no doubt discovered by now, computers will only do what we tell them to do. If we, for example, try to use a single quote inside a single-quoted string then knitr will interpret that quote as the end of the string. This is a particularly common problem when we want to include an apostrophe in text.
+
+```{r}
+mixed_string <- "If I use a single quote inside double quotes it'll be fine, though."
+escaped_string <- 'I won\'t have any problems if I escape using a backslash before the quote.'
+
+mixed_string
+escaped_string
+```
+
+Because of this we recommend using double-quotes for strings where possible, and this is also consistent with our coding style guide. 
+
+Strings can contain any alphanumeric character we like, or nothing. A string with nothing in it has a special name: the **empty string**. Note that this **isn't the same** as a string which only contains white space!
+
+```{r}
+empty_string <- ""
+not_an_empty_string <- " "
+
+empty_string == not_an_empty_string
+```
+
+Strings belong to the class `character`, and you've seen that we can create vectors of strings which can be manipulated in the same way as any other vector.
+
+```{r}
+character_vector <- character(5)
+character_vector
+
+character_vector[1] <- "replacement string!"
+character_vector
+character_vector[6] <- "extra string!"
+character_vector
+character_vector[10] <- "skipped some strings!"
+character_vector
+```
+
+
+# Manipulating Strings
+
+It's very unlikely that we'll be happy with the strings we dig out of our datasets. We'll probably want to extract certain parts of them, or get rid of excess whitespace, or alter them in some other way. There's a library we can use to help us do this called `stringr` which will have been installed as part of your work with `tidyverse` earlier in the week.
+
+```{r, message = FALSE}
+library(tidyverse)
+```
+
+## Concatenating
+
+Arguably the simplest way of altering strings is to stick two of them together. We call this **concatenating** strings (the operation is known as **concatenation**).
+
+Let's start small by building a short phrase: `stringr` has two functions which we can use here, both of which do the same thing: `str_c()` and `str_join()`. We'll use `str_c()` throughout this lesson and others today, but the two functions are interchangeable.
+
+```{r}
+str_c("This", "is", "really", "easy", "isn't", "it?")
+```
+
+Maybe "easy" wasn't the right word to use since that's probably not the result we were looking for! Both of the concatenation methods just mash stuff together, since we haven't told them to do anything different. We can tell them to put something between each string by passing a value to the `sep` parameter (short for **separator**). This can be anything we like, so long as it's a string.
+
+```{r}
+str_c("This", "will", "look", "better", "than", "last", "time!", sep = " ")
+str_c("we", "might", "use", "underscore", "for", "file", "names", sep = "_")
+```
+
+`str_c()` has another useful feature: any `NULL` passed in to it will be ignored automatically.
+
+```{r}
+str_c("See", NULL, "how", "all", NULL, "the", NULL, "NULLS", "disappear?", sep = " ")
+```
+
+<div class="emphasis">
+As you've seen, base R has methods which will do the same thing for us: `paste()` (which adds spaces between words) and `paste0()` (which doesn't). Many of the methods we'll look at today have such equivalents, but we're going to use `stringr`'s methods as they generally provide extra functionality and a consistent syntax.
+</div>
+
+## Casing
+
+Once we've concatenated some strings there's a fair chance there will be something off with the formatting. When we're writing reports this is important: the meaning of words **may** make sense, but a missing capital letter or unexpectedly capitalised word can have a huge effect on the meaning of a sentence and the aesthetics of the report. It's arguably even more important when working with a dataset.
+
+`stringr` has a few methods which will let us manipulate the casing of a string. Because `stringr` is part of the tidyverse, we can use the `magrittr` pipes if we wish!
+
+```{r}
+pangram <- "The quick brown fox jumps over the lazy dog"
+
+# All letters upper-case
+pangram %>%
+  str_to_upper()
+
+# All letters lower-case
+pangram %>%
+  str_to_lower()
+
+# Formatted as a title
+pangram %>%
+  str_to_title()
+
+# Formatted as a sentence
+pangram %>%
+  str_to_sentence()
+```
+
+
+## Splitting
+
+We've stuck some strings together, but how do we undo the damage? As you might expect, `stringr` includes a handy method to do just that: `str_split()`.
+
+`str_split()` always takes two arguments: the string we want to split up, and a string to indicate where we want the break(s) to occur. It will return a `list` of character vectors. Let's start with another short phrase:
+
+```{r}
+unbroken_string <- "We're going to break this string up."
+```
+
+We might, for example, want to create a vector of the individual words in that phrase. In that case we want to split the phrase around the whitespace between words:
+
+```{r}
+unbroken_string %>%
+  str_split(" ") %>%
+  flatten_chr()
+```
+
+See how we now have a `list` containing a vector of words, which we then `flatten` to a vector? Note that the whitespace hasn't been included in the output; it's been discarded completely. In any instance where we split a string around a given character, that character will be discarded. Let's see what happens if we split around the letter "i":
+
+```{r}
+unbroken_string %>%
+  str_split("i") %>%
+  flatten_chr()
+```
+
+We have a vector of four strings with all the "i"s removed. We can split a string around any character (or substring) we like. We can even split around patterns in the string using **regular expression** (more on them this afternoon).
+
+Finally, what happens if we don't specify a character to split around and just pass in the empty string?
+
+```{r}
+unbroken_string %>%
+  str_split("") %>%
+  flatten_chr()
+```
+
+We get back a vector of all the individual characters in the string, including the whitespace and punctuation. This might seem like a strange thing to do, but it can be a very useful tool and is actually what's going on under the lid in some programming languages when doing things like reversing strings.
+
+<blockquote class='task'>
+**Task - 10 mins** 
+
+* Concatenate the strings `"Manipulating" "strings" "is" "fun!"`
+* Capitalise the result and save it in a new variable
+* Split the formatted string into individual characters
+
+<br>
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+# Concatenate
+built_string <- str_c("Manipulating", "strings", "is", "fun!", sep = " ")
+built_string
+
+# Format
+formatted_string <- built_string %>%
+  str_to_upper()
+
+# Split
+formatted_string %>%
+  str_split("")
+```
+</details>
+</blockquote>
+
+## Finding substrings
+
+Perhaps we don't want to break a string down totally; maybe we just want to grab a section of it to work with. When we grab a piece of a string like this we refer to it as a **substring**. We can start and finish the substring wherever we like, and can even use vectors to extract many substrings at once.
+
+Let's start again with an initial string:
+```{r}
+full_string <- "Let's grab a substring from this!"
+```
+
+To find a substring we use `str_sub` and pass it three arguments: the string we're starting with, our desired start point for a substring and its end point. If we include `str_sub()` as part of a pipe, this takes care of the first data argument for us. So, to get the word "Let's" from `full_string` we'd start at index 1 (`start` argument) and finish at 5 (`end` argument):
+
+```{r}
+full_string %>%
+  str_sub(start = 1, end = 5)
+```
+
+We don't **need** to use `stringr` to find substrings (base R has a built-in method for that already), but it does give us an extra way of finding them. Say we wanted to find the last five characters of a bunch of strings. If the strings are all different lengths then we have a problem: how do we know what the start and end indices are? Do we have to find the length of each string and then subtract five? If we use R's default method that's exactly what we have to do, but using `stringr` we have another option:
+
+```{r}
+long_string <- "How do we find the last five characters of this?"
+long_string %>%
+  str_sub(-5, -1)
+```
+
+By passing in **negative** indices we can tell R to count back from the end of the string. In this case we want to start five characters from the end of the string and finish with the final character.
+
+We don't even have to say specify where we want to finish the substring. The default for the `end` argument is the end of the string so if we wanted a substring which excluded the first _n_ characters of a string we could set `start` at the index _n + 1_ and omit the `end` argument (which will go to default):
+
+```{r}
+another_string <- "We're going to chop the first word off this!"
+another_string %>%
+  str_sub(6)
+```
+
+One more thing on substrings: we can even use vectors to extract many substrings at once, passing them as start points, end points, or both!
+
+```{r}
+one_more_string <- "Lot's of substrings!"
+
+#change the start point each time from 1 to 5 (end point always 10)
+one_more_string %>%
+  str_sub(1:5, 10)
+
+#change the end point each time from 10 to 14 (start point always 1)
+one_more_string %>%
+  str_sub(1, 10:14)
+
+#change both start and end point each time (from 1 and 10 to 5 and 14) - so each one the same length
+one_more_string %>%
+  str_sub(1:5, 10:14)
+
+#change both start and end point each time (from 1 and 10 to 5 and 19) - so each one a different length
+one_more_string %>%
+  str_sub(1:5, 10:19)
+```
+
+
+## Replacing substrings
+
+`str_sub()` has more uses than simply extracting substrings, we can also use it to help us replace parts of a string. 
+
+```{r}
+original_string <- "We're going to replace some words."
+original_string
+```
+
+We start off by using `str_sub()` to find a substring as before, but instead of simply returning the value, we assign a new string to the substring we find:
+
+```{r}
+str_sub(original_string, 1, 22) <- "I've changed"
+original_string
+```
+
+We can still use negative indexing and optional end indices as before:
+
+```{r}
+str_sub(original_string, -11) <- "everything!"
+original_string
+```
+
+## Dynamically finding & replacing
+
+It's great that we can find substrings and replace them with something else, but we're still a little limited in how we can go about it. The methods we've looked at so far are dependent on us knowing the start and end indices of the substring we're looking for, which we often won't have. They're also very vulnerable to user errors -- we've all miscounted stuff at some point!
+
+There will still be uses for these methods, such as clipping the start or the end off of strings as described above. In other situations we may need to be more dynamic, so we use pattern matching in the form of **regular expressions**. We'll be discussing these in depth later today!
+
+# Numbers in strings
+
+We said at the start that we would often be working with numbers, and we'll still want to include them in our reports. We can't manipulate them in the same way though, unless we first format them correctly.
+
+That's where the `format()` function comes in. By passing in a number we can convert it to a string, which we can then use all our favourite string functions on:
+
+```{r}
+number <- 123456.789
+
+number %>%
+  format()
+```
+
+Note the quote marks telling us that our number is now a string. You'll also see that it's been rounded to one decimal point. We can configure that value using the `nsmall` parameter, with the default being 1:
+
+```{r}
+number %>%
+  format(nsmall = 2)
+
+number %>%
+  format(nsmall = 3)
+
+number %>%
+  format(nsmall = 10)
+```
+
+We can also configure the decimal point we want to use (since in different countries different symbols are used):
+
+```{r}
+number %>%
+  format(nsmall = 3, decimal.mark = ",")
+```
+
+Finally we can break the number down into comma-separated blocks, with both the commas and the size of the blocks being configurable:
+
+```{r}
+number %>%
+  format(nsmall = 3, big.mark= ",", big.interval = 3)
+
+number %>%
+  format(nsmall = 3, big.mark= "&", big.interval = 4)
+```
+
+# Unicode - a reminder
+
+We've already heard a bit about Unicode back in week 2. We saw that it's a way of encoding text symbols such that they have a unique reference code point and take up a minimal amount of memory.
+
+You may recall that there are over 1.1 **million** code points available, although only 136,000 (approximately) have actually been assigned. The most common encoding for those characters is **UTF-8**, which (according to the W3C) accounts for **93.6%** of the accessible internet. Most of the remainder is encoded in UTF-16, which uses a 16-bit encoding instead of 8. UTF-8 is the default encoding in many markup languages (eg, XML, HTML) and for many text editors.
+
+UTF-8 can be used to encode **any** Unicode character, and is even backward-compatible with some older encodings such as ASCII. It does have a downside in comparison with some encodings in terms of memory: alphabet-specific encodings naturally can use fewer bytes-per-character on average than an encoding which must accomodate everything. It is also possible to accidentally truncate a UTF-8 string, which may cause some problems. However, many parsers will recognise this and automatically fix the problem.
+
+## Adding unicode to strings
+
+Writing using Unicode may seem daunting, but in practice it's not that different from our everyday work. That's because many modern text editors have built-in functionality which can handle any special characters we want to add to a document. Imagine we're talking about our bank balance:
+```{r}
+bank_statement <- "I've got £10000 in my bank account!"
+bank_statement
+```
+We could replace any one of these characters with its Unicode code point and we'd get the same output. Let's try replacing the £ symbol:
+```{r}
+unicode_bank_statement <- "I've got \u00A310000 in my bank account!"
+unicode_bank_statement
+```
+The result is the same, regardless of whether we type £ or `\u00A3`. Note that we don't need to leave a space between the code point and the following characters -- our software is clever enough to parse the Unicode correctly.
+
+It's also smart enough to recognise that the code point represents a single character when we try to manipulate the string in other ways:
+```{r}
+str_sub(unicode_bank_statement, 10, 10) <- "\u20AC"
+unicode_bank_statement
+```
+
+# A bit of practice...
+
+<blockquote class='task'>
+**Task - 15 mins** 
+
+* Concatenate the strings `"I" "love" "using" "strings" "in" "reports!"`
+* Find the exclamation mark `!` using the Unicode values found [here](https://unicode-table.com/en/) [**Hint** see the `str_extract()` function].
+* Also using the Unicode value, replace it with a question mark `?`.
+* Replace the substring `"I love using"` with `"Isn't working with"`
+* Replace the substring `"in reports!"` with `"really interesting`.
+
+
+<br>
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+built_string <- str_c("I","love", "using", "strings", "in", "reports!", sep = " ")
+built_string
+
+built_string %>%
+  str_extract("\u0021")
+
+str_sub(built_string, -1) <- "\u003f"
+built_string
+
+str_sub(built_string, 1, 12) <- "Isn't working with"
+built_string
+
+str_sub(built_string, -11, -2) <- "really interesting"
+built_string
+```
+</details>
+</blockquote>
+
+# Recap
+
+* What would happen if we put an apostrophe in a single-quoted string?
+<details>
+<summary>**Answer**</summary>
+It would break unless we used the escape character
+</details>
+
+<br>
+
+* What happens to NULL values passed to `str_c`?
+<details>
+<summary>**Answer**</summary>
+They are ignored
+</details>
+
+<br>
+
+* What do negative indices do when passed in to `str_sub`?
+<details>
+<summary>**Answer**</summary>
+Allow us to count back from the end of the string
+</details>
+
+<br>
+
+* Does Unicode require any special treatment when we add it to a string?
+<details>
+<summary>**Answer**</summary>
+No! Our parser is smart enough to identify Unicode and handle it correctly
+</details>
+
+# Additional Resources
+
+* [String Functions in R](https://www.r-bloggers.com/string-functions-in-r/)
+* [Handling and Processing Strings in R](https://www.gastonsanchez.com/Handling_and_Processing_Strings_in_R.pdf)
+* [Formatting Numbers in R](https://www.dummies.com/programming/r/how-to-format-numbers-in-r/)
+* [stringr documentation](https://stringr.tidyverse.org/reference/)
+* [Unicode Character Table](https://unicode-table.com/en/)

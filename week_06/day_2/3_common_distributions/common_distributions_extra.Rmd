@@ -1,0 +1,195 @@
+---
+title: "Common distributions - extra material"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "4th April 2019 - rev 30th June 2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives
+
+* Have seen and have some knowledge of the Bernoulli and binomial distributions
+
+<hr>
+
+# Bernoulli
+
+The Bernoulli distribution, named after mathematician Jacob Bernoulli, is the distribution we get from a process in which a random variable $x$ takes value $x=1$ with probability $p$, and value $x=0$ with probability $1-p$. 
+
+The Bernoulli distribution is useful in modelling **processes that result in one of two outcomes**, e.g. pass/fail, win/lose, selected/not selected, ok/defective. 
+
+You may hear a single run of such a process called a **'Bernoulli trial'**.
+
+e.g. imagine tossing a 'loaded coin' that lands 'heads' with probability $0.6$ and 'tails' with probability $0.4$. Random variable $x$ is the outcome of a single toss: we map 'heads' to the value $x=1$ and 'tails' to $x=0$. The probability distribution $f(x)$ is then given by
+
+```{r}
+x <- c(0, 1)
+p_heads <- 0.6
+f_x <- c(1-p_heads, p_heads)
+barplot(f_x, names.arg = x, xlab = "x", ylab = "f(x)")
+```
+
+Mapping of categorical outcomes to discrete numerical outcomes, as we did above, is very common. For various reasons, we often prefer to be dealing with numerical random variables.
+
+# Binomial
+
+The binomial distribution applies to experiments which can be thought of as being 'made up' of **multiple Bernoulli trials**. Examples might be: 
+
+* flipping a number of coins ('heads'/'tails') and counting the number of 'heads'.
+* investigating a number of plants for a disease (infected/not infected) and counting the number of infected plants.
+* taking a number of items from a production line for QA inspection (pass/fail) and counting the number of failing items.
+
+<br>
+<div class='emphasis'>
+The following conditions must be met to apply the binomial distribution:
+
+* The overall experiment can be seen as a series of $n$ Bernoulli trials, i.e. $n$ draws of 'success' or 'fail'
+* From trial to trial, the probability of 'success' **does not change** (or, equivalently, the probability of 'fail' does not change).
+* The trials are independent, i.e. the outcome of one trial does not depend upon the outcome of any other trial.
+* The question we are trying to answer is of the form "What is the probability of $x$ 'successes' in $n$ trials?" (or the equivalent question for 'fails').
+</div>
+<br>
+
+e.g. 'we roll a six-sided die four times, what is the probability that a '$5$' comes up exactly once?'  Checking the conditions, the Binomial distribution applies here: 
+
+* We have a series of Bernoulli trials. Each trial is "$5$ does ('success') or does not ('fail') come up on a roll".
+* The probability of a $5$ ('success') remains $\frac{1}{6}$ for each trial. 
+* The rolls are all independent of each other.
+* We're answering a question of the form "what is the probability of $x$ successes in $n$ trials?", i.e. "what is the probability of a *single* $5$ in *four* rolls?" ($x=1$ and $n=4$)
+
+<blockquote class='task'>
+**Task - 5 mins** The binomial distribution **does not** apply to the following experiment. Discuss the reasons why with the people around you. 
+<br><br>
+"We draw four cards from a 52-card deck without replacement of the drawn cards. What is the probability of getting two face cards (jack, king, queen) of any suit?"
+<details>
+<summary>**Solution**</summary>
+The main problems here are that the probability of success is not constant from trial to trial, and the trials are not independent. To see this, note that, on trial one, the probability of success is $\frac{12}{52}$. On trial two, the probability of success is either $\frac{11}{51}$ if trial one was a success, or $\frac{12}{51}$ otherwise.
+</details>
+</blockquote>
+
+The binomial probability distribution for a count of $x$ successes in $n$ trials with a probability of success $p$ is  
+
+$$f(x) = p(x \mid n,p) = \; ^{n}C_x \; p^x(1-p)^{n-x}$$
+where we've seen $^{n}C_x$ before: it's the number of combinations! The notation $p(x \mid n,p)$ indicates a conditional probability: the probability of value $x$ **given** a distribution with parameters $n$ and $p$.
+
+R provides functions to help us use the binomial distribution: 
+
+* `dbinom(x, size, prob)` for the distribution
+* `pbinom(q, size, prob)` for the cumulative distribution ($q$ here indicates a quantile - think about this as 'values up to and including q'). 
+
+Let's use `dbinom()` to plot the distribution for the 'four rolls' problem we came across earlier.
+
+```{r}
+x <- seq(from = 0, to = 4, by = 1)
+f_x <- dbinom(x = x, size = 4, prob = 1/6)
+barplot(f_x, names.arg = x, xlab = "x", ylab = "f(x)" )
+```
+
+Now let's get the probability of "a single roll of $5$ in four rolls"
+
+```{r}
+dbinom(x = 1, size = 4, prob = 1/6)
+```
+
+What about the probability of getting "one or fewer rolls of $5$ in four rolls"? Solving this requires the cumulative distribution `pbinom()`, as the probability we need is $f(x=0)+f(x=1)$
+
+```{r}
+# quantile q = 1: x = 0 or x = 1
+pbinom(q = 1, size = 4, prob = 1/6)
+```
+
+<blockquote class='task'>
+**Task - 5 mins** We can use the cumulative distribution to show that the probabilities of all values of the random variable sum to 1 (i.e. our first condition for a valid discrete distribution). Think about how you would do this and try it out!
+<details>
+<summary>**Solution**</summary>
+```{r}
+# quantile q=4: all values up to and including 4
+pbinom(q = 4, size = 4, prob = 1/6)
+# this is equivalent to
+dbinom(0, 4, 1/6) + dbinom(1, 4, 1/6) + dbinom(2, 4, 1/6) + dbinom(3, 4, 1/6) + dbinom(4, 4, 1/6)
+```
+</details>
+</blockquote>
+
+<br>
+
+<blockquote class='task'>
+**Task - 10 mins** Use `dbinom()` and `pbinom()` to solve the following problems.<br><br>
+A school multiple choice test has twenty questions. Each question has four possible answers (A, B, C or D), one of which is correct. A seriously ill-prepared student sits the test, answering questions completely at random!<br>
+<br>
+  i. What is the probability of getting a single question correct by random choice of answer?<br>
+  ii. What is the probability that the student answers one-half of the questions correctly?<br>
+  iii. The pass mark is 50%. What is the probability that the student fails the test?
+<br><br>
+**Hints**
+
+* plot the distribution and the CDF, it will help you check if your answers are reasonable!
+* think of answering a single question as a Bernoulli trial. What is the probability of randomly getting the correct answer?
+
+<details>
+<summary>**Solution**</summary>
+The probability of getting any single question correct by random choice is $\frac{1}{4} = 0.25$
+```{r}
+# plot the distribution
+num_correct <- seq(from = 0, to = 20, by = 1)
+
+# don't forget, most functions in R are vectorised, so can pass a vector into dbinom()
+f_num <- dbinom(x = num_correct, size = 20, prob = 0.25)
+barplot(f_num, names.arg = num_correct, xlab = "Num. correct", ylab = "f(Num. correct)")
+
+# plot the CDF
+F_num <- pbinom(q = num_correct, size = 20, prob = 0.25)
+plot(x = num_correct, y = F_num, type = "s", xlab = "Num. correct", ylab = "F(Num. correct)")
+
+# Now, probability of getting exactly one-half the questions correct 
+dbinom(x = 10, size = 20, prob = 0.25)
+
+# And probability of failing the test
+# Use CDF, fail if num_correct = 0, num_correct = 1,... all the
+# way to num_correct = 9
+pbinom(q = 9, size = 20, prob = 0.25)
+```
+**Bonus extra question** What is the probability of the student passing the test?
+The student **must either pass or fail the test**, i.e 
+$$p(\textrm{pass}) + p(\textrm{fail}) = 1$$ 
+We calculated $p(\textrm{fail})$ above, so $p(\textrm{pass}) = 1 - p(\textrm{fail})$
+```{r}
+p_pass = 1 - pbinom(q = 9, size = 20, prob = 0.25)
+p_pass
+```
+They have an approximately 1.4% chance of passing by random selection of answers! Good luck to them...
+</details>
+</blockquote>
+
+<hr>
+
+# Recap
+
+* Briefly describe the discrete distributions we've covered.
+<details>
+<summary>**Answer**</summary>
+**Bernoulli**: outcome of a single 'success/fail' trial with probability $p$ of success
+**Binomial**: describes an experiment made up of multiple Bernoulli trials where we are interested in the number of successes. The Bernoulli trials are independent, and $p$ of success does not change.
+</details>
+
+<hr>
+
+# Additional Resources
+
+* We haven't had time to look at the **Poisson** distribution. It's important for count data, i.e. data which contains the counts of objects. You might like to have a look at the relevant [videos](https://www.khanacademy.org/math/statistics-probability/random-variables-stats-library/poisson-distribution/v/poisson-process-1) on Khan Academy!
+
+
+
+

@@ -1,0 +1,413 @@
+---
+title: "Conditional probability"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# Learning Objectives
+
+* Understand the basic theory of conditional probability
+* Understand what makes events dependent upon or independent of each other.
+* Know the multiplication laws for dependent and independent events.
+ 
+**Duration - 60 minutes**
+
+<hr>
+
+# Conditional probability
+
+<br>
+
+Often we'd like to be able to compute the probability of one event **given that** we know another has occurred. 
+
+We call this a **conditional probability**, and write $\textrm{prob}(A \mid B)$ for the *"probability of event $A$ occurring given that event $B$ has occurred"*. We could also put this more briefly as the *"probability of $A$ given $B$"*.   
+
+<br>
+<div class='emphasis'>
+In terms of probability theory, the conditional probability is
+
+$$\textrm{prob}(A \mid B) = \frac{\textrm{prob}(A \cap B)}{\textrm{prob}(B)}$$
+
+In plain language: *the probability of event $A$* **given** *event $B$ , equals the probability of $A$* **AND** *$B$ divided by the probability of $B$ alone*. 
+
+</div>
+<br>
+
+<blockquote class='task'>
+Let's return to the roll of a single die to get a clear example, and ask *what is the probability that a 5 was rolled* **given that** *we know an odd number was rolled?"* 
+</blockquote> 
+<br> 
+
+Applying common sense first, we know that if an odd number was rolled, the event space contains three outcomes: $\{1,3,5\}$. So now $5$ is one outcome amongst three, and we'd calculate that: 
+
+$$\textrm{prob}(5 \mid \textrm{odd}) = \frac{1}{3}$$ 
+
+<br>
+<div class='emphasis'>
+Note how the **conditioning event** (i.e. number is odd in this case) **narrows** the space of outcomes we have to consider: this is key to understanding conditional probability. 
+</div>
+<br>
+
+Does the expression above work for this problem? Let's try it out! We define: 
+
+* event $A$: '$\textrm{5 is rolled}$'
+* event $B$: '$\textrm{odd is rolled}$' 
+* The AND combination (the intersection) gives $\textrm{prob}(\textrm{ 5 } \cap \textrm{ odd }) = \frac{1}{6}$
+* The probability of $\textrm{odd}$ is $\textrm{prob}(\textrm{ odd })=\frac{1}{2}$. 
+* Division by $\frac{1}{2}$ is the same as multiplication by $2$, so finally $\textrm{prob}(\textrm{ 5 } \mid \textrm{ odd }) = 2 \times \frac{1}{6}=\frac{1}{3}$.
+
+Yep, it works! Time for you to try another problem...
+
+<br> 
+
+<blockquote class='task'>
+**Task - 5 mins**  
+What is the probability that it was a 'Queen' that was drawn from a deck of cards (without Jokers) **given that** we know that a face card was drawn? 
+
+* Try to do this 'intuitively' first by thinking about how the conditioning event 'narrows' the space of outcomes and counting how many 'Queens' there are in this narrowed space.
+* Then do it 'mathematically' using the equation above.
+
+[**Hint**: for the mathematical way, you'll need to think about the events `queen_drawn` and `face_card_drawn`, and their intersection].
+
+<details>
+<summary>**Solution**</summary>
+
+**The 'intuitive' way**
+
+* The conditioning event is `face_card_drawn`: this narrows the space of outcomes to $12$ cards ($3$ face cards times $4$ suits).
+* Four of these cards are 'Queens', so the probability $\textrm{prob}(\textrm{ queen_drawn } \mid \textrm{ face_card_drawn }) = \frac{4}{12} = \frac{1}{3}$
+
+**The 'mathematical' way**
+
+* event $A$: $\textrm{queen_drawn}$
+* event $B$: $\textrm{face_card_drawn}$
+* The AND combination (the intersection) gives $\textrm{prob}(\textrm{ queen_drawn } \cap \textrm{ face_card_drawn }) = \frac{4}{52} = \frac{1}{13}$
+* $\textrm{prob}(\textrm{ face_card_drawn }) = \frac{12}{52} = \frac{3}{13}$
+* So $\textrm{prob}(\textrm{ queen_drawn } \mid \textrm{ face_card_drawn }) = \frac{\frac{1}{13}}{\frac{3}{13}}$. Multiply top and bottom by $13$ to get $\frac{1}{3}$.
+</details>
+</blockquote>
+
+<hr>
+
+# Dependent and independent events
+
+Conditional probabilities help us to think about **independent** and **dependent** events. We say that two events $A$ and $B$ are **independent** if 
+
+$$\textrm{prob}(A \mid B) = \textrm{prob}(A),$$
+
+that is, if the probability of event $A$ is **not affected** by whether event $B$ has happened or not. 
+
+Consider rolling two dice. Is the probability $p(\textrm{second die is 4})$ dependent on the event $p(\textrm{first die is 3})$? Nope, not in any way: the rolls of the dice are completely **independent** of each other, and 
+
+$$\textrm{prob}(\textrm{second die is 4} \mid \textrm{first die is 3}) = \textrm{prob}(\textrm{second die is 4})=\frac{1}{6}$$
+
+This leads to the probability **multiplication laws**:
+
+
+| Events A and B are...   | Multiplication law              |
+|-----------------------|---------------------------------|
+| dependent             | $\textrm{prob}(A \cap B) = \textrm{prob}(A \mid B) \times \textrm{prob}(B)$ |
+| independent           | $\textrm{prob}(A \cap B) = \textrm{prob}(A) \times \textrm{prob}(B)$        |
+
+
+Let's investigate a more interesting problem than the roll of a single die. We'll build a data set on the occurrence of colour blindness in 10,000 individuals categorised by their biological sex (i.e. chromosomal variety)
+
+```{r, warning = FALSE, echo = FALSE, message = FALSE}
+library(tidyverse)
+```
+
+```{r}
+# setup the tibble
+results <- tibble(
+  male = c(420, 5580), 
+  female = c(16, 3984)
+)
+
+# row and column totals
+results <- results %>%
+  mutate(row_sums = rowSums(.),
+           colour_blind = c("colourblind", "not_colourblind")) %>%
+  select(colour_blind, male, female, row_sums)
+
+results
+```
+<br>
+
+What are the individual probabilities of being:
+
+* colour blind?
+* not colour blind?
+* male?
+* female?
+
+Let's work this out now: 
+
+<br> 
+
+```{r}
+# number of people in the results
+total <- 10000
+
+# probability of being colour blind
+prob_cb <- results %>%
+  filter(colour_blind == "colourblind") %>%
+  mutate(prob = row_sums / total) %>%
+  select(prob)
+
+prob_cb
+```
+
+```{r}
+# probability of not being colourblind
+prob_not_cb <- results %>%
+  filter(colour_blind == "not_colourblind") %>%
+  mutate(prob = row_sums / total) %>%
+  select(prob)
+
+prob_not_cb
+```
+
+```{r}
+# probability of being male
+prob_male <- results %>%
+  summarise(male_total = sum(male)) %>%
+  mutate(prob = male_total / total) %>%
+  select(prob)
+
+prob_male
+```
+
+```{r}
+# probability of being female
+prob_female <- results %>%
+  summarise(female_total = sum(female)) %>%
+  mutate(prob = female_total / total) %>%
+  select(prob)
+prob_female
+```
+<br>
+
+Now we can look at whether being colourblind and gender are truly independent. Let's ask: what is the probability of being female **and** colour blind?
+
+```{r}
+prob_female_and_cb <- results %>%
+  select(colour_blind, female) %>%
+  filter(colour_blind == "colourblind") %>%
+  mutate(prob = female / total) %>%
+  select(prob)
+
+```
+
+Is this equal to $\textrm{prob}(\textrm{female}) \times \textrm{prob}(\textrm{cb})$?
+
+```{r}
+prob_female * prob_cb
+```
+
+Nope, it seems not! This means that being colour blind and being female are **dependent events**. In other words: 
+
+<br>
+<div class='emphasis'>
+The probability of a person being colour blind **depends** upon the biological sex of the person.
+</div>
+<br>
+
+Let's try the same with male:
+
+```{r}
+prob_male_and_cb <- results %>%
+  select(colour_blind, male) %>%
+  filter(colour_blind == "colourblind") %>%
+  mutate(prob = male / total) %>%
+  select(prob)
+
+prob_male_and_cb
+
+prob_male * prob_cb
+```
+
+Again, this confirms that colour blindness and biological sex are dependent phenomena!  
+
+
+<blockquote class='task'>
+**Task - 5 mins** Use the probabilities we calculated above to work out these **conditional probabilities**:
+
+* What is the probability of a person being colour blind **given that** they are biological female?
+* What is the probability of a person being colour blind **given that** they are biological male? 
+
+<details>
+<summary>**Hint**</summary>
+$$\textrm{prob}(\textrm{ cb } | \textrm{ female }) = \frac{\textrm{prob}(\textrm{ cb } \cap \textrm{ female })}{\textrm{prob}(\textrm{ female })}$$
+</details>
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+prob_cb_given_female <- prob_female_and_cb / prob_female
+prob_cb_given_female
+
+prob_cb_given_male <- prob_male_and_cb / prob_male
+prob_cb_given_male
+```
+</details>
+</blockquote>
+
+<hr>
+
+# Final task - Titanic survivors
+
+<blockquote class='task'>
+**Task - 20 mins**
+
+```{r, echo=FALSE, fig.cap="**Fig. 1.** The RMS Titanic leaving Southport, 10th April 1912 (public domain)", out.width = '60%'}
+knitr::include_graphics("images/RMS_Titanic.jpg")
+```
+
+<br>
+A data set detailing the survival or death of passengers and crew members on the RMS Titanic is given below. Some time after the disaster a journalist wrote that crew members were *more likely* to have survived the sinking than passengers. This was disputed by a descendant of one of the surviving crew members, who suggested that the opposite was true, i.e. passengers were *more likely* to have survived than crew.  
+
+You're going to calculate the conditional probabilities $\textrm{prob}(\textrm{ survived } \mid \textrm{ crew })$ and $\textrm{prob}(\textrm{ survived } \mid \textrm{ passenger })$ to settle this dispute. 
+
+Here's the setup for the tibble (note that exact figures vary slightly in the historical records):
+
+```{r}
+titanic_tibble <- tibble(
+  passenger = c(488, 812),
+  crew = c(215, 703), 
+)
+
+titanic_tibble <- titanic_tibble %>%
+    mutate(total_deaths = rowSums(.), 
+           status = c("survived", "died")) %>%
+  select(status, passenger, crew, total_deaths )
+
+titanic_tibble 
+```
+
+You will need to:
+
+* Calculate probabilities $\textrm{prob}(\textrm{ survived } \cap \textrm{ crew })$ and $\textrm{prob}(\textrm{ survived } \cap \textrm{ passenger })$.
+* Use these to calculate conditional probabilities $\textrm{prob}(\textrm{ survived } \mid \textrm{ crew })$ and $\textrm{prob}(\textrm{ survived } \mid \textrm{ passenger })$.
+* Use the conditional probabilities to say whether crew or passengers were more likely to have survived the disaster.
+
+Feel free to do this with pen and paper, if you prefer!
+
+<details>
+<summary>**Solution**</summary>
+
+
+```{r}
+# let's see what we have
+titanic_tibble  
+```
+
+First we need the total : 
+
+```{r}
+# how many people in total?
+total <- titanic_tibble %>%
+summarise(total_value = sum(total_deaths))
+
+total_titanic <- 2218
+```
+<br>
+
+Then we need the marginal probabilities:   
+
+```{r}
+# calculate probability of being crew 
+prob_crew <- titanic_tibble %>%
+  summarise(total_crew = sum(crew)) %>%
+    mutate(prob = total_crew / total_titanic) %>%
+  select(prob)
+
+# calculate the probability of being a passenger
+prob_passenger <- titanic_tibble %>%
+  summarise(total_passenger = sum(passenger)) %>%
+    mutate(prob = total_passenger / total_titanic) %>%
+  select(prob)
+
+```
+<br>
+
+Then we need the joint probabilities:
+
+```{r}
+# crew and survived
+prob_crew_and_survived <- titanic_tibble %>%
+  select(status, crew) %>%
+  filter(status == "survived") %>%
+  mutate(prob = crew / total_titanic) %>%
+  select(prob)
+
+# passenger and survived
+prob_passenger_and_survived <- titanic_tibble %>%
+  select(status, passenger) %>%
+  filter(status == "survived") %>%
+  mutate(prob = passenger / total_titanic) %>%
+  select(prob)
+```
+<br>  
+
+Finally, we need the conditional probabilities:    
+```{r}  
+# survived given you were crew:
+prob_survived_given_crew <- prob_crew_and_survived / prob_crew
+
+# survived given you were a passenger:
+prob_survived_given_passenger <- prob_passenger_and_survived / prob_passenger 
+
+prob_survived_given_crew
+prob_survived_given_passenger
+```
+So, passengers were $1.6$-times more likely to have survived the sinking than crew members. 
+
+</details>
+</blockquote>
+
+# Recap
+<br>
+
+* What is the expression for the conditional probability of event $A$ given that we know event $B$ has occurred?
+<details>
+<summary>**Answer**</summary>
+$$\textrm{prob}(A \mid B) = \frac{\textrm{prob}(A \cap B)}{\textrm{prob}(B)}$$
+</details>
+
+<br>
+
+* Translate this expression into plain language!
+<details>
+<summary>**Answer**</summary>
+"The probability of $A$ given $B$ is the probability of $A$ and $B$ both occurring divided by the probability of $B$".
+</details>
+
+<br>
+
+* How is the independence of two events $A$ and $B$ related to the conditional probability $p(A \mid B)$? 
+<details>
+<summary>**Answer**</summary>
+$A$ is independent of $B$ if $\textrm{prob}(A \mid B) = \textrm{prob}(A)$. <br>
+In plain language: the probability of $A$ doesn't depend on whether $B$ has occurred or not.
+</details>
+
+<br>
+
+* What are the multiplication laws for dependent and independent events?
+<details>
+<summary>**Answer**</summary>
+dependent: $\textrm{prob}(A \cap B) = \textrm{prob}(A \mid B) \times \textrm{prob}(B)$<br>
+independent: $\textrm{prob}(A \cap B) = \textrm{prob}(A) \times \textrm{prob}(B)$        
+</details>

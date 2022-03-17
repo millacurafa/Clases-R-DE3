@@ -1,0 +1,415 @@
+---
+title: "Joining in R"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+library("tidyverse")
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Learning Objectives <br> 
+1. Be able to use all join types in R
+2. Be able to identify the correct join to use
+3. Be able to use set operations
+
+**Duration: 40 mins** 
+
+# Joins in R 
+
+Last week you learnt about all the theory behind different join types, and you learnt how to do them in SQL. Now we're going to practice doing them in R using the `dplyr` package.    
+<br>
+
+The `dplyr` package contains functions to perform all of the joins we learnt about:
+
+4 mutating join verbs:   
+  * `inner_join()` : returns all rows from two tables with matching records.  
+  * `left_join()`  : returns all records in left table, and any matching records in another.  
+  * `right_join()` : returns all records in right table, and any matching records in another.    
+  * `full_join()` : returns all records in both tables, matching where possible.    
+
+2 filtering join verbs:  
+  * `semi_join()` : returns only rows from the first table where one or more matches are found in the second table.    
+  * `anti_join()` : returns only rows from the first table where no matches are found in the second table  
+
+2 binding verbs:  
+  * `bind_rows()` : add rows to a table  
+  * `bind_cols()` : add columns to a table   
+
+
+<br>
+
+<div class='emphasis'>
+Before we begin, it's worth noting that all the joins in dplyr have this basic syntax:
+
+`<whatever type>_join(x, y, by = NULL, suffix = c(".x", ".y")`
+
+`x` = the first (left) table  
+`y` = the second (right) table  
+`by` = what columns to match on. If you leave this blank, it will match on all columns with the same names in the two tables.  
+`suffix` = if columns have the same name in the two tables, but you aren’t joining by them, they get a suffix to make them unambiguous. This defaults to “.x” and “.y”, but you can change it to something more meaningful. 
+
+</div>
+<br>
+
+
+Let's start with an example, here's some code to create a set of customers: 
+
+```{r}
+customers <- tibble(
+  customer_ID = c(001, 002, 004, 005, 008, 010), 
+  name = c("John Smith", "Jane Adams", "Robert Landry", "Jane Tow", "Raul Tann", "Hilary Joyal"),
+  email_address = c("johnsmith@gmail.com", "janea@gmail.com", "rlabdry@hotmail.com", "janet89@aol.com", "paul.tann1@gmail.com", NA),
+  shipping_address = c("32 Station Road, Edinburgh", "42 Park Drive, Edinburgh", NA, "10 Gardiner Rd, Edinburgh", "12 Main St, Edinburgh", " 234 Queensferry Rd, Edinburgh,")
+)
+
+customers
+```
+
+<br>
+
+This creates a tibble of customer info, including a unique customer ID, name, email address, and shipping address. 
+
+Now let's make a tibble of orders: 
+<br>
+
+```{r}
+orders <- tibble(
+  customer_ID = c(001, 002, 005, 010, 012, 001), 
+  order_number = c("KU65781", "SU98201", "JS76821", "YR28212", "JS91221","YR21873"),
+  order_total = c("£32.50", "£56.00", "£100.02", "£20.25", "£39.50", "£45.00"),
+  product_code = c("XZY780", "XYZ123", "XYZ256", "XYZ262", "XYZ345", "XYZ127")
+)
+
+orders 
+```
+<br>
+
+Here we have a tibble of order info, including customer ID, order number, order total and product code. 
+
+
+<blockquote class='task'>
+**Task - 5 mins** 
+Think back to the previous session:
+
+* What is the primary key in each dataset? 
+* What is the foreign key in the `orders` dataset? 
+<br>
+
+
+<details>
+<summary>**Hint**</summary>
+Remember, the primary key refers to the entity being described in that table. A foreign key is a field in the table that is primary key in another table.
+</details>
+<details>
+<summary>**Answer**</summary>
+  * Primary Keys: `customers` tibble: `customer_id`, `orders` tibble: `order_number`  
+  * Foreign Key: `customer_id` in the `orders` tibble. 
+</details>
+</blockquote>
+<br>
+
+
+Now we have identified our keys, let's begin our joins. 
+
+<br>
+
+# Mutating Joins 
+
+## inner_join() 
+
+Inner join will return all records in two tables that match on some condition. 
+
+In our example, let’s say we wanted to get a list of those customers who placed an order and the details of the order they placed. This would be a perfect fit for an inner join, since an inner join returns records at the intersection of the two tables. Let's try: 
+
+```{r}
+inner_join(customers, orders, "customer_ID")
+```
+
+Great, we have 5 rows. This is because we have 4 different customers who placed an order, who also have information in the customers table. That is, we have 4 customers who have data in both tables.`customer_ID` = 1 is shown twice, as this particular customer made two orders. `customer_ID` = 12 isn't shown, as they have no information in the `customers` table. 
+
+If don't specify what column we are joining on R will check for any matching column names (that can be more than 1) and will match by those who have a matching name (but will tell you what it's matched by in the result). Best practice is to state in your query what you are matching by (this helps in case of any data changes, and it makes your code easier to understand/read). 
+
+For example if we do our inner join and we don't explicitly set out that we want to join by the column name `customer_ID` in both tables, it will select this column automatically:
+
+```{r}
+inner_join(customers, orders)
+```
+
+You will see that it returns a message `'Joining, by = "customer_ID"` to let us know what column it is joining by. 
+
+
+## left_join()
+
+Left join will return all of the records in the left table, regardless of whether they have a matching record in the right table, but it will also return any matching records in the right table.  
+
+In our example, if we wanted to simply append information about orders to our customers table, regardless of whether a customer placed an order or not, we would use a left join. If there aren't any entries in the `orders` table for a certain customer, this type of join would populate those variables with null values. If there are entries in the `orders` table which have no corresponding info in the `customers` table, then these will be left out.  
+
+<blockquote class='task'>
+1. If you perform a left join between your `customers` and `orders` tables, how many rows will be returned? 
+2. Perform a left join
+
+
+<details>
+<summary>**Answer**</summary>
+
+1. 7 rows will be returned (all records in the `customers` table, with matching records in the `orders` table)
+
+```{r}
+left_join(customers, orders, "customer_ID")
+```
+</details>
+</blockquote>
+
+
+## right_join()
+
+Right join is a mirror version of the left join - it returns all records in the right table, along with any matching records in the left table.  
+
+In our example, this allows us to get a list of all orders, appended with customer information. In this case, if there was an order in the database without a customer ID, then the customer ID would be populated with a null value. 
+
+<blockquote class='task'>
+
+1. If you perform a right join between your `customers` and `orders` tables, how many rows will be returned?
+2. Perform a right join  
+
+
+<details>
+<summary>**Answer**</summary>
+1. 6 rows : all records in the `orders` table, together with matching observations in the `customers` table.  
+
+
+```{r}
+right_join(customers, orders, "customer_ID")
+```
+</details>
+</blockquote>
+
+
+## full_join()
+
+Full join returns all records from both tables, joining records that match in each. In our example, this would join the `customers` and `orders` tibbles.  
+
+<blockquote class='task'>
+
+1. If you perform a full join between your `customers` and `orders` tables, how many rows will be returned?   
+2. Perform a full join  
+
+
+<details>
+<summary>**Answer**</summary>
+1. 8 rows : all records for both tables. 
+
+```{r}
+full_join(customers, orders, by="customer_ID")
+```
+</details>
+</blockquote>
+
+<br>
+
+Some other considerations: 
+
+## Joining when you have different column names 
+
+For the examples we have used so far the column we want to join by has the same name in both datasets. 
+
+Let's take the inner join example from section 3: 
+
+```{r}
+inner_join(customers, orders, by="customer_ID")
+```
+
+Now how would we handle it if our `customer_id` in one of our datasets was called something different. 
+
+```{r}
+# arbitrarily rename our customer_ID column for the customer data
+customers_adjusted <- rename(customers, this_is_an_identifier = customer_ID)
+
+# now let's join that 
+inner_join(customers_adjusted , orders, by=c("this_is_an_identifier" = "customer_ID"))
+```
+
+`dplyr` allows you to specify extra arguments to work around this. 
+
+
+## Joining by more than one column
+
+Note that it is possible to join by matching on more than 1 column. It's less likely that you will need to do this as we would hope that tables have a unique identifier, but it's good to know that it is possible!
+
+As an example, we can do the following:
+
+```{r}
+
+# create a new column in both tables
+customers2 <- customers %>% 
+  mutate(payment_type = "card")
+
+orders2 <- orders %>%
+  mutate(payment_type = "card")
+
+# join by two columns
+inner_join(customers2, orders2, by = c("customer_ID", "payment_type"))
+```
+
+# Filtering joins
+
+## semi_join()
+
+A semi-join between two tibbles returns rows from the first table which have matching ones in the second. However, it will only return rows in the first table once. 
+
+In our example, we might want to find customers who have purchased at least one item. If you do a traditional join, and a particular customer has 400 orders, then that customer will appear in the results 400 times. Instead, if you do a semi-join, this will list the customers that have at least one purchase. Regardless of whether a customer has a single order or 400, the customer will appear only once in the query output. 
+
+<blockquote class='task'>
+
+1. If you perform a semi join between your `customers` and `orders` tables, how many rows will be returned?   
+2. Do a semi join, with `customers` as your first table and `orders` as your second 
+
+
+<details>
+<summary>**Answer**</summary>
+1. 4 rows : returns rows from the first table which have matching ones in the second. However, it will only return records in the first table once.
+
+```{r}
+semi_join(customers, orders, by="customer_ID")
+```
+</details>
+</blockquote>
+
+
+## anti_join()
+
+An anti join returns only those rows from the first table where there are no matches rows in the second table. In our example, this would return customers who had no order history. 
+
+<blockquote class='task'>
+
+1. If you perform an anti join between your `customers` and `orders` tables, how many rows will be returned?   
+2. Do an anti join, with `customers` as your first table and `orders` as your second
+
+
+<details>
+<summary>**Answer**</summary>
+1. 2 rows : returns only rows from the first table which have no matching rows in the second.
+
+```{r}
+anti_join(customers, orders, by="customer_ID")
+```
+</details>
+</blockquote>
+
+
+# Binding: appending columns and rows
+
+## Adding columns (`merge()` in base R, or `bind_cols()` in `dplyr`)
+
+To merge two datasets horizontally (i.e. add on the columns to the side, rather than add rows to the bottom), you can use one of the `bind_cols()` or `merge()` functions. Note that this function doesn't take in a column to match records on, so for this binding to be meaningful, the order of records in your first table has to match the order in your second table.
+
+For example, imagine that we want to add in a `status` column to `customers`
+
+```{r}
+statuses <- tibble(
+  status = as.factor(c("active", "active", "inactive", "inactive", "active", "inactive"))
+) 
+```
+
+
+<blockquote class='task'>
+
+1. If you run `bind_cols()` on your `customers` and `statuses` tables, how many rows will be returned?   
+2. Use the `bind_cols()` function to merge `customers` and `statuses`.
+
+
+<details>
+<summary>**Answer**</summary>
+
+1. 6 rows: you are appending columns, not adding any rows. 
+```{r}
+
+# use the dplyr bind_cols function
+bind_cols(customers, statuses)
+```
+</details>
+</blockquote>
+
+
+## Adding rows (`rbind()` in base R, or `bind_rows()` in `dplyr`)
+
+To join two datasets vertically (i.e. add rows to the  bottom, not columns to the side), use one of the `rbind()` or `bind_rows()` function. For this binding to make sense, the two tables must contain the same variables.
+
+This would work well if we have a dataset of previous customers, and want to append that data to the current customers data. For example: 
+
+
+```{r}
+
+past_customers <- tibble(
+  customer_ID = c(020, 021), 
+  name = c("Dave Brown", "Jess Bishop"),
+  email_address = c("dbrown@hotmail.com", "jessb@gmail.com"),
+  shipping_address = c("57 Park View, Leith", "12 Reid Way, Broxburn")
+)
+
+past_customers
+
+```
+
+
+<blockquote class='task'>
+
+1. If you perform `bind_rows()` on your `customers` and `past_customers` tables, how many rows will be returned?   
+2. Use the `bind_rows()` function to append the `customers` and `past_customers` tables by `customer_ID`
+
+
+<details>
+<summary>**Answer**</summary>
+
+1. 8 rows: you're adding on rows from `past_customers` to `customers`  
+
+```{r}
+
+# dplyr function
+bind_rows(customers, past_customers)
+```
+</details>
+</blockquote>
+
+
+
+# Recap
+
+* What package contains the joining verbs in R, and how many different types of categories are there?
+<details>
+<summary>**Answer**</summary>  
+`dplyr` package contains different verbs for joining data in R, and it has three different categories: mutating joins, filtering joins, and binding joins. 
+</details>
+
+* Which join would you use if you were asked to find all customers who had not ordered anything from the company? 
+<details>
+<summary>**Answer**</summary> 
+An anti join
+</details>
+
+* When would you use a `right_join()`? 
+<details>
+<summary>**Answer**</summary>
+When you wanted to preserve all the data in table B (right table), and only keep the data in A (left table) that had a corresponding observation. 
+</details>
+
+<hr>
+
+# More Resources
+
+[Two Table verbs](https://dplyr.tidyverse.org/articles/two-table.html)
+
+[R for Data Science: Relational Data](https://r4ds.had.co.nz/relational-data.html)
+
+[Join two tbls together: dplyr](https://dplyr.tidyverse.org/reference/join.html)
+
+[dplyr join cheatsheet](https://stat545.com/bit001_dplyr-cheatsheet.html)

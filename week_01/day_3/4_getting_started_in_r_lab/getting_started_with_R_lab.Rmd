@@ -1,0 +1,214 @@
+---
+title: "Getting Started with R Lab"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Learning Objectives
+
+* Be able to demonstrate all the concepts from the pre-course
+* Be able to demonstrate best practice coding
+* Be able to demonstrate competent use of the RStudio IDE
+
+**Duration - 4 hours**
+
+Answer these questions in notebook
+
+* Remember to make a project.
+* Remember to use your best coding practices
+
+# Vectors
+
+## Making Vectors
+
+Go find the weather forecast in Edinburgh over the next 5 days. Assign three vectors that contain weather forecasts for
+
+1. The temperature
+2. The chance of rain
+3. The cloud cover
+
+It's up to you how to represent the data and how to name the vectors.
+
+What is the type of each vector you have created?
+
+## Naming Vectors
+
+Make another vector with the days of the week for the next 5 days. Name the three vectors you have created with days of the week.
+
+## Means
+
+Find the average temperature and chance of rain over the next 5 days.
+
+(Hint: you might need to change how you created the vectors if mean won't work on them)
+
+## Selecting vectors
+
+1. Select only the temperatures that are higher than average.
+
+2. Select only the the temperatures when the chance of rain is lower than or equal to the average. 
+
+3. Select only the cloud covers from the weekend.
+
+## Putting it together - spelling test
+
+The vector below contains marks out of 10 in a spelling test:
+
+```{r, echo = TRUE}
+test_results <- c(6, 7, 9, 7, 9, 3, 9, 7, 3, 8, 10, 5, 5, 9, 7, 5, 9, 8, 9, 5)
+```
+
+Write R code to answer each of these questions
+
+1. How many marks do we have?
+
+2. What was the average mark?
+
+3. What was the highest and lowest result?
+
+4. How many people scored each mark?
+
+5. Express each mark as a percentage out of 100
+
+6. How many people scored eight or higher?
+
+
+# Matrices
+
+## Creating a matrix
+
+Find a 14 day forecast and create a matrix of the forecasts for temperature, where each week is one row.
+
+You will want to assign the matrix to a name. You should also give the matrix row names and column names. 
+
+## Averages
+
+Find the average temperature each week.
+
+Find the average temperature on each day of the week (i.e the average temperature on the two Mondays, the two Tuesdays etc.)
+
+
+## Selecting
+
+Select:
+
+1. The third day of the second week
+2. The whole second week
+3. All Wednesdays
+
+## Matrix arithmetic
+
+Convert your temperatures from Celsius to Fahrenheit by multiplying all elements of your matrix by 1.8, then adding 32.
+
+# Factors
+
+Now we will go back to our 5 day forecast.
+
+Make the vector with the days of the week into an ordered factor, where the order correspond to the order of days in a week, starting Monday.
+
+Now select only the temperatures after Tuesday.
+
+# Data Frames
+
+## Creating data frames
+
+Again, we will use our 5 day forecast. Create a data frame with the vectors you have already made for
+
+1. The temperature
+2. The chance of rain
+3. The cloud cover
+4. Day of the week (use to ordered factor version)
+
+Assign a name to the data frame and give the columns of your data frame appropriate names.
+
+After you have made the data frame, remove the original vectors by using `rm`. This will avoid naming conflicts when working with the data frame. 
+
+## Selecting data frames
+
+1. Select only the rows where the temperatures are higher than average.
+
+2. Select the rows when the chance of rain is lower than or equal to the average. 
+3. Select only the rows that happen after Tuesday.
+
+## Sorting data frames
+
+Sort the data frame so that the highest temperatures come first.
+
+# Lists
+
+## Creating lists
+
+Create a nested named list with 5 elements, one for each day in your forecast.
+
+Each list element should have the name of the day of the week. Inside each element should be another named list that tells you the temperature, chance of rain and cloud cover.
+
+## Selecting from lists
+
+Using the list you've just made find:
+
+1. The chance of rain on Sunday
+2. The cloud cover on Friday
+3. The temperature on Thursday
+
+Was it easier to create a list or a data frame? Was it easier to select the elements from the list or from the data frame?
+
+# Harder Questions 
+
+## Harder Question 1
+
+The sequence below shows the triangle numbers.
+
+![](images/triangle_numbers.png)
+
+You can calculate the the nth triangle number with the formula
+
+$$
+T_n = \frac{n(n + 1)}{2}
+$$
+
+So the 5th triangle number is
+
+$$
+\frac{5(5 + 1)}{2} = 15
+$$
+
+Find the sum of the first 1000 triangle numbers.
+
+## Harder Question 2
+
+If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. The sum of these multiples is 23.
+
+Find the sum of all the multiples of 3 or 5 below 1000.
+
+From Project Euler (Problem 1) (https://projecteuler.net/)
+
+## Harder Question 3
+
+Here's a secret message in a very simple code. The number 1 corresponds to the letter a, the number 2 corresponds to the letter b etc. The number 27 corresponds to a space.
+
+Use R to decode this message:
+
+23, 18, 9, 20, 9, 14, 7, 27, 18, 27, 3, 15, 4, 5, 27, 9, 19, 27, 6, 21, 14
+
+<details>
+<summary>**Hint**</summary>
+
+You can use the built in constant `letters`. 
+
+</details>
+
+
+
+
+
+
+

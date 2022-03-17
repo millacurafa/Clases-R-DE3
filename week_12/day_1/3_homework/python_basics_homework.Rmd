@@ -1,0 +1,104 @@
+---
+title: "Python Basics - Homework"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r, echo = FALSE}
+library(reticulate)
+use_python("/anaconda3/bin/python")
+
+knitr::opts_chunk$set(echo = FALSE, eval = FALSE)
+```
+
+
+# MVP
+
+
+## Finish what you start...
+
+Write a function that takes in a list and returns a two-element list containing the *first* and *last* elements of the inputted list. For example, for input `[3, 6, 2,  19]`, the function should return `[3, 19]`
+
+```{python}
+def first_and_last(input_list):
+  return [input_list[0], input_list[-1]]
+  
+first_and_last([3, 6, 2,  19])
+```
+
+## Your letters are numbered
+
+Write a function that takes in a sentence and returns a dictionary containing a count of letters and digits. For example, for input `"hello world! 123"`, the function output should be `{'digits': 3, 'letters': 10}` 
+
+```{python}
+def letter_number_count(input):
+  output = {'digits' : 0, "letters" : 0}
+  for character in input:
+    if character.isdigit():
+        output["digits"] += 1
+    elif character.isalpha():
+        output["letters"] += 1
+  return output
+  
+letter_number_count("hello world! 123")
+```
+
+# Extension
+
+Write a class to model a bank account in a simple way. The class should have a `balance` attribute that starts at a value zero when the account is created, along with methods:
+
+  * `get_balance()` - prints balance to screen
+  * `deposit(amount)` - should deposit any positive `amount` and print new balance to screen, or print an error if `amount` is negative or zero. 
+  * `withdraw(amount)` - should work only if there are sufficient funds in the account, withdraw any positive `amount` and print new balance to screen, otherwise it should print an error message.
+
+Create your own bank account object from your class and test that all of your methods work as expected, including testing for expected errors.
+
+[**Hint** - remember to pass `self` into all methods in the class]
+
+```{python}
+
+class BankAccount:
+
+  def __init__(self):
+    self.balance = 0
+    
+  def get_balance(self):
+    print("Balance is £" + str(self.balance))
+    
+  def deposit(self, amount):
+    if amount > 0:
+      self.balance += amount
+      print("Deposit amount £" + str(amount))
+      print("New balance is £" + str(self.balance))
+    else:
+      print("Deposit amount zero or negative - transaction cancelled.")
+      
+  def withdraw(self, amount):
+    if amount > 0:
+      if self.balance - amount >= 0:
+        self.balance -= amount
+        print("Withdraw amount £" + str(amount))
+        print("New balance is £" + str(self.balance))
+      else:
+        print("Insufficient funds - transaction cancelled.")
+    else:
+      print("Withdraw amount zero or negative - transaction cancelled.")
+
+
+my_account = BankAccount()
+my_account.deposit(100)
+my_account.get_balance()
+my_account.deposit(-5)
+my_account.withdraw(-5)
+my_account.get_balance()
+my_account.withdraw(40)
+my_account.withdraw(70)
+my_account.withdraw(60)
+```
+

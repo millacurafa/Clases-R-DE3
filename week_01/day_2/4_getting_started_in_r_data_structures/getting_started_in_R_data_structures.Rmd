@@ -1,0 +1,656 @@
+---
+title: "Getting started in R - data structures"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+# Learning Objectives
+
+* Be able to create and work with the following:
+  - Data frames
+  - Lists
+  - Matrices
+* Understand the basics of S3 classes
+
+**Lesson Duration: 2 hours**
+
+# Data Frames
+
+Imagine we have the mark for 6 students across 3 questions. 
+
+We could represent that data in vectors.
+
+*Send out code below*
+
+```{r}
+student <- c("Abigail", "Bjorn", "Caitlin", "Dave", "Elly", "Francis")
+question_1 <- c(10, 3, 1, 5, 5, 8)
+question_2 <- c(2, 5, 5, 4, 5, 6)
+question_3 <- c(4, 5, 9, 7, 6, 8)
+```
+
+It might make sense to keep all this data together in one R object.
+
+In R we can link several vectors together by using a *data frame*. This is very useful when our data is linked by row, like the data above. 
+
+We do this using the function `data.frame`:
+
+```{r}
+data.frame(student, question_1, question_2, question_3)
+```
+
+Let's assign a name to the data frame:
+
+```{r}
+exam_results <- data.frame(student, question_1, question_2, question_3)
+```
+
+All vectors in the data frame must be the same length.   
+
+If we want to get one of the original vectors back, you can use the `$` operator to access it.
+
+```{r}
+exam_results$question_1
+```
+
+Keeping objects in data frames and accessing them using the `$` syntax seems awkward at first. However, it is useful for three reasons:
+
+  1. You will often be working with multiple datasets at the same time, and it can be difficult to keep track of which dataset each variable is associated with. The `dataset$variable` syntax helps with this.
+  
+  2. Later we be learning about some R libraries (dplyr and ggplot2) which are designed to work well with data frames.
+  
+  3. Most data gets read into R in the form of a data frame.
+  
+If we want to add an extra vector to our data frame we can just assign to a name in that data frame directly. 
+
+```{r}
+exam_results$question_4 <- c(6L, 3L, 10L, 3L, 9L, 7L)
+```
+
+Deleting a vector from a data frame can just be done by setting the vector to null.
+
+```{r}
+exam_results$question_4 <- NULL
+```
+
+The vector you add can be a formula involving other vectors. 
+
+```{r}
+exam_results$total <- exam_results$question_1 + exam_results$question_2 + exam_results$question_3
+```
+
+The `str()` function is very useful in R. It gives you a representation of what an object contains. Using it on a data frame will give you a compact description of all the vectors in that data frame.
+
+```{r}
+str(exam_results)
+```
+
+You can also use the `View()` function to see your full data frame.
+
+```{r, eval = FALSE}
+View(exam_results)
+```
+
+Note that `View()` has a capital letter. R is case sensitive, so `view` won't work.
+
+Unlike Excel you cannot edit a file from the View mode: but this is a good thing, because you can't accidentally mess up the data! 
+
+You can also access these two representations of the data frame in the `Environment` tab in RStudio. Click the right pointing arrow to see the `str()` of the data frame, and click on the name to see the `View()`. 
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+<br>
+Turn this small table into a data frame called 'show_satisfaction', then use `View()` and `str()` on it. 
+
+```{r, echo = FALSE}
+
+age <- c(25, 56, 40)
+gender <- c("female", "female", "male")
+shoe_size <- c(7, 5, 13)
+is_satisfied <- c(TRUE, TRUE, FALSE)
+
+df <- data.frame(age, gender, shoe_size, is_satisfied)
+
+knitr::kable(df)
+```
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+age <- c(25, 56, 40)
+gender <- c("female", "female", "male")
+shoe_size <- c(7, 5, 13)
+is_satisfied <- c(TRUE, TRUE, FALSE)
+
+shoe_satisfaction <- data.frame(age, gender, shoe_size, is_satisfied)
+```
+```{r, eval = FALSE}
+View(shoe_satisfaction)
+```
+```{r}
+str(shoe_satisfaction)
+```
+</details>
+</blockquote>
+
+## Finding the dimensions of the dataframe
+
+We can use the functions `nrow()` and `ncol()` to see how many rows and columns a dataframe has, and the function `dim()` shows both.
+
+```{r}
+nrow(exam_results)
+```
+
+```{r}
+ncol(exam_results)
+```
+
+```{r}
+dim(exam_results)
+```
+
+## Selecting data-frames
+
+### Selecting by row or column number
+
+You can select data held within a data frame by row number and column number. The first number selects a row:
+
+```{r}
+exam_results[1, ]
+```
+
+and the second number selects a column:
+
+```{r}
+exam_results[, 1]
+```
+
+Or you can select a single element from at a particular row and column position
+
+```{r}
+exam_results[1, 1]
+```
+
+You can select multiple rows or columns by listing them. Let's take a look at rows (but the same logic applies to columns. 
+
+If the rows you want to select are one after another you can use the ':' as symbol to say 'to' e.g. 3:5 means '3 to 5'. 
+
+```{r}
+exam_results[3:5, ]
+```
+
+If the rows aren't next to each other then can list them in a vector. 
+
+```{r}
+exam_results[c(1, 3, 5) ,]
+```
+
+
+### Subsetting by row or column name
+You can also select a column or row by their name. In our example we don't have rownames so we will look at column names. 
+
+If we want to select a single column we can use the `$` syntax we saw earlier
+
+```{r}
+exam_results$student
+```
+
+Or we can use the column name. It similar to using the column numbers logic we have just seen but we replace the column numbers with the names.
+
+```{r}
+exam_results[ , 'student']
+```
+
+You can also select multiple columns by listing the names. 
+
+```{r}
+exam_results[ , c('student', 'question_1')]
+```
+
+
+### Subsetting by row value 
+To select rows of the data frame it's often easier to use the `subset()` function, selecting the rows of interest by passing in a `logical` vector.
+
+```{r}
+subset(exam_results, question_2 == 5)
+```
+
+## Row and column names
+
+In a dataframe, you can name both the rows and columns. The functions `rownames()` and `colnames()` can be used to both return and set the name (similarly to the `names()` function for vectors).
+
+Let's return the column names for the `exam_results` dataframe.
+
+```{r}
+colnames(exam_results)
+```
+
+Currently our dataframe has no row names, so let's name them.
+
+```{r}
+rownames(exam_results) <- c("student_1", "student_2", "student_3", "student_4", "student_5", "student_6")
+```
+
+```{r}
+exam_results
+```
+
+
+## Sorting data-frames
+
+You can sort data-frames by first using `order()` to make an ordering vector 
+
+```{r}
+results_order <- order(exam_results$total)
+```
+
+Let's see what `results_order` contains, and how it relates to `exam_results$total`
+
+```{r}
+exam_results$total
+results_order
+```
+
+You can see that `results_order` holds the row numbers of `exam_results$total` in ascending order, i.e. the student on row 2 had the lowest total; on row 3, the next lowest, and so on.
+
+We can use `results_order` to select rows in this order from the `exam_results` data frame
+
+```{r}
+exam_results[results_order, ]
+```
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+1. Select the first row of `shoe_satisfaction`.
+2. Select the third column of `shoe_satisfaction`.
+3. Select the rows of `shoe_satisfaction` that correspond to satisfied customers.
+4. Sort the data frame by ascending age.
+
+<details>
+<summary>**Solution**</summary>
+
+1.
+```{r}
+shoe_satisfaction[1, ]
+```
+
+2.
+```{r}
+shoe_satisfaction[, 3]
+```
+
+3.
+```{r}
+subset(shoe_satisfaction, is_satisfied)
+```
+
+4.
+```{r}
+age_order <- order(df$age)
+
+shoe_satisfaction[age_order, ]
+```
+
+</details>
+</blockquote>
+
+
+# Lists
+
+A list is a special data type in R that acts as a container.
+Unlike vectors, the contents of a list are not restricted to a single type. A list can contain any type of R object, including another list!
+
+## Creating lists
+
+We can create a list using the `list()` function, and change another object into a list using the `as.list()` function. 
+
+```{r}
+x <- list(1, "a", TRUE, c(1, 2, 3))
+x
+```
+
+```{r}
+x <- 1:5
+as.list(x)
+```
+
+## Subsetting lists
+
+The contents of elements of a list can be retrieved using double square brackets.
+
+```{r}
+x <- list(1, "a", TRUE, c(1, 2, 3))
+x[[2]]
+```
+
+If you use a single square bracket you will get a sub-list.
+
+```{r}
+x[2]
+```
+
+Elements of a list can be named.
+
+```{r}
+named_list <- list(a = "I love R", b = 1:10)
+named_list
+```
+
+If your list has names, then elements can be extracted by name using the `$` operator.
+
+```{r}
+named_list$a
+```
+
+And we can extract the names of a list using the `names()` function.
+
+```{r}
+names(named_list)
+```
+
+## Nested lists
+
+Here's an example of a list with elements that are themselves lists:
+
+```{r}
+student_info <- list(
+                "Agnes" = list(height = 1.8, shoe_size = 8L),
+                "Bobby" = list(height = 2.1, gender = "Male"),
+                "Charlie" = list(gender = "Female", likes_beets = TRUE)
+)
+
+student_info
+```
+
+If you want to pull a single entry from a nested named list you can use the `$` twice:
+
+```{r}
+student_info$Agnes$height
+```
+
+If it was unnamed you could use the item index i.e. Agnes's height is the 1st item in the 1st list:
+
+```{r}
+student_info[[1]][[1]]
+```
+
+Lists can be extremely useful inside functions. Because functions in R are able to return only a single object, you can “staple” together lots of different kinds of results into a single object that a function can return.
+
+Data frames are actually a special case of lists where all the elements of the list have the same length.
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+1. Make a **named list** that contains a numeric vector and a character vector.
+
+2. Access the second element of your list using double square brackets `[[]]`. What is it's class?
+
+3. Access the second element of your list using single square brackets `[]`. What is it's class?
+
+4. Access the second element of your list by name. What is it's class?
+
+<details>
+<summary>**Solution**</summary>
+
+An example solution.
+
+```{r}
+example_list <-
+  list(numbers = 1:5, words = c("hello", "yes"))
+
+example_list
+```
+
+```{r}
+example_list[[2]]
+class(example_list[[2]])
+```
+
+3.
+```{r}
+example_list[2]
+class(example_list[2])
+```
+
+4. 
+```{r}
+example_list$words
+class(example_list$words)
+```
+</details>
+</blockquote>
+
+
+# Matrices
+
+Both matricies and dataframes are 2 dimensional data structures. The main difference between a matrix and a dataframe is in a matrix all the entries have to be the same data type (i.e. it is homogeneous), this does not need to be the case for a data frame ((i.e. is can be heterogeneous).
+
+If you have data of all the same type, whether you store it as a dataframe or a matrix will depend on what you are doing with the data. Matrices are more memory efficient and are useful if you are implementing an algorithm yourself from scratch (this is rare). For the vast majority of data analysis you would be using data stored as dataframes (because most real-life data is not heterogeneous).  
+
+Matrices are made using the function `matrix()`, and have rows and columns. Here's an example of creating a matrix with 2 rows and 2 columns. 
+
+```{r}
+matrix(1:4, nrow = 2, ncol = 2)
+```
+
+If you wanted it to populate your matrix rowwise rather than columnwise you can add the argument `byrow=TRUE`.
+
+```{r}
+matrix(1:4, nrow = 2, ncol = 2, byrow=TRUE)
+```
+
+Another example: this time creating a matrix with 2 rows and 3 columns.
+
+```{r}
+matrix(1:6, nrow = 2, ncol = 3)
+```
+
+Again we can use `class()` to check if an object is a matrix.
+
+```{r}
+m <- matrix(1:6, nrow = 2, ncol = 3)
+class(m)
+```
+
+## Selecting elements in a matrix
+
+Selecting elements of a matrix works the same way as selecting elements of a data frame. You can select rows, columns and individual elements using single square brackets `[]`.
+
+```{r}
+m[1, ]
+```
+
+```{r}
+m[, 1]
+```
+
+```{r}
+m[1, 1]
+```
+
+You can select by the methods above but replacing the indices with column and row names, like with dataframes but you can't use the `$` to select a column name unlike with dataframes. 
+
+## Calculations with matrices
+
+You can multiply, divide, add to and subtract from matrices, just like you can with vectors.
+
+```{r}
+m * 3
+```
+
+```{r}
+m - 2
+```
+
+
+## Working with rows and columns
+
+In matrices you might occasionally need to work with all of the rows or all of the columns at once. For example, you might want to find the sums of each row or the averages of each column. These four functions let you do that:
+
+1. `rowSums()`
+2. `colSums()`
+3. `rowMeans()`
+4. `colMeans()`
+
+
+```{r}
+rowSums(m)
+```
+
+```{r}
+colSums(m)
+```
+
+```{r}
+rowMeans(m)
+```
+
+```{r}
+colMeans(m)
+```
+
+**These functions also work on data frames**, so long as all the data in the data frame is `numeric` type.
+
+
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+1. Make a matrix with 3 rows and 4 columns. Each column should contain the numbers 1 to 3. <br>**Hint**: use `rep()` to make the data you will insert into the matrix.
+
+2. Use `dim()` to check that the dimensions are as you expect.
+
+3. Check that all the columns are identical by checking that their sums are the same.
+
+4. Name the rows of the matrix 'one', 'two' and 'three'.
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+m <- matrix(rep(1:3, times = 4), nrow = 3, ncol = 4)
+m
+```
+
+2. 
+```{r}
+dim(m)
+```
+
+3.
+```{r}
+colSums(m)
+```
+
+4.
+```{r}
+rownames(m) <- c("one", "two", "three")
+m
+```
+
+</details>
+</blockquote>
+
+# Converting between different data structures - common conversions
+
+## Not wanting strings as factors
+As discussed data frames are slightly different to matricies in that they can contain different data types. Let's create a data frame that contains both numeric and character values:
+
+```{r}
+myData <- data.frame(
+  c1 = c(1, 2, 3),
+  c2 = c("A", "B", "C")
+)
+
+class(myData$c1)
+class(myData$c2)
+```
+
+Our first column is `numeric` as expected, but the second column is now a `factor`. This isn't what we wanted! Once again, R has performed implicit conversion!  
+
+To avoid this implicit conversion, you can add an argument to the `data.frame()` function that tells R not to treat text as factors:
+
+```{r}
+myData <- data.frame(
+  c1 = c(1, 2, 3),
+  c2 = c("A", "B", "C"),
+  stringsAsFactors = FALSE
+)
+
+class(myData$c1)
+class(myData$c2)
+```
+
+Now you see, the second column is `character` type, as we wanted. 
+
+You may wonder why converting strings to factors is the default, many people have. So much so that there is in fact a command to change this as a global default setting, but it's not advisable to change the default. If you're interested here's a short blog post about the history of this argument: https://simplystatistics.org/2015/07/24/stringsasfactors-an-unauthorized-biography/. 
+
+## Converting a matrix to a dataframe 
+A final conversion that is useful to see is when we want to convert data structures that are more complex than a simple vector. You can also convert whole matrices and data frames to different forms. 
+
+```{r}
+# matrix conversion
+matrix_example <- matrix(1:15, ncol = 3, nrow = 5)
+matrix_example
+class(matrix_example)
+
+# convert to a data frame (using a conversion function)
+as.data.frame(matrix_example)
+
+# convert to a data frame using create data.frame function
+data.frame(matrix_example)
+```
+
+<blockquote class='task'>
+**Task - 10 mins** 
+
+Convert the dataframe below to a matrix. Try with both `as.data.frame()` and `data.frame()` and see what happens. Check what class of objects you get. 
+
+```{r}
+dataframe_example <- data.frame(
+  c1 = 1:5,
+  c2 = letters[6:10],
+  c3 = 11:15
+)
+```
+
+<br>
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+# try the as.matrix() function
+as.matrix(dataframe_example)
+```
+
+`as.matrix()` has implicitly converted all our values to characters because that is the most general type of the data in the dataframe. 
+
+```{r}
+# let's try data.matrix() 
+data.matrix(dataframe_example)
+```
+
+`data.matrix()` converts all the vectors in a dataframe to numeric and then binds them together as the columns of a matrix. Logical and factor columns are converted to integers and character columns are first converted to factors and then to integers.
+<br>
+</details>
+</blockquote>
+
+
+# Recap
+
+There are four different data structures in R
+
+1. Vectors
+2. Data Frames
+3. Matrices
+4. Lists
+
+Generic functions act differently depending on the class of the object that they are applied to.

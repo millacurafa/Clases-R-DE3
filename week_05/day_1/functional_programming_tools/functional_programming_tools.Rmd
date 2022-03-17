@@ -1,0 +1,492 @@
+---
+title: "Functional Programming Tools"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Learning Objectives
+
+* Be able to use the map family of functions
+* Know when to use each function type
+* Be able to simplify iterative code by using map functions
+
+**Duration - 2 hours**
+
+In this lesson we're going to learn about a range of *functional programming* tools that R has. Functional programming is a programming paradigm, which puts emphasis on writing functions to solve problems. We don't need to go into detail about the nature of functional programming for this course. However, we are going to learn about some tools that are very common in functional languages that we can also use in R and which make data analysis much easier. 
+
+In R functional programming mostly works with lists and data frames. These tools make working with lists easier, and more compact. For data frames they let you work with every column in a data frame at the same time, or a subset of columns at the same time.
+
+All these tools come from the `purrr` package. So install it now.
+
+```{r, eval = FALSE}
+install.packages("purrr")
+```
+
+And load the library before we start.
+
+```{r, warning=FALSE, message=FALSE}
+library(purrr)
+```
+
+# Map
+
+When we learnt about loops, you learnt that you are doing the same thing to elements of something. When that something is a list, then we have another option: `map`.
+
+Below is a simple list, where each element is a character vector.
+
+```{r}
+colour_feelings <- list(
+	blue   = c("Sad", "Calm"),
+	red    = c("Angry", "Energetic", "Warm"),
+	green  = c("Calm", "Nature"),
+	yellow = c("Happy", "Warm", "Sunny")
+)
+```
+
+If we wanted to find the length of each vector, we could do that using a loop.
+
+```{r}
+for (item in colour_feelings){
+  print(length(item))
+}
+```
+
+However, it's even easier to do with the map function. The first argument to map is the list we want to act on and the second element is the function we want to apply to each element of a the list.
+
+```{r}
+map(colour_feelings, length)
+```
+
+We keep telling you that R is vectorised, so functions can apply to every element of a vector automatically. However, functions don't normally apply to every member of a list automatically. The function `map` let's us "vectorise" a list.
+
+If the function we want to apply has extra arguments just add those arguments into map as named arguments.
+
+```{r}
+map(colour_feelings, paste, collapse = ', ')
+```
+
+Sometimes the the function we want to apply has to be a bit more complicated. Look at this list below that translates colours from English to Scottish Gaelic.  
+
+```{r}
+colour_translator <- list(
+  blue   = "gorm",
+	red    = "dearg",	
+	green  = "uaine",
+	yellow = "buidhe"	
+)
+```
+
+Say we want to paste the word 'Translation' before each of these words. We can't do it directly, because the first argument would need to be 'Translation' and the second argument would be the element of the list.
+
+One way of doing it is to write our own function.
+
+```{r}
+add_translation <- function(text){
+  paste("Translation:", text)
+}
+
+map(colour_translator, add_translation)
+```
+
+But there's a shorter way of doing this when using `purrr`. Wherever a function is needed we can write an *anonymous function*, using `~` notation. We start the function with a tilde (`~`) and define our input variable `.x`:
+
+```{r}
+map(colour_translator, ~paste("Translation:", .x))
+```
+
+## Map on Data Frames
+
+You may remember that data frames are a special case of lists. This means we can apply the `map` function to data-frames too. The function `map` will always return a list, so even though we input a data frame, we'll get a list as a result. 
+
+Inside the course package is a data frame called `students`, with information about school students.
+
+```{r, echo = FALSE}
+library(CodeClanData)
+students
+```
+
+Each element of a data frame is always of the same length. We can check this using `map` and `length`.
+
+```{r}
+map(students, length)
+```
+
+We can apply other functions too. This sorts every variable in the data frame individually.
+
+```{r}
+map(students, sort)
+```
+
+<blockquote class = 'task'>
+**Task - 10 minutes**
+
+Use `map` to answer the following questions:
+
+1. Find the number of characters in each translation from the colour translator list.
+
+2. Using the colour wavelengths list below.
+
+```{r}
+colour_wavelengths <- list(
+	blue   = 470,
+	red    = 665,
+	green  = 550,
+	yellow = 600
+)
+```
+
+Round each wavelength to the nearest 100.
+
+3. The wavelengths are given in nanometres. Convert to meters by dividing by 1,000,000,000. 
+
+<details>
+<summary> Answer </summary>
+
+1. 
+```{r}
+map(colour_translator, nchar)
+```
+
+2.
+```{r}
+map(colour_wavelengths, round, digits = -2)
+```
+
+3.
+```{r}
+map(colour_wavelengths, ~.x/1000000000)
+```
+
+# Flatten
+
+When you have data inside a list, it's often useful to convert into a vector. The library `purrr` has several functions for doing this; one for each type of vector. For example, if you want to convert the colour translator list into a character vector use `flatten_chr`.
+
+```{r}
+flatten_chr(colour_translator)
+```
+
+This table shows you the flatten function that you want for each type of vector that you want to transform into.
+
+| Vector Type | Flatten     |
+|-------------|-------------|
+| Double      | flatten_dbl |
+| Integer     | flatten_int |
+| Character   | flatten_chr |
+| Logical     | flatten_lgl |
+
+Often we apply `map` and then want to flatten the result. 
+
+```{r}
+colour_feelings_length <- map(colour_feelings, length)
+flatten_dbl(colour_feelings_length)
+```
+
+You can do this in one step using the special map functions that both map and flatten.
+
+```{r}
+map_dbl(colour_feelings, length)
+```
+
+| Vector Type | Flatten     | Map and Flatten |
+|-------------|-------------|-----------------|
+| Double      | flatten_dbl | map_dbl         |
+| Integer     | flatten_int | map_int         |
+| Character   | flatten_chr | map_chr         |
+| Logical     | flatten_lgl | map_lgl         |
+
+## Data frames
+
+We can also "flatten" a list into a data frame. (This isn't really flattening, because data frames have just as much structure as lists). You use `flatten_df` and `map_df`.
+
+```{r}
+map_df(students, sort)
+```
+
+This is a slightly useless data-frame, because the answers for each student are all muddled up.
+
+# Conditional Mapping
+
+Sometimes we only want to apply the map function to certain elements of our list. To demonstrate this look at this list that contains some colour information in a different format than we've seen earlier.
+
+```{r}
+blue <- list(
+    translation = "gorm",
+    feelings    = c("Sad", "Calm"),
+    primary     = "Yes",
+    wavelength  = 470
+  )
+```
+
+The different elements of this list are of different types. This is very common in lists - the whole point of lists is to contain information of different types.
+
+If we want to only count the number of letters for elements of the list which are character vectors we can use `map_if`. 
+The first argument is again the list, but the second argument is a function that returns a logical vector, the third argument - the function - will only apply when the logical vector is true.
+
+```{r}
+map_if(blue, is.character, nchar)
+```
+
+When the logical vector isn't true, the element is unchanged.
+
+Again, if we want to use a logical function that's more complicated we can use the anonymous function shorthand.
+
+Below, we are only doing paste, when the length of the vector is greater than 1.
+
+```{r}
+map_if(blue, ~length(.x) > 1, paste, collapse = ', ')
+```
+
+## Data frames
+
+The function `map_if` is really useful for data frames. Below we are only finding the mean if the column is numeric.
+
+```{r}
+map_if(students, is.numeric, mean)
+```
+
+# Multiple Inputs
+
+Sometimes you will want to map using a function that takes two inputs. 
+
+First create a list which is made up of the first elements of the colour feelings list. You can do that using this short-hand:
+
+```{r}
+first_colour_feelings <- map(colour_feelings, 1)
+first_colour_feelings
+```
+
+Now we want to paste the elements of this list to the wavelength value. We do this using the function `map2`. The first two arguments to `map2` are the two lists we want to map over, the rest of the function works just like `map`.
+
+```{r}
+map2(first_colour_feelings, colour_wavelengths, paste, sep = ' - ')
+```
+
+<blockquote class = 'task'>
+**Task - 10 minutes**
+1.
+Find the wavelength of each colour rounded to the nearest 100 and present as a vector.
+
+2.
+If the wavelength of a colour is greater than 500 then round to the nearest 100, otherwise leave as is. 
+
+3. 
+Make a list which is every colour translation joined to the first colour feeling with a colon. 
+
+4.
+Make a list which is every colour feeling *second* in the list of colour feelings.
+
+Now make a list that joins the first colour feeling to the second colour feeling with a dash.
+
+<details>
+<summary> Answer </summary>
+1.
+```{r}
+map_dbl(colour_wavelengths, round, digits = -2)
+```
+
+2.
+```{r}
+map_if(colour_wavelengths, ~.x > 500, round, digits = -2)
+```
+
+3.
+```{r}
+map2(colour_translator, first_colour_feelings, paste, sep = ':')
+```
+
+
+4.
+```{r}
+second_colour_feelings <- map(colour_feelings, 2)
+map2(first_colour_feelings, second_colour_feelings, paste, sep = ' - ')
+```
+
+</details>
+</blockquote>
+
+# Nested Lists
+
+To explore how `map` works on nested lists we'll use the list from the course package called `colour_list`.
+
+```{r}
+str(colour_list)
+```
+
+It's a list where each element of the list is another list.
+
+A useful feature of map is that if we want every element of the inner lists called wavelength we can do this like so:
+
+```{r}
+map(colour_list, "wavelength")
+```
+
+Similarly, we can find the 4th element of every inner list by just giving map a number.
+
+```{r}
+map(colour_list, 4)
+```
+
+Often with nested lists we want to first pull out elements from the inner lists, and then do some mapping on them:
+
+```{r}
+colour_list_feelings <- map(colour_list, "feelings")
+map(colour_list_feelings, length) 
+```
+
+# Keep and Discard
+
+Two functions from `purrr` that are very useful are `keep` and `discard`. They work a bit like `map` except their second argument always returns a logical vector, and we only keep the elements of the list that are true for the vector (or we discard the elements of the list that are true for the vector, for `discard`).
+
+```{r}
+keep(blue, is.numeric)
+```
+
+```{r}
+discard(blue, is.numeric)
+```
+
+These are a useful alternative to `map_if`, which work slightly differently.
+
+Again we can use anonymous functions:
+
+```{r}
+keep(colour_wavelengths, ~.x > 500)
+```
+
+# Safely and Possibly
+
+When you are applying the same function to lots of elements, there's often a good chance the function won't work for some elements. If the function failed for any element of this list, the whole map will fail:
+
+```{r, error = TRUE}
+map(blue, round)
+```
+
+We can get round this using the functions `safely` and `possibly`. These both apply to functions and change what they return. You can think of them as "adverbs" because they modify a function (i.e. a "verb"). 
+
+The function `safely` changes the function to return a list where one element is the result and the other element tells you about any errors. Either the `error` element will be `NULL` (when the function ran correctly) or the `result` element will be `NULL` (when the function gave an error).
+
+```{r}
+map(blue, safely(round))
+```
+
+An alternative that's a bit easier to use in practice is `possibly`. Instead of modifying the function to return a list, it either returns the value or it returns a new value chosen by you whenever there's an error.
+
+```{r}
+map(blue, possibly(round, "Not a number"))
+```
+
+<blockquote class = 'task'>
+**Task - 15 minutes**
+
+1.
+Make a list that shows the mean for each of the numeric variables in the students dataset.
+
+2.
+Transform all the variables into their log in the student dataset (if that's possible).
+
+3.
+Find the mean of the log for each variable in the student dataset (where possible).
+
+4.
+For all the character variables in the student dataset, find the first value alphabetically.
+
+dataset 
+<details>
+<summary> Answer </summary>
+
+1.
+```{r}
+numeric_students_variables <- keep(students, is.numeric)
+map(numeric_students_variables, mean)
+```
+
+2.
+```{r}
+# One way of doing this
+map(students, possibly(log, ''))
+```
+
+3.
+```{r}
+log_students <- map(students, possibly(log, ''))
+map(log_students, mean)
+```
+
+4.
+```{r}
+# A few ways of doing this
+character_student_variables <- keep(students, is.character)
+sorted_students <- map(character_student_variables, sort)
+map(sorted_students, 1)
+```
+
+
+</details>
+</blockquote>
+
+# Recap
+
+1. What is the general form of the `map` function.
+<details>
+<summary> Answer </summary>
+```
+map(list, function, other_arguments_to_function)
+```
+
+</details>
+
+2. How do you flatten a list into a logical vector?
+<details>
+<summary> Answer </summary>
+`map_lgl`
+</details>
+
+3. What is the general form of `map_if`?
+<details>
+<summary> Answer </summary>
+```
+map(list, test_for_mapping, function, other_arguments_to_function)
+```
+
+</details>
+
+4. What is the general form of `map2`?
+<details>
+<summary> Answer </summary>
+```
+map(list_1, list_2, function, other_arguments_to_function)
+```
+</details>
+
+5. What function do you use to remove elements of a list 
+which return `TRUE` to a function?
+<details>
+<summary> Answer </summary>
+`discard`
+</details>
+
+6. What function do you use to change another function so that instead of returning an error, it returns a value chosen by you.
+<details>
+<summary> Answer </summary>
+`possibly`
+</details>
+
+
+# Additional Resources
+
+A chapter in R for Data Science about these functions: https://r4ds.had.co.nz/iteration.html
+
+A chapter about functional programming in Advanced R:
+http://adv-r.had.co.nz/Functional-programming.html
+
+The online documentation for the `purrr` library: https://purrr.tidyverse.org/index.html

@@ -1,0 +1,596 @@
+---
+title: "Logistic regression"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Del Middlemiss"<br>
+date: "9th May 2019 - rev. 29th July 2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives
+
+* Understand the difference between a continuous and binary dependent variable
+* Be able to describe real-world applications of logistic regression
+* Know what a logistic function looks like
+* Understand the logistic formula
+* Be able to interpret log-odds
+* Know how to use the `glm()` function in R
+
+**Duration - 120 minutes**
+
+# Continuous and binary dependent variables
+
+So far, our regression fits have all involved a **continuous** dependent variable (AKA outcome variable). 
+* How do things change when we have a **binary** (AKA 'dichotomous') dependent variable? 
+* Why would such a circumstance ever arise?
+
+Let's look at some data where this modelling requirement arises quite naturally. We want to build a model linking various attributes of mortgage applicants to the **final status** of their application (i.e. whether it was accepted or declined, a binary dependent variable). 
+
+We've gathered data from 1000 recent applications. Let's have a look at it!
+
+```{r, message=FALSE}
+library(tidyverse)
+library(janitor)
+
+mortgage_data <- read_csv(file='mortgage_applications.csv') %>%
+  clean_names()
+              
+head(mortgage_data)
+```
+
+Here `tu_score` stands for 'TransUnion score', a credit score that ranges from $0$ to $710$; `employed` and `age` are self explanatory; and `accepted` is the binary dependent variable denoting final application status.
+
+## Initial data exploration
+
+The output of the `ggpairs()` function in the `GGally` package can be useful to investigate the relationships between a binary dependent and the various possible continuous or categorical independent variables.
+
+```{r, message=FALSE}
+library(GGally)
+ggpairs(mortgage_data)
+```
+
+Note that numerical correlation values are mostly absent in this plot, due to the fact that we have only one pairing of numerical variables: `tu_score` and `age`. Direct visualisation is arguably more useful when investigating the relationships between continuous and binary variables, but if you really want or need a numerical measure, consider using the **point-biserial correlation** rather than the standard Pearson correlation you have been using up until now.
+
+Focussing on the `accepted` column, we see that it shows a strong relationship with `tu_score`, and there is also a significant relationship between `employed` and `accepted` (in that, if you are employed, your probability of being accepted is approximately 0.5, whereas if you are unemployed, you have a much smaller probability of acceptance). The `accepted` probability seems not to vary significantly with `age`. We also see a significant relationship between `employed` status and `tu_score`.
+
+Let's ignore the `employed` and `age` variables for the moment and focus on `tu_score`. Let's plot the relationship between `tu_score` and `accepted`:
+
+```{r}
+# Let's reduce the symbol size and 'jitter' the y-values so we can see more of the data without overlap of symbols
+# geom_jitter() adds adds a small amount of random variation (vertically and/ore horizontally depending on the arguments) to the location of each point
+
+score_plot <- ggplot(mortgage_data) +
+  geom_jitter(aes(x = tu_score, y = as.integer(accepted)), shape = 1, 
+              position = position_jitter(h = 0.03))
+
+score_plot
+```
+
+The question is: how do we model this data? Is a simple linear regression a good idea? Let's see...
+
+```{r, message = FALSE}
+mortgage_data_lin_model <- lm(as.integer(accepted) ~ tu_score, data = mortgage_data)
+
+# The modelr package provides functions that help you create elegant pipelines when modelling. We will use the add_prediction() function from modelr to add a variable adding predictions based on another variable in the dataframe. 
+library(modelr)
+
+predict_lin <- tibble(tu_score = seq(0, 710, 1)) %>%
+              add_predictions(mortgage_data_lin_model)
+
+
+score_plot + 
+   geom_line(data = predict_lin, aes(x = tu_score , y = pred), col = 'red')
+```
+
+This is a terrible fit! We can view the regression line as an (albeit rubbish) attempt to estimate *how the mean probability of getting a mortgage application accepted varies with `tu_score`*.
+
+To see this, imagine we focus on one `tu_score` value, say $594$, and then look at the outcomes for that value
+
+```{r}
+mortgage_data %>%
+  filter(tu_score == 594)
+```
+
+So, three applications accepted and two declined for this score suggests that the empirical probability of being accepted at this score $p(\textrm{tu_score = 594}) = 0.6$. The linear regression will try to provide a set of best-estimates $\widehat{p}(\textrm{tu_score})$ across the range of independent variables.
+
+But, the $\widehat{p}$ values predicted by the model are not satisfactory. For a start, the regression clearly does not fit the data very well, and it predicts **negative** probabilities at low `tu_score`. These values cannot even be interpreted as probabilities!
+
+We need a better model to fit to this data, a model that generates probabilities within the proper bounds. This is where the **logistic function** comes in!
+
+# The logistic function
+
+The **logistic function** provides a far better model for the estimated probability of 'success' on a binary outcome. The general form of the function is 
+
+$$f(x)=\frac{L}{1+e^{-k \times (x-x_0)}} $$
+
+Let's just play around with this function and plot it for a range of $L$, $k$ and $x_0$ values.
+
+**No need to code along with what follows if time is short**
+
+```{r}
+logistic <- function(x, L = 1, k = 1, x0 = 0 ){
+  return(L / (1 + exp(-k * (x - x0))))
+}
+```
+
+```{r}
+logistic_data_l <- tibble(x = seq(-6, 6, 0.1)) %>%
+  mutate(L1 = map_dbl(x, ~ logistic(.x, L = 1))) %>%
+  mutate(L2 = map_dbl(x, ~ logistic(.x, L = 2))) %>%
+    mutate(L3 = map_dbl(x, ~ logistic(.x, L = 3))) 
+    
+legend_labels_l <- c("L=1", "L=2", "L=3")
+
+logistic_data_l %>%
+  pivot_longer(starts_with("L"), names_to = c("L_value")) %>%
+  ggplot() + 
+  geom_line(aes(x=x, y=value, colour = L_value)) +
+  ylab("f(x)") + 
+  scale_color_discrete(labels = legend_labels_l)
+```
+
+The logistic curves are all 'S-shaped'. This already looks more promising than the straight line of simple linear regression for fitting the data distribution we saw above. We'll use regression to fit a logistic curve to our data! 
+
+We see that $L$ affects the **maximum value** of $f(x)$. We're going to use $f(x)$ to model probability $p$, which must be in the range $0 \le p \le 1$, so we'll set $L=1$ in everything that follows.
+
+```{r}
+logistic_data_k <- tibble(x = seq(-6, 6, 0.1)) %>%
+  mutate(k1 = map_dbl(x, ~ logistic(.x, k = 1))) %>%
+  mutate(k2 = map_dbl(x, ~ logistic(.x, k = 2))) %>%
+  mutate(k4 = map_dbl(x, ~ logistic(.x, k = 4))) %>%
+  mutate(k_1 = map_dbl(x, ~ logistic(.x, k = -1))) %>%
+  mutate(k_2 = map_dbl(x, ~ logistic(.x, k = -2)))
+
+legend_labels_k <- c("k=1", "k=2", "k=3", "k=-1", "k=-2")
+
+logistic_data_k %>%
+  pivot_longer(starts_with("k"), names_to = c("k_value")) %>%
+  ggplot() +
+  geom_line(aes(x = x, y = value, colour = k_value)) +
+  ylab("f(x)") +
+  scale_color_discrete(labels = legend_labels_k)
+```
+
+The **sign** of $k$ affects whether $f(x)$ is 'high on the right and low on the left', or vice-versa. In some modelling applications, we want the probability of 'success' to be high for **low** values of the independent variable, and in others, to be high for **high** values of the independent variable, so we need the ability to alter $k$ in the fit. The **size** of $k$ affects the 'steepness' of the 'S': large values means a steeper curve.
+
+```{r}
+# next let's vary x0
+logistic_data_x0 <- tibble(x = seq(-6, 6, 0.1)) %>%
+  mutate(x00 = map_dbl(x, ~ logistic(.x, x0 = 0))) %>%
+  mutate(x01 = map_dbl(x, ~ logistic(.x, x0 = 1))) %>%
+  mutate(x02 = map_dbl(x, ~ logistic(.x, x0 = 2))) %>%
+  mutate(x0_1 = map_dbl(x, ~ logistic(.x, x0 = -1))) %>%
+  mutate(x0_2 = map_dbl(x, ~ logistic(.x, x0 = -2)))
+
+legend_labels_x0 <- c("x0=0", "x0=1", "x0=2", "x0=-1", "x0=-2")
+
+logistic_data_x0 %>%
+  pivot_longer(starts_with("x0"), names_to = c("x0_value")) %>%
+  ggplot() +
+  geom_line(aes(x = x, y = value, colour = x0_value)) +
+  ylab("f(x)") +
+  scale_color_discrete(labels = legend_labels_x0)
+```
+
+So, $x_0$ affects the location of the 'step' in the function. To be precise, $f(x_0)=0.5$, so positive values shift $f(x)$ to the right, and negative values shift it to the left.
+
+Initially, we'll limit ourselves to a single continuous independent variable $x$, as in the simple linear regression we've studied already. Rather than changing $k$ and $x_0$ in the fit, we'll mimic simple linear regression and use $b_0$ and $b_1$ instead.
+
+Our model for the estimated probability as a function of $x$, $\widehat{\textrm{prob}}(x)$, is then
+
+$$\widehat{\textrm{prob}}(x)=\frac{1}{1+e^{-(b_0+b_1 \times x)}} $$
+
+# Making the model linear
+
+The logistic function looks difficult to fit to data. Can we transform it into something linear? Let's use a little bit of algebra and what we recapped on logarithms and exponentials to tackle this.
+
+First, we work with **odds** rather than probabilities. Odds may be familiar to you from gambling: in this case, they are defined as the ratio of 'successes' to 'failures'. So, if we toss a fair coin, the odds of 'getting a head' are one-to-one $1:1 = \frac{1}{1}=1.0$. 
+
+<blockquote class='task'>
+**Task** If we roll a fair die, what are the **odds** of getting a $6$?
+<details>
+<summary>**Details**</summary>
+The probabilitiy of success is $\textrm{prob} = \frac{1}{6}$ and the probability of failure is therefore $1-\textrm{prob} = \frac{5}{6}$, so the odds are
+$$\textrm{odds}(\textrm{success}) = \frac{\frac{1}{6}}{\frac{5}{6}} = \frac{1}{5} = 0.2$$
+</details>
+</blockquote>
+
+First, here's the definition of odds in terms of the probability
+
+$$\textrm{odds}_\textrm{success}(x)=\frac{\widehat{\textrm{prob}}(x)}{1-\widehat{\textrm{prob}}(x)}$$
+
+Next, we rewrite the probability in terms of the odds. Click below to follow the details of this if you're interested.<br><br>
+
+<details class='maths'>
+<summary>**Writing the probability in terms of the odds - mathematical details**</summary>
+
+We save ourselves some effort, and just write $\textrm{odds}_\textrm{success}(x)$ as $\textrm{odds}$, and $\widehat{\textrm{prob}}(x)$ as $\widehat{\textrm{prob}}$. Multiplying both sides of the equation above by $1-\widehat{\textrm{prob}}$ we get
+
+$$(1-\widehat{\textrm{prob}}) \times \textrm{odds} =  \widehat{\textrm{prob}}$$
+
+so that
+
+$$\textrm{odds} - \widehat{\textrm{prob}} \times \textrm{odds} = \widehat{\textrm{prob}}$$
+
+and then
+
+$$\textrm{odds} = \widehat{\textrm{prob}} \times (1+\textrm{odds})$$
+
+so finally
+
+$$\widehat{\textrm{prob}} = \frac{\textrm{odds}}{1+\textrm{odds}}$$
+
+</details>
+<br>
+
+We finally get
+
+$$\widehat{\textrm{prob}} = \frac{\textrm{odds}}{1+\textrm{odds}}$$
+
+Remember the logistic function above for $\widehat{\textrm{prob}}$. We substitute this in for $\widehat{p}$
+
+$$\frac{1}{1+e^{-(b_0+b_1 \times x)}} = \frac{\textrm{odds}}{1+\textrm{odds}}$$
+
+Now we try to make this equation **linear** (i.e. 'get $b_0$ and $b_1$ out of the exponent and 'down on the line'). We'll hide the mathematical manipulations that follow, it's not necessary to follow them, but click below if you'd like to see more!<br><br> 
+
+<details class='maths'>
+<summary>**Linearising the equation - mathematical details**</summary>
+
+Cross multiplying we get 
+
+$$1+\textrm{odds} = \textrm{odds} \times (1+e^{-(b_0+b_1 \times x)}) = \textrm{odds} + \textrm{odds} \times e^{-(b_0+b_1 \times x)}$$
+
+and then subtracting $\textrm{odds}$ from both sides we get
+
+$$1 = \textrm{odds} \times e^{-(b_0+b_1 \times x)}$$
+
+So that
+
+$$\textrm{odds} = \frac{1}{e^{-(b_0+b_1 \times x)}} = e^{b_0+b_1 \times x}$$
+
+We are nearly there! Let's remind ourselves of the full definition of $\textrm{odds}$, and think about how to make the expression above **linear** in $b_0$ and $b_1$. Here's where we've got to
+
+$$\textrm{odds}_\textrm{success}(x) = e^{b_0+b_1 \times x}$$
+
+We want to 'undo' the exponential, so let's take the $\ln()$ of both sides
+
+$$\ln(\textrm{odds}_\textrm{success}(x)) = \ln(e^{b_0+b_1 \times x}) = b_0 + b_1 \times x$$
+</details>
+<br>
+
+We end up with
+
+$$\ln(\textrm{odds}_\textrm{success}(x)) = b_0 + b_1 \times x $$
+
+i.e. the natural logarithm of the odds of success equals something very much like we're used to seeing in linear regression. Consequently, this is a linear function: $b_0$ and $b_1$ are down 'on the line'! Don't worry too much about the fact we have $\ln(\textrm{odds}_\textrm{success}(x))$ on the left-hand side, this equation is basically of the form 
+
+$$\widehat{y}=b_0+b_1 \times x$$
+
+The **log-odds** function on the left hand side is also known as the **logit** function (pronounced 'low jit' or 'law jit' with a soft 'g')
+
+$$\textrm{logit}(\widehat{\textrm{prob}}(x))= \ln \big(\textrm{odds}_\textrm{success}(x) \big)=\ln \Big( {\frac{\widehat{\textrm{prob}}(x)}{1-\widehat{\textrm{prob}}(x)}} \Big) $$
+
+Let's see what the logit function looks like
+
+```{r}
+logit <- function(x){
+  return(log(x/(1-x)))
+}
+
+logit_data <- tibble(p = seq(0.001, 0.999, 0.001)) %>%
+  mutate(logit = logit(p))
+
+ggplot(logit_data, aes(x = p, y = logit)) + 
+  geom_line()
+```
+
+So $\textrm{logit}(p)$ provides the link between a continuous independent variable, which could take really large positive or negative values and a probability in the range $0 \le p \le 1$. To see this, note that any $\textrm{logit}(p)$ value on the graph above gives a $p$ in the correct range.
+
+In simple linear regression, the interpretation of $b_1$ was straightforward: if the independent variable $x$ increases by one unit, then the estimate of the dependent variable $\widehat{y}$ changes by $b_1$ units, increasing or decreasing as $b_1$ is positive or negative, respectively.
+
+The interpretation of $b_1$ in logistic regression is a little bit more complicated, due to the fact that we're using the *log-odds* as the dependent variable. We'll come back to the issue of interpretation after we've run a logistic regression.
+
+<hr>
+
+# Enough chat, let's fit a model!
+
+## Single continuous predictor
+
+We used the `lm()` function to perform a least squares fit of a simple linear regression model. There, it was easy to calculate the sum of squared errors as a measure of how well the model fits the data, as we had a set of $(x_i,y_i)$ sample data and the corresponding set of $(x_i, \widehat{y}_i)$ estimates from the regression. 
+
+The situation is more complicated in the case of logistic regression, as we observe only binary outcomes directly (i.e. 'accepted'/'declined' for each application) and not the log-odds that we would need to fit the model using a least squares approach.
+
+So, we use the **generalised linear model** fitting function `glm()` to do the job for us, using a fitting method called **maximum likelihood estimation** (and not least squares as R used for linear regression). Don't worry too much about this, we'll just think of `glm()` as a 'turbocharged' version of `lm()`, free of some of its constraints!
+
+Let's use `glm()` to run logistic regression on `mortgage_data`
+
+```{r}
+mortgage_data_logreg_model <- glm(accepted ~ tu_score, data = mortgage_data, family = binomial(link = 'logit'))
+mortgage_data_logreg_model
+```
+
+The argument `family = binomial(link = 'logit')` is what tells `glm()` to perform a logistic regression. The `glm()` function is very powerful, and can fit many different types of linear model, but here we're limiting ourselves to logistic regression.
+
+Let's plot the estimated probability as a function of `tu_score`
+
+```{r}
+predict_log <- tibble(tu_score = seq(0, 710, 1)) %>%
+              add_predictions(mortgage_data_logreg_model, type = 'response') # argument type = 'response' is used in glm models 
+score_plot + 
+   geom_line(data = predict_log, aes(x = tu_score , y = pred), col = 'red')
+```
+
+Yay - we see the 'S' shaped probability curve of the logistic function! The estimated probability is now always within the bounds $0 \le \widehat{\textrm{prob}} \le 1$. 
+
+### Prediction
+
+We can use `add_predictions()` to predict the probability of acceptance, technically at any `tu_score`, although we should in practice limit ourselves to `tu_score`s within the range of the fitted sample data.
+
+<blockquote class='task'>
+**Task - 5 mins** Use and amend the code above to predict the probability of getting a mortgage application accepted with a `tu_score` of 594.
+
+<details>
+<summary>**Solution**</summary>
+```{r}
+tibble(tu_score = 594) %>%
+  add_predictions(mortgage_data_logreg_model, type='response') 
+```
+</details>
+</blockquote>
+
+### Interpretation of $b_1$ for a continuous predictor
+
+Now we turn to the question "How should we interpret $b_1$" in logistic regression", particularly for a continuous predictor? As earlier, there is some mathematical manipulation involved in this that you don't need to know, we provide the end result, but click below if you'd like to see the details.
+
+<br>
+<details class='maths'>
+<summary>**Interpretation of $b_1$ - mathematical details**</summary>
+
+Let's remind ourselves of the linear model we are fitting<br><br>
+
+$$\ln(\textrm{odds}_\textrm{success}(x)) = b_0+b_1 \times x \; \; \; \; \; \textrm{[I]}$$<br>
+
+Now let's think what happens if we change the value of the independent variable<br><br>
+
+$$\ln(\textrm{odds}_\textrm{success}(x + \textrm{change})) = b_0+b_1 \times (x + \textrm{change}) = b_0+b_1 \times x + b_1 \times \textrm{change} \; \; \; \; \; \textrm{[II]}$$<br>
+
+Next, subtract equation $\textrm{[I]}$ from equation $\textrm{[II]}$. Then terms $b_0$ and $b_1 \times x$ cancel, and we are left with<br><br>
+
+$$\ln(\textrm{odds}_\textrm{success}(x + \textrm{change})) - \ln(\textrm{odds}_\textrm{success}(x)) = b_1 \times \textrm{change}$$<br>
+
+We now use the 'log of a division' rule in reverse<br><br>
+
+$$\ln \Big( \frac{\textrm{odds}_\textrm{success}(x + \textrm{change})}{\textrm{odds}_\textrm{success}(x)} \Big) =  b_1 \times \textrm{change}$$<br>
+
+How do we get rid of the $\ln()$ on the left hand side? Think about how to 'undo' a logarithm. We exponentiate both sides, then '$e$ to the power of...' cancels $\ln()$ on the left hand side!
+
+</details>
+<br>
+
+We end up with
+
+$$\frac{\textrm{odds}_\textrm{success}(x + \textrm{change})}{\textrm{odds}_\textrm{success}(x)} = e^{b_1 \times \textrm{change}} $$
+
+We call the left hand side of this equation the **odds ratio**.
+
+$$\frac{\textrm{odds}_\textrm{success}(x + \textrm{change})}{\textrm{odds}_\textrm{success}(x)} = e^{b_1 \times \textrm{change}} $$
+
+It might help to think of this as
+
+$$\textrm{odds of success after change in }x = e^{b_1 \times \textrm{change in }x} \times \textrm{odds of success before change in } x$$
+
+How do we apply this in practice? Let's get the odds of having an accepted application at a particular `tu_score`, say at a value $594$.
+
+```{r}
+odds_at_594 <- tibble(tu_score = 594) %>%
+  add_predictions(mortgage_data_logreg_model, type='response') %>%
+  mutate(odds = pred/(1-pred)) %>%
+  select(odds)
+
+odds_at_594
+```
+
+This is approximately 3-to-2 in favour of success. How do these odds change if we **increase** `tu_score` by, say, $50$ points to $644$? The maths above tells us the odds will change by a factor $e^{b_1 \times \textrm{change in }x} = e^{b_1 \times 50}$. So we need to get coefficient $b_\textrm{tu_score}$ from `mortgage_data_logreg_model` and then use it to work out the factor multiplying the odds.
+
+The `broom` library takes the messy output of built-in functions in R, such as `lm()` and `glm()`, and converts them to tidy data frames. The `tidy()` and `glance()` functions from this package will pull out the information we're interested from a `glm` object in tidy format:
+
+```{r, message = FALSE}
+library(broom)
+
+b_tu_score <- tidy(mortgage_data_logreg_model) %>%
+  filter(term == "tu_score") %>%
+  select(estimate) 
+
+odds_factor <- exp(b_tu_score * 50)
+
+# let's see the odds factor
+odds_factor
+
+# now calculate the new odds
+odds_at_644 <- odds_factor * odds_at_594
+odds_at_644
+```
+
+Big increase! The odds are now nearly 5-to-2 in favour. Let's check if this is correct by getting the probability of acceptance at $644$ and calculating the odds directly.
+
+```{r}
+tibble(tu_score = 644) %>%
+  add_predictions(mortgage_data_logreg_model, type='response') %>%
+  mutate(odds = pred/(1-pred)) %>%
+  select(odds)
+```
+
+Phew, this matches what we got before!
+
+<blockquote class='task'>
+**Task - 5 mins** How do the odds of acceptance change if we **decrease** `tu_score` by $50$ points from $594$ to $544$? Calculate the new odds using `R`.
+<br>
+
+[**Hint** - the $\textrm{change in }x$ here is $-50$]
+<details>
+<summary>**Solution**</summary>
+```{r}
+# we can reuse b_tu_score and odds_at_594
+odds_factor <- exp(b_tu_score * -50)
+# let's see the odds factor
+odds_factor
+# and now use it
+odds_at_544 <- odds_factor * odds_at_594
+odds_at_544
+```
+The odds decrease to just over 1-to-1 in favour!
+</details>
+</blockquote>
+
+Notice that the factor $e^{b_1 \times \textrm{change in }x }$ **doesn't depend on $x$**. What does this mean? 
+
+* If we increase `tu_score` by $50$ points from $1$ to $51$, the odds will increase by the factor $1.527676$ we calculated above. 
+* Similarly, an increase in `tu_score` from $660$ to $710$ improves the odds by **exactly the same factor**. 
+
+Note however that this is a **factor**, and that $\textrm{new odds} = \textrm{factor} \times \textrm{old odds}$. So:
+
+* the factor by which the odds changes **does not depend** upon $x$, as we've seen
+* the absolute change in odds **depends** upon the odds from which we start, and these odds **depend** upon $x$.
+
+## Multiple predictors
+
+Broadening the scope of logistic regression to include multiple predictors is similar to the process of going from simple linear regression to multiple regression: we simply include the relevant predictors in the formula object!  
+
+```{r}
+mortgage_data_multi_logreg_model <- glm(accepted ~ tu_score +  employed + age, data = mortgage_data, family = binomial(link = 'logit'))
+
+tidy_out <- clean_names(tidy(mortgage_data_multi_logreg_model))
+glance_out <- clean_names(glance(mortgage_data_multi_logreg_model))
+tidy_out
+glance_out
+```
+
+Easy-peasy it would seem! But, as for multiple linear regression, we need to think carefully about the statistical significance of each predictor we add into the model. A good first step in this direction is to examine the $p$-value of each predictor.  
+
+```{r}
+tidy_out
+```
+
+Here we see that `tu_score` and `employed` are both significant at $\alpha = 0.05$, but `age` is not significant ($p_\textrm{age} \gt 0.05$).
+
+## Interpretation of $b_1$ for a categorical predictor
+
+Let's get the logistic regression coefficient for the `employed` predictor:
+
+```{r}
+b_employedTRUE <- tidy(mortgage_data_multi_logreg_model) %>%
+  filter(term == "employedTRUE") %>%
+  select(estimate)
+
+b_employedTRUE
+```
+
+<blockquote class='task'>
+**Task - 5 mins**
+
+Think about how to interpret this coefficient for a categorical predictor, building out logically from what you learned above about interpreting $b$ values for continuous predictors.
+
+* Think about the odds **relative to the reference level** of the predictor variable
+
+<details>
+<summary>**Solution**</summary>
+
+In this case, the reference level of the `employed` variable is `FALSE`, so the odds ratio 
+
+$$ \frac{\textrm{odds}(\textrm{employed}=\textrm{TRUE})}{\textrm{odds}(\textrm{employed}=\textrm{FALSE})}= \textrm{odds ratio} = \textrm{exp}(b_\textrm{employedTRUE})$$
+
+```{r}
+odds_ratio = exp(b_employedTRUE)
+odds_ratio
+```
+
+On average, a customer's odds of being accepted for a mortgage are $4.39$ times higher if they are employed rather than not employed.
+</details>
+</blockquote>
+
+# Recap
+
+<br>
+
+* Why can't we use simple linear regression to model the relationship between a dichotomous response and a continuous predictor variable?
+<details>
+<summary>**Answer**</summary>
+Aside from not fitting the data particularly well, the linear regression can predict outcomes greater than 1 or less than zero, which is problematic if we interpret the sample responses as probabilities.
+</details>
+
+<br>
+
+* What is the form of the fitting function used in logistic regression? Why do we use this function?
+<details>
+<summary>**Answer**</summary>
+We use the logistic function
+$$f(x)=\frac{1}{1+e^{-k \times (x-x_0)}}$$
+because it maps correctly from a continuous variable to a probability. It never exceeds 1 nor falls below 0. 
+</details>
+
+<br>
+
+* What is the definition of the 'odds' of an event?
+<details>
+<summary>**Answer**</summary>
+$$\textrm{odds}_\textrm{success}(x)=\frac{\widehat{\textrm{prob}}(x)}{1-\widehat{\textrm{prob}}(x)}$$
+</details>
+
+<br>
+
+* What is the definition of the 'logit' function? Why does it occur in logistic regression?
+<details>
+<summary>**Answer**</summary>
+The 'logit' takes the form
+$$\textrm{logit}(\widehat{p}(x))= \ln \big(\textrm{odds}_\textrm{success}(x) \big)=\ln \Big( {\frac{\widehat{\textrm{prob}}(x)}{1-\widehat{\textrm{prob}}(x)}} \Big)$$
+It occurs in logistic regression because it describes the form in which the model becomes linear.
+</details>
+
+<br>
+
+* What `R` function do we use to fit a logistic regression model to sample data?
+<details>
+<summary>**Answer**</summary>
+We use the `glm()` function, passing in the argument `family = binomial(link = "logit")` to select logistic regression.
+</details>
+
+<br>
+
+* What `R` function do we use to predict probabilities from a fitted logistic regression model?
+<details>
+<summary>**Answer**</summary>
+As in simple linear regression, we use the `add_predictions()` function from `modelr`, passing in the argument `type = "response"`
+</details>
+
+<br>
+
+* How do we interpret the regression coeffient $b_1$ obtained from logistic regression?
+<details>
+<summary>**Answer**</summary>
+
+This depends on whether the coefficient relates to a continuous or categorical predictor:
+
+**Continuous case**
+
+It relates a change in predictor variable value $x$ to a change in odds as follows
+$$\textrm{odds of success after change in }x = e^{b_1 \times \textrm{change in }x} \times \textrm{odds of success before change in } x$$ 
+
+**Categorical case**
+
+The odds of success for the *named level* relative to the *reference level* of the predictor are
+
+$$\frac{\textrm{odds}(\textrm{named level})}{\textrm{odds}(\textrm{reference level})}= \textrm{odds ratio} = \textrm{exp}(b_\textrm{named_level})$$
+</details>
+
+<br>

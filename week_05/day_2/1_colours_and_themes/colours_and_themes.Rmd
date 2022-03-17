@@ -1,0 +1,783 @@
+---
+title: "Colours and Themes"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+    pdf_document: default
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+```
+
+# Learning Objectives<br>
+
+* Be able to add non-data elements to a plot
+* Be able to change the colour palette of a plot
+* Be able to create a plot theme and reuse it for many plots
+
+**Duration - 2 hours 30 minutes**<br>
+  
+
+We're coming into the final stretch of `ggplot2` basics. We can now produce informative plots, but we also want our plots to be clear, and just to look good. 
+
+We'll look first at customising colour schemes, which ties in to our previous lesson on scale. We'll also touch on shape scales. After colour, we'll look at the related topic of legends. Lastly, we'll look at themes which covers the very basic design elements of your plot - the fontface, the size of elements, the background, the grid lines, the axis lines, etc.
+
+# Colour Palettes
+
+As we discussed in the first lesson, scales give the details of the mapping from the data to the aesthetic qualities, e.g. if the aesthetic mapping is `aes(colour = sex)` then it's the scale that defines which colours are assigned to which sex:
+
+Sex			| Colour
+--------|----------
+Male    |   Green
+Female  |   Pink
+
+or if the aesthetic mapping is `aes(colour = age)` then it is likely a spectrum of colours corresponding to age:
+
+Age | Colour
+----|-------------
+1		|	 Light blue (high luminance)
+12		|	 Dark blue (low luminance)
+1-12    |   Intermediate shade of blue in proportion to proximity of age to 1 and to 12.
+
+Again, ggplot2 will detect the data type (discrete or continuous), create default scales for you, but sometimes you want to define your own scale, e.g.
+
+Sex		| Colour
+------|--------
+Male   |Blue
+Female  |   Red
+
+Age  | Colour
+-----|--------
+1		 |	 Blue
+10	|	 White
+12		|	 Red
+1-10    |   Blend of blue and white in proportion to proximity to 1 (blue) and 10 (white)
+10-12   |   Blend of white and red in proportion to proximity to 10 (white) and 12 (red)
+
+
+# Colours in R
+
+R uses hexadecimal to represent colours. Hexadecimal is a base-16 number system used to describe colour.  
+
+Red, green, and blue are each represented by two characters (#rrggbb). Each character has 16 possible symbols: 0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F.
+
+e.g. red= #FF0000 , black=#000000, white = #FFFFFF
+
+Two additional characters (with the same scale) can be added to the end to describe transparency (#rrggbbaa).
+
+R has a wide variety of predefined colour names available which can be used in place of a hex-code. You can see a list of names easily by typing `colours()`. 
+
+The `hcl` function generates hexidecimal colours, from HCL numbers.
+
+```{r}
+hcl(200, 50, 50)
+```
+
+## Continous colours 
+
+We'll look at three main types of colour gradients:
+
+* gradient : two-colour gradient
+* gradient2 : three-colour gradient
+* gradientn : n-colour gradient
+
+We'll also consider:
+
+* distiller : colour-brewer scales
+
+which allows you to use apply a set of predefined scales.
+
+### Two-colour Gradient
+
+This is the most basic colour gradient. There's two functions that let us do this: one applies to colour aesthetics, one applies to fill aesthetics.
+
+* `scale_colour_gradient`
+* `scale_fill_gradient`
+
+We've touched on these functions briefly in the first lesson yesterday. Now we can extend our use of them by controlling how they scale the colours. To do this, we need to give the high and low colour for the gradient in each function. As noted, we can use RGB codes, or we can just use named predefined colours, e.g.
+
+```{r, message=FALSE, warning = FALSE}
+library(ggplot2)
+library(CodeClanData)
+
+ggplot(pets, aes(weight, age, colour = sleep)) +
+  geom_point() +
+  scale_colour_gradient(low = "gray0", high = "gray100")
+```
+
+This gives us a grey scale plot.
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Look up the help documentation for the functions above (or consult the ggplot cheatsheet). Can you change the colour scale to something else? 
+
+<details>
+<summary>**Example Answer**</summary>
+```{r}
+ggplot(pets, aes(weight, age, colour = sleep)) +
+  geom_point() +
+  scale_colour_gradient(low = "light blue", high = "dark blue")
+```
+</details>
+</blockquote> 
+<br> 
+
+
+### Three-colour Gradient
+
+If two colours is good then three must be better? In this case, yes. Using three colours gives us greater control over the output. The classic application is a divergent scale like we showed at the start. Essentially we construct 2 two-colour gradients, and define a midpoint value where the two gradients meet. The functions used are:
+
+* `scale_colour_gradient2`
+* `scale_fill_gradient2`
+
+We've seen this applied above, but we repeat it here.
+
+```{r}
+ggplot(pets, aes(weight, age, colour = sleep)) +
+  geom_point() +
+  scale_colour_gradient2(midpoint = 15, low = "blue", high = "red", mid = "white")
+```
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Look at the plot above. What does it tell you? **Write your interpretation of it down**. Do you think this colour scale is the best for it? If no, what would you change the colour scale to? 
+
+</blockquote> 
+<br> 
+
+
+### n-colour Gradient
+
+If three is better, then `n > 3` must be better? Not this time. 
+
+Typically we use n-colour gradients only when the colours are meaningful to our data in some way, e.g. standard terrain colours on maps, or if you'd like to use a palette produced by another package, e.g. `colorspace`.
+
+* `scale_colour_gradientn`
+* `scale_fill_gradientn`
+
+e.g. Maunga Whau (Mt Eden) is one of about 50 volcanos in the Auckland volcanic field. This data set gives topographic information for Maunga Whau on a 10m by 10m grid. Rather than write a list of colours ourself we are taking one from the library `colorspace`.
+
+```{r}
+ggplot(volcano) +
+  geom_raster(aes(x, y, fill = height), interpolate = TRUE) +
+  scale_fill_gradientn(colours = colorspace::terrain_hcl(5))
+```
+
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Look at the plot above. What does it tell you? **Write your interpretation of it down**. 
+
+What happens if you change the number of colours you are sampling from the `terrain_hcl` colour pallette. Do you think this colour scale is the best for it? What happens if you take more or fewer colours from it (e.g. change `terrain_hcl(5)` to `terrain_hcl(10)` and see what happens). What options would you choose for this plot and why?  
+
+</blockquote> 
+<br> 
+
+
+### Colour Brewer gradients
+
+Colour brewer is a popular set of colour schemes. You can see the avalible schemes at their website: http://colorbrewer2.org/
+
+`ggplot2` includes functions that can automatically select these palettes by name.
+
+* `scale_colour_distiller`
+* `scale_fill_distiller`
+
+Let's plot our `volcano` data again, this time using `scale_fill_distiller` instead.  
+
+```{r}
+ggplot(volcano) +
+  geom_raster(aes(x, y, fill = height), interpolate = T) +
+  scale_fill_distiller(palette = "RdPu")
+```
+
+As you can see, it chooses the colours based on whatever pallette you've chosen.   
+
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+Below is a heatmap that shows the maximum tempreature in Scotland for each month of year from 1910 to 2015.
+
+```{r}
+ggplot(temp_df) +
+  geom_raster(aes(x = month, y = year, fill = max_temp))
+```
+
+Change the colour scheme to
+
+1. A different two colour gradient
+2. A three colour gradient
+3. A n colour gradient
+4. One of colour brewer's gradients
+
+Which colouring do you think is best?
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+plot <-
+  ggplot(temp_df) +
+  geom_raster(aes(x = month, y = year, fill = max_temp))
+```
+
+1.
+```{r}
+plot +
+  scale_fill_gradient(high = "red", low = "blue")
+```
+
+2.
+```{r}
+plot +
+  scale_fill_gradient2(high = "red", mid = "white", low = "blue", midpoint = mean(temp_df$max_temp))
+```
+
+3.
+```{r}
+plot +
+  scale_fill_gradientn(colours = colorspace::diverge_hcl(7)) # using a different pallet from colour space
+```
+
+4.
+```{r}
+plot +
+  scale_fill_distiller(palette = "RdYlGn")
+```
+
+Number 2 is probably the clearest, and relates to the data by setting the midpoint as the mean of the data.  
+
+</details>
+</blockquote>
+
+
+## Discrete Colours
+
+The functions we looked at above work with **continous** data points. There are also four discrete colour scales.
+
+### The default scale
+
+* `scale_fill_hue()`
+* `scale_colour_hue()`
+
+Picks evenly spaced hues around the HCL colour scale. (You'll learn more about the HCL scale in the next lesson!)
+
+```{r}
+ggplot(pets) +
+  aes(x = animal, fill = interaction(sex, animal)) +
+  geom_bar() +
+  scale_fill_hue()
+```
+
+We can choose different ranges to map over.
+
+```{r}
+ggplot(pets) +
+  aes(x = animal, fill = interaction(sex, animal)) +
+  geom_bar() +
+  scale_fill_hue(h = c(120, 300), c = 40, l = 45)
+```
+
+
+### Colour Brewer pallets
+
+The second option:
+
+* `scale_colour_brewer(palette)`
+* `scale_fill_brewer(palette)`
+
+Uses the named colourbrewer2 palettes. 
+
+```{r}
+ggplot(pets) +
+  aes(x = animal, fill = interaction(sex, animal)) +
+  geom_bar() +
+  scale_fill_brewer(name = "Sex and Animal Type", palette = "Set1")
+```
+
+### Grey pallets
+
+The third option:
+
+* `scale_colour_grey(start = 0, end = 1)`
+* `scale_fill_grey(start = 0, end = 1)`
+
+uses shades of grey (from black = 0 to white = 1). You can use start and end to restrict the range of greys to be included.
+
+```{r}
+ggplot(pets) +
+  aes(x = animal, fill = interaction(sex, animal)) +
+  geom_bar() +
+  scale_fill_grey()
+```
+```{r}
+ggplot(pets) +
+  aes(x = animal, fill = interaction(sex, animal)) +
+  geom_bar() +
+  scale_fill_grey(start = 0, end = 0.5)
+```
+```{r}
+ggplot(pets) +
+  aes(x = animal, fill = interaction(sex, animal)) +
+  geom_bar() +
+  scale_fill_grey(start = 0.5, end = 1)
+```
+
+### Manual pallets
+
+The final option:
+
+* `scale_colour_manual(values=c())`
+* `scale_fill_manual(values=c())`
+
+allows users to define their own colour palettes 
+
+```{r}
+ggplot(pets) +
+  aes(x = animal, fill = interaction(sex, animal)) +
+  geom_bar() +
+  scale_fill_manual(
+    values = c(
+      "F.Cat" = "red",
+      "M.Cat" = "blue",
+      "F.Dog" = "green",
+      "M.Dog" = "yellow"
+    )
+  )
+```
+
+or use premade colour palettes from outside `ggplot2`
+
+```{r}
+library(wesanderson)
+
+ggplot(pets) +
+  aes(x = animal, fill = interaction(sex, animal)) +
+  geom_bar() +
+  scale_fill_manual(
+    values = wes_palette("GrandBudapest1")
+  )
+```
+
+<blockquote class='task'>
+**Task - 5 mins** 
+
+The plot below shows the changing make-up of the average Chinese-person's diet.
+
+```{r}
+ggplot(chinesemeal) +
+  aes(x = Year, colour = FoodType, y = CaloriesPerDay) +
+  geom_line()
+```
+
+Can you change the colours in this plot so that.
+
+1. They are the same as the default, but with lower luminencece.
+2. They use a colour brewer scheme
+3. They use a grey colour scheme
+4. They are set to some manual value chosen by you.
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+chinese_meals_plot <-
+ggplot(chinesemeal) +
+  aes(x = Year, colour = FoodType, y = CaloriesPerDay) +
+  geom_line()
+```
+
+1.
+```{r}
+chinese_meals_plot +
+  scale_colour_hue(l = 45)
+```
+
+2.
+```{r}
+chinese_meals_plot +
+  scale_colour_brewer(palette = "Set3")
+```
+
+3. 
+```{r}
+chinese_meals_plot +
+  scale_colour_grey()
+```
+
+4.
+```{r}
+chinese_meals_plot +
+  scale_colour_manual(values = wes_palette("Moonrise3"))
+```
+
+
+</details>
+
+</blockquote>
+
+# Legends
+
+Legends show discrete colours/shapes/sizes, whereas colour bars display a continuum.
+
+`ggplot2` generates these automatically based on the scale but we can make minor adjustments. Let's start look back at our plot from above:  
+
+```{r}
+chinese_meals_plot
+```
+
+We can override the default guides using the `guide` argument in the scale function, and the following guide functions:
+
+* `guide_legend()`
+* `guide_colourbar()`
+
+The following arguments are available:
+
+* `nrow` or `ncol` allows us to specify the layout of the key elements as a grid; `byrow` used in combination determines whether key elements are ordered by row (`byrow = TRUE`) or by column (`byrow = FALSE`)
+* `reverse` reverse the order in which the key elements are displayed  
+* `keywidth` and `keyheight` allows us to alter the size of the keys (that is, the lines or symbols beside the legend labels)
+
+Let's change the position of the legend:
+
+```{r}
+chinese_meals_plot +
+  scale_colour_hue(guide = guide_legend(nrow = 2, byrow = TRUE))
+```
+
+Now let's change the key defaults:  
+
+```{r}
+chinese_meals_plot +
+  scale_colour_hue(guide = guide_legend(nrow = 2, byrow = TRUE, keywidth = 1))
+```
+
+
+<blockquote class='task'>
+**Task - 2 mins** 
+
+Have a play around with the `keywidth` and `keyheight` arguments to see what it does to the legend.  
+
+</blockquote>  
+<br>
+
+
+# Themes
+
+Themes are concerned with the purely stylistic. e.g. font size, title placement, legend placement, grid lines, axis lines, background colour, etc.
+
+This doesn't mean they're unimportant - clarity and visual attractiveness are vital - but if we're using themes we're not doing this for our own benefit - we're doing this for the audience. 
+
+We've used these periodically throughout the course not explaining what they do. You may have worked out what they're doing to some extent.
+
+We'll look at the standard themes available quickly, then we'll look at the details of creating your own themes. The latter can be applied to adjust the standard themes.
+
+## Complete Themes
+
+The standard themes are:
+
+* `theme_grey()`        the default theme - the grey background with white grid lines was designed to put the data forward whilst facilitating comparisons (by minimising the visual impact of grid lines)
+* `theme_bw()`          a minor variation on the default that uses a white background and thin grey lines - personally I prefer this one to the default
+* `theme_linedraw()`    white background and black lines (like a line drawing apparently)
+* `theme_light()`       a minor variation of `theme_linedraw` that uses light grey lines
+* `theme_dark()`       a variation on `theme_linedraw` that uses a dark background (useful for making thin coloured lines 'pop out')
+* `theme_minimal()`     a mininmalistic theme with no background annotations
+* `theme_classic()`     reminiscent of base r with no grid lines
+* `theme_void()`        a completely empty theme
+
+
+All of these themes have a `base_size` parameter which controls font size. The themes automatically adjust font sizes for different annotations (e.g. title x1.2, tick labels x0.8). If you want more precise control of the font sizes you'll need to adjust the individual elements as discussed in the next section.
+
+It's highly advisable to give consideration to `base_size` - `ggplot2` generally produces good plots in the default but font size can be too small for some applications.
+
+
+<blockquote class='task'>
+**Task - 2 mins** 
+
+Try and apply different themes to your `chinese_meals_plot`.  
+
+<details>
+<summary>**Example Answers**</summary>
+
+```{r}
+chinese_meals_plot + 
+  theme_classic()
+```
+
+```{r}
+chinese_meals_plot + 
+  theme_minimal()
+```
+
+```{r}
+chinese_meals_plot + 
+  theme_light()
+```
+</details> 
+</blockquote>  
+<br>
+
+
+
+## Theme Components
+
+Themes are made up of *theme elements*. There are vast number of theme elements, but most can be set using four functions:
+
+* `element_text`
+* `element_line`
+* `element_rect`
+* `element_blank`
+
+Let's go through each and look at some examples of each. 
+
+
+### Text
+
+`element_text` formats text, such as titles and axes labels. Basic adjustments to size, face and colour. Font face options include `c("plain","bold","italic","bold.italic")`.
+
+Let's add a title to our `chinese_meals_plot` and then format it. 
+
+```{r}
+chinese_meals_plot +
+  labs(title = "Typical diet of a Chinese Citizen") + 
+  theme(title = element_text(size = 20, face = "bold", colour = "red"))
+```
+
+Wow, that's bold. You can find more details in `vignette(ggplot2-specs)`. Setting the font face can be frustrating without the names to refer to.
+
+<blockquote class='task'>
+**Task - 2 mins** 
+
+Try and format your text to something more suitable.  
+
+</blockquote> 
+
+
+
+### Lines
+
+`element_line()` draws lines by `colour`, `size` and `linetype`. For example, grid lines or axis lines.
+
+Let's add some line formatting to our plot.
+
+```{r}
+chinese_meals_plot +
+  theme(
+    panel.grid.major = element_line(
+      colour = "black",
+      size = 2,
+      linetype = "solid"
+    ),
+    panel.grid.minor = element_line(
+      colour = "red",
+      size = 1,
+      linetype = "dotted"
+    )
+  )
+```
+<br>
+
+<blockquote class='task'>
+**Task - 2 mins** 
+
+Wow, the plot above is now extremely terrible. Try and adjust the line formatting to something reasonable instead.  
+
+</blockquote>  
+
+
+### Rectangles
+
+`element_rect` draws rectangles, mostly used for background fill and border colour.
+
+```{r}
+chinese_meals_plot + 
+  theme(plot.background = element_rect(fill = "grey76", colour = NA))
+```
+
+
+```{r}
+chinese_meals_plot +
+  theme(plot.background = element_rect(fill = "black", colour = "yellow"))
+```
+
+```{r}
+chinese_meals_plot + 
+  theme(plot.background = element_rect(fill = "black", colour = "yellow", size = 4))
+```
+
+
+
+
+### Blanks
+
+`element_blank` draws nothing. It is used to override the default when you don't want an element in your graph. For example, imagine you had a plot which you wanted to remove the title from. You can do:
+
+```{r}
+# save the plot with a title
+chinese_meals_plot2 <- chinese_meals_plot +
+  labs(title = "Typical diet of a Chinese Citizen")
+
+chinese_meals_plot2
+```
+
+```{r}
+# remove title
+chinese_meals_plot2 +
+  theme(plot.title = element_blank())
+```
+
+
+
+# Final Thoughts
+
+Setting up a theme in `ggplot2` can be a lengthy and tedious grind, working through all of these elements. However:
+
+* You can take an existing theme and tweak it to speed things up
+* Once you've setup a theme, you can reuse it (or at least large elements of it). A theme is an object like any other in R. You can copy/paste the code. You can assign it a name. You can save it, reload it, and reuse it like any other Rdata.
+* There are other themes available for use if you don't like the ggplot2 standards, e.g. `ggthemes`.
+* If you're working for an organisation that uses a lot R, they probably have a theme you can impose on your plots.
+
+It's good practice to go through all of this, but in practice you (hopefully) won't use it all too many times!
+
+
+
+<blockquote class='task'>
+**Task - 15 mins** 
+
+Here is a basic plot. The client prefers dark backgrounds, but otherwise you're free to display it as you like. 
+
+Make it look as good as you can.
+
+```{r, eval = TRUE, ech0 = TRUE}
+ggplot(scottish_exports) +
+  geom_line(aes(x = year, y = exports, colour = sector)) +
+  facet_wrap(~sector, scales = 'free_y')
+```
+
+<details>
+<summary>**Answer**</summary>
+
+```{r, message=FALSE}
+# An example of an answer
+
+library(dplyr)
+
+scottish_exports$sector <- as.character(scottish_exports$sector)
+
+scottish_exports$sector <- case_when(
+  scottish_exports$sector == "Mining_Quarrying" ~ "Mining/Quarrying",
+  scottish_exports$sector == "Agriculture_Forestry_Fishing" ~ "Agriculture/Forestry/Fishing",
+  TRUE ~ scottish_exports$sector
+)
+```
+```{r}
+ggplot(scottish_exports) +
+  geom_line(aes(x = year, y = exports, colour = sector), size = 1) +
+  facet_wrap(
+    ~sector,
+    scales = 'free_y'
+  ) +
+  labs(
+    title = "Scottish Exports through Time",
+    x = "\nYear",
+    y = "Export Volume\n"
+  ) +
+  scale_colour_brewer(guide = FALSE, palette = "Set2") +
+  theme_minimal(12) +
+  theme(
+    panel.background = element_rect(fill = "#0f1966"),
+    panel.grid = element_blank(),
+    plot.title = element_text(size = 18)
+  )
+  
+```
+
+
+</details>
+</blockquote>
+
+
+# Recap
+  
+* Which elements of the grammar is used to alter the colour palette of a plot?
+
+<details>
+
+<summary>**Answer**</summary>
+
+* Colour palettes are set in the scales.
+  
+</details>
+
+* What types of colour palettes can we use for continuous and discrete scales?
+
+<details>
+
+<summary>**Answer**</summary>
+
+Continuous:
+
+* `scale_colour_gradient`  - two colour gradient
+* `scale_colour_gradient2` - three colour gradient (such as diverging scales)
+* `scale_colour_gradientn` - n colour gradient (typically imported palettes)
+* `scale_colour_distiller` - colourbrewer
+
+Discrete:
+
+* `scale_colour_hue` - equally spaced HCL colours
+* `scale_colour_brewer` - colourbrewer
+* `scale_colour_grey` - shades of grey
+* `scale_colour_manual` - assign colours to values by hand, or import palette, e.g. `wesanderson`
+
+</details>
+
+* How do we change the style/appearance of our plot, e.g. fonts, background, positioning of legends, and so forth?
+
+<details>
+
+<summary>**Answer**</summary>
+
+We can change these using the `theme()` function, or the various predefined theme functions such as `theme_bw()` or `theme_dark()`.
+
+</details>
+
+* How do we create the elements to add to theme?
+
+<details>
+
+<summary>**Answer**</summary>
+
+A few of these are conventional vectors or unit() data types, but the majority are setup using the following types:
+
+* `geom_text` : font face, size, etc. of text
+* `geom_rect` : rectangle fill and outline
+* `geom_line` : line colour, style, size, etc.
+* `geom_blank` : eliminates an element
+
+</details>
+
+<hr>  
+
+# Additional Resources
+
+Links of where else to look
+
+* [ggplot2 aesthetic specifications](https://ggplot2.tidyverse.org/articles/ggplot2-specs.html)
+* [ggthemes](https://yutannihilation.github.io/allYourFigureAreBelongToUs/ggthemes/)
+* [colourbrewer2](http://colourbrewer2.org/)
+* [ggplot2 theme - simple worked example of improvement](https://www.jumpingrivers.com/blog/styling-ggplot2-r-graphics/)
+
+
+
+
+
+
+

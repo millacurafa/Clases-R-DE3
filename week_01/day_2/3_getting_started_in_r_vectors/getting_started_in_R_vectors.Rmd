@@ -1,0 +1,994 @@
+---
+title: "Getting Started in R - Vectors"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+# Learning Objectives
+
+* Know how to create vectors
+* Know about the five different classes and vectors, and be able to convert between these classes.
+* Be able to use some functions and operators for vectors.
+* Be able to subset vectors
+
+**Lesson Duration: 2 hours**
+
+Some of the material in this lesson will be revision from your pre-coursework.
+
+# What are vectors?
+
+The main building block in R is not individual numbers or strings but the *vector*. Vectors are a list of items. 
+
+To make a vector in R we surround the elements with `c(` and `)`. For example
+
+```{r}
+c(1, 4, 6, 3)
+```
+
+Any R object, including vectors can have a name assigned to it with `<-`, so you can use it later.
+
+```{r}
+numbers <- c(1, 4, 6, 3)
+```
+
+The function `c()` is used to create vectors, but it is also used to join two vectors together. 
+
+```{r}
+more_numbers <- c(1, 1, 6, 2, 3, 3, 2, 6)
+many_numbers <- c(numbers, more_numbers)
+many_numbers
+```
+
+Almost everything in R is either a vector or is made up of vectors. A single element is just a vector of length 1.
+
+```{r}
+is.vector(5)
+```
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+1. Make a vector containing the first 5 prime numbers, and assign the name `primes` to this vector.
+
+2. Add the next 2 prime numbers to this vector, overwriting the vector `primes` you made above.
+
+<details>
+<summary>**Solution**</summary>
+
+1.
+```{r}
+primes <- c(2, 3, 5, 7, 11)
+```
+
+2.
+```{r}
+primes <- c(primes, 13, 17)
+```
+
+</details>
+</blockquote>
+
+# Vector classes
+
+## Double vs. integer
+
+Numeric vectors can either be of type `double` or type `integer`. A `double` is any decimal number, while an `integer` is any whole number (positive or negative)
+
+Historically R featured double and single precision decimal numbers, but now offers only double precision, so all decimal numbers are of type `double`. Single precision numbers are stored in 32 bits (i.e. 32 individual 1's or 0's), while double precision numbers are stored in 64 bits (64 individual 1's and 0's). 
+
+By default all numbers are considered to be of type `double`, unless you put an "L" afterwards. This tells R to treat that number as an `integer`. 
+
+```{r}
+c(1L, 4L, 6L, 3L)
+```
+
+The default in R is to 'vectorise' mathematical operations. This is just a fancy way of saying that when you multiply or divide a vector by a number, or add a number to a vector, the final result will be a vector in which that operation has been carried out on **each element**.  We'll see more on this below.
+
+```{r}
+numbers + 5
+```
+
+```{r}
+numbers * 2
+```
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+1. Recreate the `primes` (the first 7 prime numbers), but this time make sure that each element of the vector is an `integer`. Call this vector `primes_integer`.
+
+2. Multiply all the `primes_integer` by 10.
+
+<details>
+<summary>**Solution**</summary>
+
+1.
+```{r}
+primes_integer <- c(2L, 3L, 5L, 7L, 11L, 13L, 17L)
+```
+
+2.
+```{r}
+primes_integer * 10
+```
+
+</details>
+</blockquote>
+
+### Vector recycling
+
+The code below works, because of something R does called "vector recycling".
+
+```{r}
+numbers + 5 
+```
+
+If R does an operation on two vectors of different lengths, R will repeat the second vector, to make the vectors the same size. 
+
+In other words, R is turning this:
+
+```{r, eval = FALSE}
+c(1, 2, 4) + 2
+```
+
+into this:
+
+```{r, eval = FALSE}
+c(1, 2, 4) + c(2, 2, 2)
+```
+
+This will work as long as the length of the larger vector is a multiple of the length of the shorter vector. 
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+What will happen if I run this code?
+
+```{r, eval = FALSE}
+c(1, 2) + c(1, 2, 3, 4)
+```
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+c(1, 2) + c(1, 2, 3, 4)
+```
+
+</details>
+</blockquote>
+
+As a rule, you want to avoid doing vector recycling, except when the the smaller vector is length one. It can become very hard to reason about code with vector recycling.
+
+
+## Character vs. factor
+
+R also has two different types of text vector. A `character` vector is a plain text vector. 
+
+```{r}
+c("a", "a", "b", "a")
+```
+
+Factors are very similar, except R keeps track of each "level" of the vector and won't let you add new ones. You can change a character vector to factor via the `as.factor()` function.
+
+```{r}
+as.factor(c("a", "a", "b", "a"))
+```
+
+Factors can be **ordered**. Once a factor is ordered then you can do comparisons on it. If you don't specify the order of the levels, R will order them in alphabetical order by default. 
+
+```{r}
+letters <- factor(c("a", "a", "b", "a"), ordered = TRUE)
+```
+
+```{r}
+letters[3] > letters[2]
+```
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+1. Create a character vector named `fruit` that has three data elements: 'apple', 'banana' & 'cherry'.
+
+2. Add 'dragon fruit' to the `fruit` vector.
+
+3. Convert `fruit` into a factor vector. 
+
+<details>
+<summary>**Solution**</summary>
+
+1.
+```{r}
+fruit <- c("apple", "banana", "cherry")
+```
+
+2.
+```{r}
+fruit <- c(fruit, "dragon fruit")
+```
+
+3.
+```{r}
+fruit <- as.factor(fruit)
+```
+
+
+</details>
+</blockquote>
+
+## Logical
+
+The last type of vector you will see is a vector filled with `TRUE` or `FALSE` values. These are known as `logical` vectors, and `TRUE` and `FALSE` are boolean values. Note that there are no quotes around `TRUE` and `FALSE`. 
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Create a logical vector containing 4 `TRUE` values and 2 `FALSE` values.
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+c(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE)
+```
+
+</details>
+</blockquote>
+
+## The `class` function
+
+You can use the `class()` function to check the type of a vector.
+
+*Numeric Double*
+
+```{r}
+x <- 2.456
+class(x)
+```
+
+*Numeric Integer*
+
+```{r}
+x <- 2L
+class(x)
+```
+
+*Character*
+
+```{r}
+x <- "hello world"
+class(x)
+```
+
+*Factor*
+
+```{r}
+x <- factor("hello world")
+class(x)
+```
+
+*Logical*
+
+```{r}
+x <- TRUE
+class(x)
+```
+
+## Summary
+
+Below is a summary with examples of the five vector types we've covered
+
+| Type | Example | Description |
+|---|---|---|
+| Double   | `c(2.2, 0.1, 5)` | Each element is always a number. |
+| Integer   | `c(2L, 16L, 8L)` | Special character "L" indicates an `integer` value. |
+| Character | `c("apple", "pear", "e")` | Each element can be anything with quotes around it. |
+| Factor | `as.factor(c("apple", "pear", "e"))` | Similar to a character vector. | 
+| Logical   | `c(TRUE, FALSE, FALSE)` | Each element is either `TRUE` or `FALSE`. |
+
+
+<blockquote class = 'task'>
+**Task - 10 minutes**
+<br>
+
+1. What is the class of `fruit`? 
+
+2. `letters` is an inbuilt vector in R, what class is it?
+
+<details>
+<summary>**Solution**</summary>
+
+1.
+```{r}
+class(fruit)
+```
+
+
+2.
+```{r}
+class(letters)
+```
+
+</details>
+
+</blockquote>
+
+# Converting between types
+
+## Explicit conversion
+
+If we want to tell R to convert vectors from one type to another, we use one from amongst a series of conversion functions. 
+
+For example, to convert a vector to `character`, `integer` and `numeric` type, you use the following three functions:
+
+```{r}
+# start with a numeric vector
+test_scores <- c(10, 12, 16, 1, 9)
+
+# use the as.character() function to convert it to character type
+char_example <- as.character(test_scores)
+
+# use the as.integer() function to convert it to integer type
+integer_example <- as.integer(test_scores)
+
+# finally, convert char_example back to numeric type
+numeric_example <- as.numeric(char_example)
+```
+
+We call this 'explicit conversion' as we have been explicit in the instructions we gave R: convert this vector to the following type. Let's check that the explicit type conversions worked as expected 
+
+<br>
+
+<blockquote class='task'>
+
+**Task - 5 mins** 
+
+Check the type of each of our example vectors using the functions we learnt above.
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+class(char_example)
+class(integer_example)
+class(numeric_example)
+```
+<br>
+</details>
+</blockquote>
+
+## Implicit conversion
+
+Let's say we want to do a simple mean calculation of three numbers: `(2+3+5)/3`. If these are all `numeric` values, R will perform the calculation without any problems. 
+
+```{r}
+# make a vector with three numeric values
+a <- c(2, 3, 5)
+
+# calculate the mean
+sum(a) / length(a)
+```
+
+However if they are `character` values, R will return an error. 
+
+```{r, eval = FALSE}
+# make a vector with three character values
+a <- c("2", "3", "5")
+
+# calculate the mean
+sum(a) / length(a)
+```
+<span style="color:red">Error in sum(a) : invalid 'type' (character) of argument</span>
+
+This is reasonable behaviour on the part of R, as it doesn't really make sense to sum characters and then divide the result by a number! More likely, we've made a mistake in our coding. 
+
+<br>
+
+<blockquote class='task'>
+**Task - 5 minutes**
+
+What do you think would happen if we mixed value types, and had two `numeric` values and one `character` value in the vector? Try it out.
+
+<details>
+<summary>**Answer**</summary>
+
+```{r, eval = FALSE}
+a <- c("2", 3, 5)
+
+# calculate the mean
+sum(a) / length(a)
+```
+<span style="color:red">Error in sum(a) : invalid 'type' (character) of argument</span>
+
+Same thing! R won't try to sum over the two `numeric` values if there is a `character` value in there.
+
+</details>
+</blockquote>
+
+In fact, R behaves even more subtly here. If you mix types in a vector, R will try to automatically convert the values to make the vector all one type. If you take a closer look at the contents of our mixed vector `a`, you will see that the two `numeric` values have both been silently converted to `character` values!
+
+```{r}
+a <- c("2", 3, 5)
+a
+class(a)
+```
+
+We can also use different functions within R to check what our vector contains. 
+
+```{r}
+is.character(a) # check if we have a character
+is.numeric(a) # check if we have a numeric
+```
+<br>  
+
+As you can see, we have a character vector! This is an example of implicit type conversion: a vector can only hold data of the same time, so R implicitly converts it in the background. The general rule of thumb for conversion is “the bigger type wins”: `character` values can represent more data than `numeric` values, so the `numeric` values are converted to `character` type. There are not that many data types in R, so you will often end up with `character`s when types are mixed. **This is something to be very wary of when you're working with data!**
+
+# Functions 
+
+## Functions for vectors
+
+A function is anything that takes one or more inputs and gives you back an output. For example the `sum()` function we used above takes a vector as input and gives back a single number as output. Often programmers talk about a function 'returning' something. This is just the same as saying the function 'gives back' an output. The `sum()` function contains R code that converts between the input and the output, but we don't need to see the code to understand what `sum()` does. 
+
+You can apply many different functions to vectors. Some examples:
+
+1. `sum()` 
+
+Adds up all the elements of a vector and returns the total.
+
+```{r}
+sum(numbers)
+```
+
+2. `mean()`
+
+Returns the average of the elements in the vector.
+
+```{r}
+mean(numbers)
+```
+
+3. `length()`
+
+Returns the length of the vector, i.e. the number of values in the vector
+
+```{r}
+length(numbers)
+```
+
+4. `rev()` 
+
+Reverses the order of a vector.
+
+```{r}
+rev(numbers)
+```
+
+5. `unique()` 
+
+Returns only the unique elements of a vector.
+
+```{r}
+unique(many_numbers)
+```
+
+6. `table()` 
+
+Returns a table that counts how often each element appears in a vector.
+
+```{r}
+table(many_numbers)
+```
+
+This tells us that in `many_numbers` `1` appears three times, `2` appears twice, `3` appears three times etc.
+
+7. `sort()`
+
+Returns the vector in order. For numeric vectors this will be from smallest to largest, for character vectors this will be in alphabetical order.
+
+```{r}
+sort(many_numbers)
+```
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Apply
+
+1. `sum()`
+2. `mean()`
+3. `length()`
+4. `rev()`
+5. `unique()`
+6. `table()`
+7. `sort()`
+
+to a vector containing the following values:
+
+```
+5.5, 5.1, 5.1, 5.5, 5.3, 5.2, 5.3, 5.3
+```
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+decimals <- c(5.5, 5.1, 5.1, 5.5, 5.3, 5.2, 5.3, 5.3)
+```
+
+
+1.
+```{r}
+sum(decimals)
+```
+
+2.
+```{r}
+mean(decimals)
+```
+
+3. 
+```{r}
+length(decimals)
+```
+
+4.
+```{r}
+rev(decimals)
+```
+
+5.
+```{r}
+unique(decimals)
+```
+
+6.
+```{r}
+table(decimals)
+```
+
+7.
+```{r}
+sort(decimals)
+```
+
+
+</details>
+</blockquote>
+
+## Functions that make vectors
+
+1. `:`
+
+A short way of creating an integer vector is to use the colon operator. This will create a vector going from the first number to the last in steps of size 1.
+
+```{r}
+1:5
+```
+```{r}
+15:21
+```
+
+2. `seq()`
+
+If you want to go in steps other than 1, you can use the `seq()` function. This can make `integer` vectors and `double` vectors.
+
+```{r}
+seq(0L, 10L, by = 2L)
+```
+
+```{r}
+seq(0, 1, by = 0.1)
+```
+
+3. `rep()`
+
+The `rep()` is used to make vectors with a repeating sequence. There are two ways of using the function: you can either use the `times` argument to repeat the whole sequence a certain number of times
+
+```{r}
+rep(1:3, times = 4)
+```
+
+or you use the `each` argument to repeat each element in turn
+
+```{r}
+rep(1:3, each = 4)
+```
+
+<blockquote class = 'task'>
+**Task - 15 minutes**
+
+1. Create a sequence going from `10` to `100` in steps of `5`. Name this vector `answer_1`.
+
+2. Make a vector which repeats the number `8` six times. Name this vector `answer_2`.
+
+3. Use `rep()` to make a vector like below. Name the vector `answer_3`.
+
+```{r, echo = FALSE}
+rep(2:4, each = 3)
+```
+
+4. Make a vector by joining the `answer_1`, `answer_2` and `answer_3` vectors together.
+
+5. What does `sort()` do to a logical vector?
+
+6. Compare the sum of `answer_1` with the sum of `answer_1` reversed.
+
+7. What happens when you call `table()` on a vector of unique elements.
+
+8. What does `sum()` do to a logical vector?
+
+<details>
+<summary>**Solution**</summary>
+
+1.
+```{r}
+answer_1 <- seq(10, 100, by = 5)
+answer_1
+```
+
+2.
+
+```{r}
+answer_2 <- rep(8, times = 6)
+answer_2
+```
+
+3. 
+
+```{r}
+answer_3 <- rep(2:4, each = 3)
+answer_3
+```
+
+4. 
+
+```{r}
+c(answer_1, answer_2, answer_3)
+```
+
+5.
+```{r}
+sort(c(TRUE, TRUE, FALSE, TRUE))
+```
+Orders all `FALSE` first, then all `TRUE` afterwards
+
+6.
+
+```{r}
+sum(answer_1)
+```
+
+```{r}
+sum(rev(answer_1))
+```
+
+They are the same. Reversing the order of a vector will not change its sum.
+
+7.
+
+```{r}
+table(unique(answer_3))
+```
+
+The count of each element is always 1.
+
+8.
+
+```{r}
+sum(c(TRUE, FALSE, TRUE))
+```
+
+It counts the number of `TRUE`s - very useful!
+
+</details>
+</blockquote>
+
+
+## Applying operators to vectors
+
+As well as all the functions you've seen above, there are special functions known as operators that are often applied to vectors. Rather than take an input from inside the bracket of a vector, these operator functions take their inputs from whatever occurs on **either side** of the operator. You've already seen two examples of operators `+` and `*`, which we've used to add and multiply vectors respectively. In addition there is also `/` for division, `-` for subtraction and `^` for raising to a power.
+
+These operator functions follow the normal BODMAS (also known as PEDMAS or PODMAS) rules for order of operations. You can use brackets to control the order in which operations are evaluated.
+ 
+```{r}
+(3 * c(1, 2)^2 + c(5, 4)) / 2
+```
+
+Remember that these work on vectors of any size. So we can divide all the elements of a vector by two in one command.
+
+```{r}
+1:5 / 2
+```
+
+If you use two vectors of the same length then the elements are paired up one by one.
+
+```{r}
+c(1, 3, 2) + c(2, 5, 1)
+```
+
+Two more mathematical operators that can use useful are integer division (`%/%`) and mod (`%%`). Integer division tells you the number of times a the second number divides into the first, to the nearest whole number. Mod tells you what's left over after this division.
+
+```{r}
+10 %/% 3
+```
+
+```{r}
+10 %% 3
+```
+
+Three goes into ten three times with one left over. So `10 %/% 3` is three and `10 %% 3` is 1.
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+For each of these questions, think about the most efficient way of finding the answer. 
+
+1. First manually calculate the answer to this sum, then convert it into R code and check that R gets the same answer as you.
+
+$$
+3 \times 2 + 2^{2} - 5
+$$
+
+2. Write R code to subtract 2 from each of the following numbers: 14, 18, 5. 
+
+3. Multiply the first number in this list by 1, the second by 2 and the third by 3: 5, 2, 3
+
+4. For the following numbers, what is their remainder when divided by 5: 11, 17, 23.
+
+<details>
+<summary>**Solution**</summary>
+
+1.
+```{r}
+3 * 2 + 2^2 - 5
+```
+
+2. 
+```{r}
+c(14, 18, 5) - 2
+```
+
+3.
+```{r}
+c(5, 2, 3) * c(1, 2, 3)
+```
+
+4.
+```{r}
+c(11, 17, 23) %% 5
+```
+
+
+</details>
+</blockquote>
+ 
+## Operators that make `logical` vectors
+
+Some of the most useful operators create `logical` vectors as their output 
+
+1. `==` tests if two things are equal.
+
+2. `!=` tests if two things are not equal.
+
+3. `<` tests if the left is *less than* the right.
+
+4. `>` tests if the left is *greater than* the right.
+
+5. `<=` tests if the left is *less than or equal to* the right, `>=` tests for *greater than or equal to*.
+
+6. `%in%` tests if the left is contained in the right.
+
+The easiest way to see how these operators work is by example.
+
+5 is equal to 5, so this returns `TRUE`.
+
+```{r}
+5 == 5
+```
+
+And since 5 is not equal to 6 this also returns `TRUE`.
+
+```{r}
+5 != 6
+```
+
+We can have multiple elements on either side. It's very common to have a vector on the left and a single value on the right. 
+
+```{r}
+c(4, 5, 6) > 5
+```
+
+Four and five are not greater than 5, but six is, so the vector return is `FALSE`, `FALSE` and then `TRUE`.
+
+Note that if we used 'greater than or equal to' then the answer would be different.
+
+```{r}
+c(4, 5, 6) >= 5
+```
+
+All the examples we've seen have involved `numeric` vectors, but operators also work on other vector types. You can't do less than or more than with `character` vectors but you can use the `%in%` operator. 
+
+```{r}
+"b" %in% c("a", "b", "c")
+```
+
+There is also a set of useful operators that take `logical` vectors as input and return `logical` vectors as output.
+
+1. `!` NOT - changes `TRUE` to `FALSE`, and `FALSE` to `TRUE`.
+2. `&` AND - returns `TRUE` only if both sides of the expression are `TRUE`.
+3. `|` OR - returns `TRUE` if either side is `TRUE`.
+
+Again these all work on vectors.
+
+```{r}
+!c(TRUE, FALSE, TRUE)
+```
+
+```{r}
+TRUE & FALSE
+```
+
+```{r}
+TRUE | FALSE
+```
+
+These operators are very useful when combined with other operators.
+
+```{r}
+x <- 6
+
+(x >= 3) & (x <= 9)
+```
+
+* Try changing the value of x. What is the expression doing? (It's testing if x is between 3 and 9 inclusive).
+
+All these operators use the rules of vector recycling, so you can use vectors of different sizes on each side of an expression.
+
+```{r}
+TRUE & c(TRUE, FALSE, FALSE, TRUE)
+```
+
+If you use `&&` and `||` instead of `&` and `|`, no recycling will happen, and the test will only apply to the first elements on either side. R will always return a one-element vector as a result. This is particularly useful for control flow in R, which we'll see later on.
+
+```{r}
+TRUE && c(TRUE, FALSE, FALSE, TRUE)
+```
+
+
+<blockquote class = 'task'>
+**Task - 10 minutes**
+
+1. Prove that 1 is not equal to 2.
+2. Does `answer_3` contain a 5?
+3. Make a vector that shows whether each value in `answer_1` is divisible by 10.
+4. How many elements of `answer_1` are greater than or equal to 30?
+
+<details>
+<summary>**Solution**</summary>
+
+1.
+```{r}
+1 == 2
+```
+
+2. 
+```{r}
+5 %in% answer_3
+```
+
+3.
+```{r}
+answer_1 %% 10 == 0
+```
+
+4.
+```{r}
+sum(answer_1 >= 30)
+```
+</details>
+</blockquote>
+
+
+## Named vectors
+
+You can add names to a vector by using the function `names()` and an assignment.
+
+```{r}
+names(numbers) <- c("first", "second", "third", "fourth")
+```
+
+You also use `names()` to see the names assigned to a vector.
+
+```{r}
+names(numbers)
+```
+
+
+# Subsetting Vectors
+
+You can select the elements of a vector by position:
+
+```{r}
+numbers[3]
+numbers[1:3]
+numbers[c(1, 3, 4)]
+```
+
+A negative in front of a position will return everything **except** that position.
+
+```{r}
+numbers[-2]
+```
+
+For named vectors, you can select by name.
+
+```{r}
+numbers["third"]
+```
+
+For any type of vector, you can subset by using a logical vector. Below we create the `logical` vector `greater_than_3`. 
+
+```{r}
+greater_than_3 <- numbers > 3
+greater_than_3
+```
+
+And then we can subset `numbers` with it.
+
+```{r}
+numbers[greater_than_3]
+```
+
+We can do this in one step.
+
+```{r}
+numbers[numbers > 3]
+```
+
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+1. Select the third element of `answer_1`.
+2. Select everything except the last element of `answer_1`.
+3. Select all the elements of `answer_1` which are less than 25.
+
+<details>
+<summary>**Solution**</summary>
+
+```{r}
+# 1.
+answer_1[3]
+
+# 2.
+answer_1[-length(answer_1)]
+
+# 3.
+answer_1[answer_1 < 25]
+```
+
+</details>
+</blockquote>
+
+# Recap
+
+You create and join vectors using `c()`
+
+There's 5 types of vector you'll be working with
+
+1. `numeric` double
+2. `numeric` integer
+3. `character`
+4. `factor`
+5. `logical\
+
+You can convert between these types either explicitly or implicitly.
+
+We can both create and change vectors using a range of functions and operators. 
+
+

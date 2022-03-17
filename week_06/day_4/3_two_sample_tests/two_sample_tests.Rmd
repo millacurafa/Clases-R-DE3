@@ -1,0 +1,657 @@
+---
+title: "Two-sample hypothesis tests"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# Learning Objectives<br>
+* Know the difference between paired and independent two-sample tests 
+* Be able to perform & interpret a paired two-sample hypothesis test using computational methods
+* Be able to perform & interpret an independent two-sample hypothesis test using computational methods
+* Be able to perform & interpret a proportion two-sample hypothesis test using computational methods
+
+**Duration - 3 hours**<br>
+
+<hr>
+
+# Introduction
+
+Now that we've seen the basics of hypothesis testing for single samples, we now explore an extension of these methods to **two samples**. We want to be able to answer questions like:
+
+* Is mean blood pressure in patients treated with a drug significantly lower than that for controlled patients who were not treated? 
+* Are the mean test scores of students significantly higher after they have been tutored for one day than they were before?
+
+The first question we must answer for a two-sample test is: are individual observations in the two samples **paired** or **independent**?
+
+<br>
+<div class='emphasis'>
+**Paired samples**<br><br>
+Two samples may be said to be **paired** if each observation in one of the samples has a connection or correspondence with one and only one observation in the other sample. When this is true, the samples are no longer **independent** of each other, and, in fact, the term **'dependent'** samples is synonymous with paired samples. 
+
+* An obvious example: two sets of observations on the **same** cohort of people before and after application of a 'treatment' of some sort.
+* Prices for the **same** inventory of items in two different shops (this is the example we will use below).
+</div>
+<br>
+
+Paired tests are common when testing whether some sort of intervention has had a significant effect e.g. has the blood pressure of a test group changed significantly after taking a given medication.  
+
+The high level steps to perform hypothesis tests we set out earlier also hold true for two-sample tests. The differences, depending on whether samples are independent or paired, come down to how the null distibution is generated. 
+
+<hr>
+
+# Independent samples
+
+Let's think about hypothesis tests for two **independent** samples labelled groups $1$ and $2$. Independent here means that there is no reason to believe that observations in the two samples can be paired in any way. 
+
+Here we will be interested in hypotheses about the difference in population means $\mu_1 - \mu_2$. The samples will be sizes $n_1$ and $n_2$ and **there is no restriction that the samples have to be the same size**.
+
+Let's think about the following specific example:
+
+<br>
+<center>
+*'We have two samples of prices (in £s) for 2-bedroom, 14-day holiday apartment lets in Nice and the Algarve. We would like to know whether the mean price of lets in the Algarve is significantly higher than the mean price of comparable lets in Nice?'*
+</center>
+<br>
+
+We obtain a sample of 2-bedroom, 14-day holiday apartment let prices in Nice, and another sample for the Algarve. Note that these samples are **independent** - there is no conceivable relationship whatsoever between the holiday properties in Nice and those in the Algarve. 
+
+First, we'll set the conventional significance level $\alpha = 0.05$ and write our hypotheses. This will be a one-tailed test:
+
+<br>
+<center>
+$H_0$: $\mu_{\textrm{price(Algarve)}} - \mu_{\textrm{price(Nice)}} = 0$ <br>
+$H_a$: $\mu_{\textrm{price(Algarve)}} - \mu_{\textrm{price(Nice)}} \gt 0$
+</center>
+<br>
+
+Let's read in the dataframes and combine them into tidy format that is required for `infer`. 
+
+```{r, message=FALSE}
+library(tidyverse)
+library(infer)
+```
+
+
+```{r, message = FALSE, warning = FALSE}
+nice <- read_csv("data/nice.csv")
+algarve <- read_csv("data/algarve.csv")
+```
+
+```{r}
+apart_prices <- bind_rows(nice,algarve, .id = "location") %>%
+                mutate(location = ifelse(location == "1", "nice", "algarve")) %>% 
+                select(-X1)
+
+head(apart_prices)
+```
+
+Let's visualise the distributions and check the sizes of both samples.
+```{r}
+apart_prices %>%
+  group_by(location) %>%
+  summarise(n = n())
+```
+
+```{r}
+apart_prices %>%
+  ggplot(aes(y = price, x = location)) +
+  geom_boxplot()
+```
+
+The Nice and Algarve samples have a lot of overlap, although there is some indication that Algarve prices tend to be somewhat higher on average. But let's check whether this difference in distributions could be down to sampling variation (i.e. it may have occurred 'by chance') or whether it is a statistically significant difference by performing our hypothesis test. 
+
+Next we generate our null distribution. We do this by **permutation**. 
+
+<br>
+<div class='emphasis'>
+**Permutation to generate the null distribution**<br><br>
+
+* Under $H_0$ the location of the apartment would have no bearing on the price, i.e. the location and price are independent. 
+* By randomly shuffling (i.e. permuting) the locations labels we lose any relationship that there was between location and price. Think of this shuffling as detaching the labels from rows and then randomly assigning them back to rows. Then we see which of the following occurs: 
+  - If there was no relationship in the first place (i.e. they are in fact independent) then randomly shuffling them should have no implication. 
+  - If the difference between groups in our sample is much larger than the difference once the labels are shuffled it's because there is a real difference between the groups, and it's not just down to sampling variation. 
+</div>
+<br>
+
+Once we shuffle the locations, we calculate the sample statistic, in this case the difference in average price for each location. We repeat the shuffling and calculation of sample statistic many times (repetitions or reps again) to create the null distribution.
+
+When using the `infer` functions for the `hypothesize()` step it is the `hypothesize(null = 'independence)` line that selects a permutation test. If we didn't specify that `generate(type = "permute")` it would use type=permute by default as this is how it carries out a test for independence between two variables. 
+
+The syntax `price ~ location` in the `specify()` call says that we are testing whether `price` **varies with** `location`, so just read the tilde `~` as 'varies with'. We could also write this as `specify(response = price, explanatory = location)` 
+
+```{r}
+null_distribution <- apart_prices %>% 
+  specify(price ~ location) %>% #it is the relationship between price and location we are testing. This can also be written like specify(response = price, explanatory = location) 
+  hypothesize(null = "independence") %>% #the null hypothesis is there is no relationship i.e. they are independent
+  generate(reps = 1000, type = "permute") %>% 
+  calculate(stat = "diff in means", order = c("algarve", "nice")) #our sample stat is mean of algarve minus mean of nice, so this is the order we specify in the calculate step
+
+head(null_distribution)
+```
+
+Let's calculate our observed statistic and then visualise the null distribution and where the observed statistic lies on the distribution. 
+
+```{r}
+observed_stat <- apart_prices %>% 
+  specify(price ~ location) %>%
+  calculate(stat = "diff in means", order = c("algarve", "nice"))
+  
+observed_stat
+```
+
+Judging from $H_a$ we see that this is a **one-tailed** test because alternative is that the difference is **greater** than zero i.e. right direction. Here can use `direction = "right"` or `direction = "greater"`, they are equivalent. 
+
+```{r}
+null_distribution %>%
+  visualise() +
+  shade_p_value(obs_stat = observed_stat, direction = "right")
+```
+
+So we see from the visualisation that the observed statistic is on the very very edge of our null distribution. So there would be a very very small probability of getting a more extreme value than ours under $H_0$. Let's calculate the p-value to be sure. 
+
+```{r}
+p_value <- null_distribution %>%
+  get_p_value(obs_stat = observed_stat, direction = "right")
+
+p_value
+```
+
+It is smaller than our critical value of $0.05$ and so we reject $H_0$ and conclude that we have found enough evidence in our data to suggest that the average prices for 2-bedroom, 14-day holiday apartment lets in Algarve are statistically significant greater than in Nice. 
+
+<br>
+<details>
+<summary>Extra - Specifying a non-zero $\mu$</summary>
+
+Imagine that we want to test the following hypotheses:
+
+<br>
+<center>
+$H_0$: $\mu_{\textrm{price(Algarve)}} - \mu_{\textrm{price(Nice)}} = 200$ <br>
+$H_a$: $\mu_{\textrm{price(Algarve)}} - \mu_{\textrm{price(Nice)}} \gt 200$
+</center>
+<br>
+
+How do we do this in `infer`, given that we can't specify a `mu` value in `hypothesize()` if we set `null = "independence"` (i.e. select a permutation test)? Any easy fix is to **shift one of the variables** so that we are still effectively dealing with `mu = 0`. To see this, note that we can rewrite the hypotheses above as:
+
+<br>
+<center>
+$H_0$: $(\mu_{\textrm{price(Algarve)}} - 200) - \mu_{\textrm{price(Nice)}} = 0$ <br>
+$H_a$: $(\mu_{\textrm{price(Algarve)}} - 200) - \mu_{\textrm{price(Nice)}} \gt 0$
+</center>
+<br>
+
+So, if we first subtract $£200$ from all of the Algarve prices in the dataset, we can again use a permutation test. 
+
+Let's set $\alpha = 0.05$ and see how to do this within an `infer` workflow:
+
+```{r}
+apart_prices <- apart_prices %>% 
+  mutate(
+    shifted_price = if_else(location == "algarve", true = price - 200, false = price)
+  )
+
+null_distribution <- apart_prices %>% 
+  specify(shifted_price ~ location) %>%  
+  hypothesize(null = "independence") %>%
+  generate(reps = 10000, type = "permute") %>% 
+  calculate(stat = "diff in means", order = c("algarve", "nice"))
+
+observed_stat <- apart_prices %>% 
+  specify(shifted_price ~ location) %>%
+  calculate(stat = "diff in means", order = c("algarve", "nice"))
+
+null_distribution %>%
+  visualise() +
+  shade_p_value(obs_stat = observed_stat, direction = "right")
+
+p_value <- null_distribution %>%
+  get_p_value(obs_stat = observed_stat, direction = "right")
+
+p_value
+```
+
+As the p-value is greater than $\alpha$ we fail to reject $H_0$. 
+</details>
+
+<br>
+<blockquote class='task'>
+**Task - 10 mins**
+
+We have two more datasets for similar apartment lets in Corfu and Florence. Frame and perform an independent two-sample test to answer the following question:
+
+<br>
+<center>
+*'On average, is the price of 2-bedroom, 14-day holiday apartment lets in Florence significantly lower than that of comparable lets in Corfu?'*
+</center>
+<br>
+
+* Choose $\alpha$ and frame your hypotheses before you see the data
+* You will need to format your data in a combined, tidy dataset prior to performing the test
+
+<details>
+<summary>**Solution**</summary>
+
+Let's load in our data and 
+```{r, message = FALSE, warning = FALSE}
+corfu <- read_csv("data/corfu.csv")
+florence <- read_csv("data/florence.csv")
+```
+
+```{r}
+apart_prices <- bind_rows(corfu, florence, .id = "location") %>%
+                mutate(location = ifelse(location == "1", "corfu", "florence")) %>% 
+                select(-X1)
+```
+
+We'll set $\alpha = 0.05$ and write our hypotheses:
+
+First, we'll set the conventional significance level $\alpha = 0.05$ and write our hypotheses. This will be a one-tailed test:
+
+<br>
+<center>
+$H_0$: $\mu_{\textrm{price(Florence)}} - \mu_{\textrm{price(Corfu)}} = 0$ <br>
+$H_a$: $\mu_{\textrm{price(Florence)}} - \mu_{\textrm{price(Corfu)}} \lt 0$
+</center>
+<br>
+
+An equivalent test could be: 
+
+<br>
+<center>
+$H_0$: $\mu_{\textrm{price(Corfu)}} - \mu_{\textrm{price(Florence)}} = 0$ <br>
+$H_a$: $\mu_{\textrm{price(Corfu)}} - \mu_{\textrm{price(Florence)}} \gt 0$
+</center>
+<br>
+
+So either of these hypotheses are correct. In this solution we will use the first set. 
+
+Let's visualise the distributions
+
+```{r}
+apart_prices %>%
+  ggplot(aes(y = price, x = location)) +
+  geom_boxplot()
+```
+
+Although they overlap the average seems quite different so guessing from the visual that there will be a difference in average, but that Florence prices are greater than Corfu (under $H_a$ Florence prices are less than Corfu) so guessing we will fail to reject $H_0$, but let's perform the test to see if that is the case!
+
+We generate the null distribution using permutation to create a distribution where there is no relationship between price and location i.e. they are independent. 
+
+```{r}
+null_distribution <- apart_prices %>% 
+  specify(price ~ location) %>% 
+  hypothesize(null = "independence") %>% 
+  generate(reps = 1000, type = "permute") %>% 
+  calculate(stat = "diff in means", order = c("florence", "corfu")) 
+```
+
+Let’s calculate our observed statistic and then visualise the null distribution and where the observed statistic lies on the distribution.
+
+```{r}
+observed_stat <- apart_prices %>% 
+  specify(price ~ location) %>%
+  calculate(stat = "diff in means", order = c("florence", "corfu")) 
+
+observed_stat
+```
+
+From $H_a$ we see that this is a one-tailed test because alternative is that the difference is less than zero.
+
+```{r}
+null_distribution %>%
+  visualise() +
+  shade_p_value(obs_stat = observed_stat, direction = "left")
+```
+
+We see that it's going to be a p-value of almost 1 because the whole distrbution is shaded red i.e. almost certain that if $H_0$ is true we would get a result equal to or more extreme than our observered statistic.
+
+```{r}
+p_value <- null_distribution %>%
+  get_p_value(obs_stat = observed_stat, direction = "left")
+
+p_value
+```
+
+The $p$-value very close to $1$, which is above $\alpha = 0.05$, so we fail to reject $H_0$: there is no significant evidence that the prices of lets in Florence are lower than those in Corfu. Let's boxplot the prices by location for further insight.
+
+```{r}
+apart_prices %>%
+  ggplot(aes(y = price, x = location)) +
+  geom_boxplot()
+```
+
+</details>
+</blockquote>
+
+# Paired (aka dependent) samples 
+
+Two samples may be said to be **paired** if each observation in one of the samples has a connection or correspondence with one and only one observation in the other sample. When this is true, the samples are no longer independent of each other.
+
+Let's consider a list of textbook prices for courses offered at the University of California Los Angeles. Where multiple texts are prescribed for a course, we select only the most expensive of them. Let's load and `glimpse()` the data:
+
+```{r}
+books <- read_csv("data/ucla_textbooks_f18.csv")
+glimpse(books)
+```
+
+`f18` in the file name indicates that these prices were collected in Fall (Autumn) 2018. You can see we have `bookstore_new` and `amazon_new` columns: the first contains the prices for new copies of the most expensive text for each course at the campus bookstore, and the latter for the same text on Amazon (neglecting delivery costs).
+
+We are interested in finding out:
+
+<br>
+<center>
+*'Is there a significant difference on average between the prices for new texts offered by the campus bookstore vs the prices available for the same texts on Amazon?'*
+</center>
+<br>
+
+We'll stick with the conventional significance level $\alpha = 0.05$ when answering this question.
+
+One way we could address this is by adding a new column `diff_new` to the dataframe, which is the difference between the bookstore and amazon prices for new books.  
+
+```{r}
+books_diff <- books %>%
+  mutate(diff_new = bookstore_new - amazon_new) %>%
+  filter(!is.na(diff_new))
+
+books_diff %>%
+  ggplot(aes(x = diff_new)) +
+  geom_histogram(col = "white")
+```
+
+It looks like for many of the books the price difference is centred around zero but there are some significant outliers towards the right.
+
+Let's set up our hypotheses:
+
+<br>
+<center>
+$H_0$: $\mu_{\textrm{diff_new}} = 0$<br>
+$H_a$: $\mu_{\textrm{diff_new}} \ne 0$
+</center>
+<br>
+
+We treat creating the null distribution in the same way as a one sample test, but the mean here is the **mean in the paired difference between the groups**, rather than the mean of a single group. We use the process of bootstrapping to build other simulated samples and then calculate the mean of the bootstrap samples. We hypothesize that the mean difference is 0.
+
+```{r}
+null_distribution <- books_diff %>% 
+  specify(response = diff_new) %>% 
+  hypothesize(null = "point", mu = 0) %>% 
+  generate(reps = 10000, type = "bootstrap") %>% 
+  calculate(stat = "mean")
+```
+
+We calculate our observed statistic 
+
+```{r}
+observed_stat <- books_diff %>% 
+  specify(response = diff_new) %>% 
+  calculate(stat = "mean")
+
+observed_stat
+```
+
+And we visualise the null distribution
+
+```{r}
+null_distribution %>%
+  visualise() +
+  shade_p_value(obs_stat = observed_stat, direction = "both")
+```
+
+We can see that the observed statistic lies towards the right hand edge of the null distribution. 
+
+Let's calculate the p-value. 
+
+```{r}
+p_value <- null_distribution %>%
+  get_p_value(obs_stat = observed_stat, direction = "both")
+
+p_value
+```
+
+The $p$-value is less than $\alpha = 0.05$, so we reject $H_0$ and conclude that, on average, the price for new course texts at the campus bookstore differs significantly from that of the same items on Amazon.
+
+<br>
+<blockquote class='task'>
+**Task - 10 mins**
+
+Frame and perform a paired hypothesis test to answer the following question:
+
+<br>
+<center>
+_'On average, are the prices of **used** course texts **lower** on Amazon than at the campus bookstore?'_
+</center>
+<br>
+
+**Hints**:
+
+* It will help to start with a clear definition: `diff_used = bookstore_used - amazon_used` or `diff_used = amazon_used - bookstore_used`
+* This will be a one-tailed test, so frame your hypotheses appropriately.
+
+<details>
+<summary>**Solution**</summary>
+
+Let's create a variable with the difference of used book prices between Amazon and the bookstore and then check the distribution of the differences: 
+
+```{r}
+books_diff <- books %>%
+  mutate(diff_used = bookstore_used - amazon_used) %>%
+  filter(!is.na(diff_used))
+
+# let's switch it up and use a boxplot this time!
+books_diff %>%
+  ggplot(aes(y = diff_used)) +
+  geom_boxplot() +
+  coord_flip()
+```
+
+It looks like for many of the books the price difference is right skewed with a few significant outliers towards the right.
+
+Let's set up our hypotheses (and use a critical value of $\alpha = 0.05$), because the alternative is that Amazon price is less then bookstore, and our statistic is `diff_used = bookstore_used - amazon_used` under $H_a$ `diff_new` would be positive i.e. greater than 0:
+
+<br>
+<center>
+$H_0$: $\mu_{\textrm{diff_used}} = 0$<br>
+$H_a$: $\mu_{\textrm{diff_used}} \gt 0$
+</center>
+<br>
+
+We generate the null distribution using bootstapping:
+```{r}
+null_distribution <- books_diff %>% 
+  specify(response = diff_used) %>% 
+  hypothesize(null = "point", mu = 0) %>% 
+  generate(reps = 10000, type = "bootstrap") %>% 
+  calculate(stat = "mean")
+```
+
+and then calculate the observed statistic:
+```{r}
+observed_stat <- books_diff %>% 
+  specify(response = diff_used) %>% 
+  calculate(stat = "mean")
+
+observed_stat
+```
+
+Next we visualise the null distribution and observed statistic:
+
+```{r}
+null_distribution %>%
+  visualise() +
+  shade_p_value(obs_stat = observed_stat, direction = "right")
+```
+
+from which we can see that the p-value is going to be very small: 
+
+```{r}
+p_value <- null_distribution %>%
+  get_p_value(obs_stat = observed_stat, direction = "right")
+
+p_value
+```
+
+The p-value is below $\alpha = 0.05$, so we reject the null hypothesis and conclude that, on average, the prices of used course texts are significantly lower on Amazon than at the campus bookstore.
+
+</details>
+</blockquote>
+<br>
+
+
+# Testing differences in proportions
+
+The mechanics of hypothesis testing a difference in proportions $\pi_1 - \pi_2$ between two samples labelled $1$ and $2$ is very similar to what we did above for means for independent samples. 
+
+Let's consider the following data, drawn from an exit poll of voters in the 2012 US presidential election.
+
+| | Men | Women | Totals |
+| --- | --- | --- | --- |
+| Obama | 559 | 748 | 1307 |
+| Romney | 650 | 594  | 1244 |
+| Totals | 1209 | 1342 | 2551 |
+
+We would like to test whether the proportion of Obama voters who were women and the proportion of Romney voters who were women is significantly different (at a significance level $\alpha = 0.05$).
+
+<br>
+<center>
+$H_0$: $\pi_{\textrm{women for Obama}} - \pi_{\textrm{women for Romney}} = 0$<br>
+$H_a$: $\pi_{\textrm{women for Obama}} - \pi_{\textrm{women for Romney}} \ne 0$
+</center>
+<br>
+
+First let's read in the data and calculate the observed statistic. Based on the question, we are looking to see whether there is a relationship between the gender of an indiividual and who they voted for, i.e. testing whether these two variables are independent. If they are independent (i.e. under $H_0$) the probability of being a woman is the same for an Obama voter as it is for a Romney voter.
+
+We treat gender as the response variable and who they voted for as the explanatory variable in this relationship, with 'woman' as the 'success' category. 
+
+```{r}
+poll <- read_csv("data/election_data.csv")
+
+head(poll)
+```
+
+Let's visualise the data:
+
+```{r}
+ggplot(poll, aes(x = vote, fill = gender)) +
+  geom_bar(position = "fill") +
+  coord_flip()
+```
+
+From this plot there is some difference between the male/female split for Obama and Romney voters, but let's perform a hypothesis test to see if the difference is statistically significant. 
+
+Let's calculate the observed statistic (the difference in the proportions of Obama voters who were women Romney voters who were women):
+
+```{r}
+observed_stat <- poll %>% 
+  specify(gender ~ vote, success = "woman") %>% 
+  calculate(stat = "diff in props", order = c("obama", "romney"))
+
+observed_stat
+```
+
+We use permutation to generate the null distribution. Under $H_0$ there is no relationship between gender and who they voted for. So if we shuffle the explanatory variable labels, in this case is who they voted for, we lose any relationship between gender and candidate. We repeat this process many times, to account for sampling variablity. 
+
+```{r}
+null_distribution <- poll %>%
+  # if this code is slow, may want to do the following
+  # mutate(gender_flag = if_else(gender == "woman", 1, 0)) %>%
+  # specify(gender_flag ~ vote) %>%
+  specify(gender ~ vote, success = "woman") %>% 
+  hypothesize(null = "independence") %>% 
+  generate(reps = 1000, type = "permute") %>%
+  # and if using gender_flag, this instead
+  # calculate(stat = "diff in means", order = c("obama", "romney"))
+  calculate(stat = "diff in props", order = c("obama", "romney"))
+
+head(null_distribution)
+```
+
+Let's visualise our null distribution, overlaying the observed statistic. We are testing whether the two samples are significantly different in either direction, so we set argument `direction = "both"`. 
+
+```{r}
+null_distribution %>%
+  visualise() +
+  shade_p_value(obs_stat = observed_stat, direction = "both")
+```
+
+We see the observed statistic is off the right hand side of our null distribution. So see immediately that our observed statistic is very unlikely assuming $H_0$ is true. 
+
+Finally we calculate the p-value:
+
+```{r}
+p_value <- null_distribution %>%
+  get_p_value(obs_stat = observed_stat, direction = "both")
+
+p_value
+```
+
+The p-value is essentially zero, so there is strong eveidence to reject $H_0$ and conclude that the proportions of Obama voters who were women and Romney voters who were women are signficantly different. 
+
+<br>
+<blockquote class='task'>
+**Task - 15 mins**<br><br>
+
+Calculate the $95\%$ CI for the point estimate of the difference in the two proportions.<br><br>
+
+**Hints**
+
+* You may want to go back to your notes from the 'Confidence intervals' lesson for this.
+* If your code is running too slowly, you wish to convert `gender` from categorical type into numeric type, and then use `stat = "diff in means"` 
+
+<details>
+<summary>**Solution**</summary>
+
+Calculate the bootstrap sampling distribution, using sampling from replacement from your sample:
+```{r}
+bootstrap_distribution <- poll %>%
+  # again, if this code is slow, may want to do the following
+  #mutate(gender_flag = if_else(gender == "woman", 1, 0)) %>%
+  #specify(gender_flag ~ vote) %>%
+  specify(gender ~ vote, success = "woman") %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  # and if using gender_flag, this instead
+  #calculate(stat = "diff in means", order = c("obama", "romney"))
+  calculate(stat = "diff in props", order = c("obama", "romney"))
+```
+
+Then can specify you want a 95% CI:
+```{r}
+bootstrap_prop_ci <- bootstrap_distribution %>%
+  get_ci(level = 0.95, type = "percentile")
+
+bootstrap_prop_ci
+```
+
+And can visualise the sampling distribution and overlay the CI:
+```{r}
+bootstrap_distribution %>%
+  visualise(bins = 30) +
+  shade_ci(endpoints = bootstrap_prop_ci)
+```
+
+We see that 0 is not contained in this $95\%$ CI as a plausible value for $\pi_{\textrm{women for Obama}} - \pi_{\textrm{women for Romney}}$ (the unknown population parameter). This matches with our hypothesis test results, where we rejected $H_0$. 
+
+We are 95% confident the difference in the proportions of Obama voters who were women and Romney voters who were women lies between `r round(bootstrap_prop_ci[[1]] * 100, 2)`$\%$ and `r round(bootstrap_prop_ci[[2]] * 100, 2)`$\%$.
+
+</details>
+</blockquote>
+<br>
+
+# Recap
+
+<hr>
+
+# Additional resources
+
+* [infer online resource](https://infer.netlify.com/articles/infer.html)
+

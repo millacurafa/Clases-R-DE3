@@ -1,0 +1,129 @@
+---
+title: "Ethics & communication project introduction"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../styles.css
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives<br>
+
+* Understand what is required for the week 3 ethics & communication project
+* Give an introduction to the questions to choose from
+* Give an introduction to the presentation approach
+
+**Duration - 15 minutes**<br>
+
+# Ethics and AI Presentation
+
+Over the next week we would like you to consider a topical question around **ethics** and **AI** and present it back to the group on Monday morning.
+
+## Rules
+
+* The presentation should be written in GoogleSlides. 
+* The presentation should be on one of the documented question briefs, there is a free choice to pick whichever you prefer
+
+## Presentation
+
+Presentations will be held on Monday morning. You will have 15 minutes for the presentation and 5 minutes for questions.
+
+We expect you to:
+
+* Summarise the topic you are discussing
+* Identify the challenges and ambiguities
+* Highlight some potential solutions or approaches to addressing the challenges
+* Conclude with your personal opinion or recommendation
+
+We suggest you:
+
+* Focus on getting your points across clearly and succintly
+* Do not go over the time limit
+* Use visuals to bring the topic to life
+
+## Submission
+
+Upload your slides onto your Github repo and submit a link to the repo via the Homework Submission form as usual. 
+
+You will recieve  1-2-1 feedback from instructors given the following weeks.
+
+## Additional resource 
+
+
+
+<hr>
+
+# Presentation briefs
+
+## How do we avoid bias in machine learning algorithms?
+
+As Cathy O'Neil very clearly states in her book "Weapons of Math Destruction", machine learning algorithms have the power to cause great damage to society. If bias is embedded into the training data of these algorithms then it can lead to negative feedback loops reinforcing societal biases. 
+
+We'd like you to consider how to identify inherent bias in the training datasets, how to compensate for that when building the model and finally once implemented, how to monitor the model for negative feedback loops.
+
+## How do we govern AI and machine learning?
+
+When "the computer says no" who is responsible for the "computer", or rather the underlying algorithm that has made the decision? Is it the data scientist who built the algorithm? The CEO of the organisation who implemented it? Or everyone included in the multi-layered decision-making process to implement it? One of the key challenges for organisations is to understand enough about the algorithm and its data to be able to make those decisions transparently. 
+
+We'd like you to consider how an organisation sets up model governance and what it should contain?
+
+## How can we make deep learning more transparent?
+
+Deep neural networks are notoriously opaque to human inspection. It's difficult for users to understand how they arrived at their output. As deep learning algorithms are being used for applications from facial recognition to healthcare diagnoses to autonomous vehicles, it is increasingly more important for their inputs and outputs to be transparent. 
+
+We'd like you to consider the balance between the accuracy of the models and the need for transparency. Are there situations where deep learning should never be used? Or are additional safeguards required?
+
+## Are data breaches an inevitability? How do we minimise the risks?
+
+Every week we hear about yet another major data breach. Even with GDPR and increased privacy regulation it may not be possible to prevent a data breach. Perhaps we need to change our mindset, so that we start to think about **when** a data breach happens not **if**. 
+
+We'd like you to consider what organisations need to do to change their mindsets once they start to consider data breaches as an inevitability. Having changed their thinking, what controls would an organisation need to put in place to minimise the risks?
+
+## Should there be a mandatory code of conduct for all data scientists?
+
+Unlike lawyers, accountants, medics or actuaries, there is currently no requirement for data scientists to hold any specific qualification or industry membership. There is rising awareness of the harmful power of data, and a number voluntary codes of conduct have been developed. 
+
+We'd like you to consider how data scientists should be accredited and if a code of conduct were implemented, what the key features of this should be.
+
+## Autonomous cars - who should be held legally accountable in event of an accident?
+
+In the case of a fully-autonomous vehicle, it is still uncertain who should be held legally accountable if the vehicle has an accident. Is it the owner, the manufacturer, the insurance company or the AI developer? How can an AI make ethical split-second decisions to swerve to avoid a child running into a road, thereby hitting a pedestrian? 
+
+We'd like you to consider what information each potentially liable party would need to enable them to accept liability.
+
+## Should facial recognition systems be regulated?
+
+Facial recognition technology is becoming increasingly ubiquitous in society and has the potential to make everything from passing through airports to unlocking your phone seamless. However, there are still significant privacy challenges, particularly where technology is deployed in public spaces. Amazon's Rekognition AI technology has known accuracy issues, especially with females and darker skin tones. 
+
+We'd like you to consider both how the existing systems should be regulated and also how we stop false positive matches by improving commercially available algorithms.
+
+## Autonomous warfare - are there ever situations where it could be condoned?
+
+Lethal autonomous weapons are those that use AI to make life or death decisions. They provide the ability use swarm of drones that couldn't be individually manually driven and can operate with increased stealth as they don't need to communicate back to the host. However, not only have humans lost control over the decision-making process, but autonomous weapons are also vulnerable to hacking and data biases. 
+
+We'd like you to consider whether there are ever any situations whereby autonomous weapons could be used reliably and also what international agreements would be needed to prevent warfare turning into "killer robots".   
+
+## When should humans overrule AI?
+
+Many systems are being developed where humans work in partnership with AI. For example, semi-autonomous cars, airline autopilots, medical diagnosis or immigration facial recognition systems. Recently there have been some well-publicised failures of these systems, such as the Boeing 737 Max crashes, or an autonomous Uber car fatality. A human could have stepped in to prevent the fatalities, but didn't respond in time. 
+
+We'd like you to consider how these systems can be limited, so that the humans involved can step in to override the AI in time to prevent a catastrophe.
+
+## Cambridge Analytica - how do we stop it happening again?
+
+The Cambridge Analytica scandal which erupted in March 2018 brought to light the potential of personal data being utilised without consent for political advertising purposes. It brought into question the results of both the US Presidential Elections and the Brexit vote in the UK. 
+
+We'd like you to consider not only how we can ensure something similar to Cambridge Analytica doesn't happen again, but also how can we ensure that elections in general remain free of interference.
+
+
+
+
+
+

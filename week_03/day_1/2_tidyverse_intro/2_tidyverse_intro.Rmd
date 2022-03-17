@@ -1,0 +1,359 @@
+---
+title: "Tidyverse"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+
+# Learning Objectives<br>
+
+1. Know what tidyverse is 
+2. Know what some of the differences between base R and tidyverse are
+3. Be able to install all the tidyverse packages
+4. Know what all the tidyverse packages are used for 
+5. Know the differences between base R and tidyverse
+
+**Duration - 30 minutes ** <br>  
+
+# What is Tidyverse?  
+
+<center>
+![](https://www.tidyverse.org/images/tidyverse-default.png)  
+</center>  
+      
+<br>    
+Tidyverse is a collection of R packages created by world-famous data scientist Hadley Wickham (@hadleywickham). Tidyverse was created with the aim to provide all the tools you need to clean, reorganise and prepare data under one roof. 
+
+[This blog post sums it up well](https://rviews.rstudio.com/2017/06/08/what-is-the-tidyverse/): 
+
+> Tidyverse packages are intended to make statisticians and data scientists more productive by guiding them through workflows that facilitate communication, and result in reproducible work products. Fundamentally, the tidyverse is about the connections between the tools that make the workflow possible.
+
+<br>
+
+## What does Tidyverse contain?
+
+<br>  
+Tidyverse contains 8 different 'core' packages. Within these core packages, you should be able to find everything you need to analyse your data.
+
+  `ggplot2` : for plotting all your data  
+  `dplyr` : for data manipulation  
+  `tidyr` : for creating tidy data   
+  `readr` : read rectangular data files (e.g. csv, tsv)
+  `purr`  : for working with functions and vectors  
+  `tibble` : the modern version of a data frame  
+  `stringr` : for working with strings (text data)  
+  `forcats` : for use with factors  
+
+<br>
+
+<center>
+![](https://pic3.zhimg.com/v2-93190c36e008ca91fb5df812a07b6d36_b.png)
+</center>
+<br>
+
+These eight packages are considered the “core” of the tidyverse as they are the most used tidyverse packages, and are often used in combo with one another. They are also the ones automatically loaded when you load in the tidyverse library.   
+
+There are also several accompanying packages that don't count as 'core' packages, but which can be used alongside the tidyverse ones to create even more powerful data analysis combinations. You can list all of the tidyverse packages by doing this:
+
+```{r}
+library(tidyverse)
+tidyverse_packages()
+```
+
+<br>
+[You can find much more information about each package on the tidyverse website](https://www.tidyverse.org/packages/) 
+
+<br>
+
+# What does each Tidyverse package do?
+
+<br>
+Tidyverse is all about data cleaning and data analysis. You can see each package grouped by which function they perform, here:    
+
+<br>
+<center>
+![](https://rviews.rstudio.com/post/2017-06-09-What-is-the-tidyverse_files/tidyverse1.png)
+
+<br>
+[And here you can find a summary cheat sheet of all the tidyverse packages](https://s3-ap-south-1.amazonaws.com/av-blog-media/wp-content/uploads/2019/05/Tidyverse2.pdf)  
+</center>
+
+
+# Using Tidyverse
+
+To start using tidyverse, the first thing you need to do is install the `tidyverse` package, by typing `install.packages(tidyverse)` in the console. 
+
+Once you've got the packages installed, you need to load it: 
+```{r}
+library(tidyverse)
+```
+
+Here you can see the different packages and version numbers that you've got. You might get some warnings that you have functions that have conflicts with other package functions. It's worth noting which these are, but if you're using tidyverse you're generally doing so because you want to make use of all the functions it provides, so it shouldn't be too much of a problem. 
+  
+
+<div class='emphasis'>
+Another tip: Tidyverse packages are maintained and updated frequently, so it helps to check if updates are available. You can do this by running `tidyverse_update`.   
+</div>
+
+
+
+# Why use tidyverse?
+
+<br>
+**Simplicity**
+
+R is not the easiest programming language to master: often times the syntax can be confusing, and the many functions available aren't always designed to work together or on similar data types. The Tidyverse introduces a set of useful data analysis packages to help streamline your work in R. Importantly, the collection of packages were designed to **"share an underlying design philosophy, grammar, and data structures" of tidy data. This, in theory, makes it easy to combine different tools across packages whilst maintaining a reproducible, understandable and clear workflow when analysing data. 
+
+<br>
+
+**Structure consistency**
+
+Tidyverse maintains consistent formatting across it's data storing and functions.   
+
+For example, the functions within tidyverse all follow the same structure. Type the following in your console:
+
+```{r}
+?mutate
+
+?summarise
+
+?group_by
+```
+
+You should see that they all follow the same basic structure: 
+
+```{r, eval = FALSE}
+
+function(.data, ..., extra arguments)
+
+```
+
+The first formal argument is always the data, followed by additional arguments needed to use that function. Knowing that all tidyverse functions follow the same pattern allows you to quickly use lots of different functions within it. 
+
+Having a consistent function structure and data input style also means that results obtained from tidyverse are more consistent, whereas results from a base R function often depend on the type of data being used. 
+
+Tidyverse makes use of `tibbles`, and keeps this structure consistent across the packages. Here are some example tibbles: 
+
+```{r}
+# one column tibble
+alphabet <- tibble(alphabet = letters)
+
+# table style
+xy_tibble <- tibble(x = 1:5, y = x ^ 2)
+
+# list
+list_tibble <- tibble(x = 1:3, y = list(1:5, 1:10, 1:20))
+```
+
+Tibbles keep the same structure across different packages, which means the functions designed for it tend to work across different formats. For example, think back to when you learned the `apply()` function : there were different formats of this (`sapply()`, `lapply()`) depending on whether you were using lists, vectors, data frames, etc. In tidyverse, you will work with tibbles and so the functions should all work. 
+
+
+Finally, tidyverse aims to have 'verbs' that help describe what each function is doing (e.g. the `select` function selects data), and the expressions are maintained across packages within tidyverse. This helps avoid some function conflicts that can arise between lots or random packages being installed from different places.  
+
+<br>
+
+**Formatting** 
+
+All the tidyverse functions use `snake_case`, which helps enormously when coding. For example, in Base R, the `View` function will only work with a capital letter V. In tidyverse, this function is renamed as `view`. Under the covers, there are even more levels of structure that aid the pursuit of consistency, including uniform standards for package organization, testing procedures, coding style, etc.
+
+<br>
+**One workflow: one package idea**
+
+Tidyverse was designed to provide one place to download all the functions you would need for many different types of end-to-end data analysis projects in one source. This idea provides an appealing starting point for data analysts over Base r: if you use tidyverse, theoretically you should have everything you need in one package. On the other hand, if you want to use base R, you will have to make decisions about which package, or suite of packages, you want. 
+
+<br>
+
+# Tidyverse AND Base R
+
+It's important to know that it's not a case of tidyverse vs. base R. The two are used in combination and often times compliment each other. 
+
+<center>
+<br>
+![](https://image.slidesharecdn.com/emilytidyversepresentation-180205195912/95/the-lesser-known-stars-of-the-tidyverse-5-638.jpg?cb=1517860826)
+</center>
+
+<br>
+
+Saying that, there are some differences worth knowing between the two. 
+
+<br>
+
+
+## Reading in data
+
+In week 2 you learnt different ways to read in data. Tidyverse and base R have different ways to do this as well:
+
+The traditional R base functions `read.table()`, `read.delim()` and `read.csv()` import data into R as a data frame. For example:
+
+```{r}
+# use read.csv function
+rescues_csv1 <- read.csv("data/edin_rescues.csv")
+
+# check the data
+head(rescues_csv1)
+
+```
+
+However, in `tidyverse`, the package `readr` provides several functions (`read_delim()`, `read_tsv()` and `read_csv()`), are provided. 
+
+```{r}
+# use the read_csv function
+rescues_csv2 <- read_csv("data/edin_rescues.csv")
+
+# check the data
+rescues_csv2
+```
+
+
+The main differences are:
+
+1. The tidyverse functions are faster than R base functions when loading in large files  
+2. Tidyverse functions automatically convert variable types when importing data into R. 
+3. If you have missing variable names, tidyverse will rename these as - for example - `X1`, whereas base R will rename them as - for example - `X.1`. 
+
+<br>
+
+## Data frames vs tibbles
+
+There are two key differences between tibbles and data frames: printing and subsetting.   
+
+Let's first remind ourselves about the definitions of data frames and tibbles.
+
+
+A data frame is a base R object. It is a special case of a list, which is used in R to hold just about anything. Data frames are a special case where the length of each list component is the same. Data frames can hold vectors of different types, e.g. numeric, character, and categorical data can be stored together. 
+
+An example data frame is below:
+
+```{r}
+# load in the cars data
+cars_data <- mtcars
+
+# see the data
+head(mtcars)
+
+# find out the class of the data
+class(mtcars)
+```
+
+
+Tibbles are newer, tidyverse versions of `data.frames` with nicer behavior around printing, subsetting, and factor handling (tibbles as aimed to data manipulation). Compared to the traditional `data.frame()`, a `tibble`:
+* never changes the type of the inputs (e.g. never converts string as factor)
+* never changes the names of variables
+* never create row names
+* can have columns that are lists.
+* can have non-standard variable names (e.g. can start with a number or contain spaces.)
+
+
+To convert a traditional dataframe as a tibble use the function `as_data_frame()` [in tibble package] or `as_tibble()`, which works on data frames, lists, matrices and tables. If want to turn a tibble into a dataframe then use `as.data.frame`. [You can find more info here](https://github.com/tidyverse/tibble/issues/82#issuecomment-225607351)
+
+Let's try this with our data frame above:
+
+```{r}
+# create a tibble 
+cars_tibble <- as_tibble(cars_data)
+
+# print it
+cars_tibble
+
+# check the class
+class(cars_tibble)
+```
+
+Now let's look at the main differences:
+
+### Printing
+
+
+1. Tibbles have nice printing method that show only the first 10 rows and all the columns that fit on the screen. This is useful when you work with large data sets.
+
+```{r}
+alphabet
+```
+
+2. When printed, the data type of each column is specified e.g. for double, for factor, for character, for logical. 
+
+```{r}
+cars_tibble
+```
+
+
+### Subsetting
+
+The other main difference between tibbles and dataframes revolve around subsetting. You learnt about subsetting data frames in week 1, hopefully which is summed up by the following example:
+<br>
+<center>
+
+![](https://www.guru99.com/images/r_programming/032918_1452_RDataFrames2.png)
+
+</center>
+<br>
+
+
+Tibbles are quite strict about subsetting:
+
+* [ always returns another tibble. 
+* Subsetting a tibble will always return a tibble. You don’t need to use drop = FALSE compared to traditional data.frames.
+
+To extract a single column of a tibble (i.e. the underlying data type, not another tibble) use select or [[ or $:
+
+* dataframe columns 1: df1[, 1]  
+* tibble column 1:     df1[[1]]
+* tibble column 1:     select(df1, column1name)
+
+To extract a rows of a tibble (i.e. the underlying data type, not another tibble) use slice:
+
+* dataframe rows 1&2: df1[1:2,]
+* tibble rows 1&2: slice(1:2)
+* tibble rows 1&2: [1:2, , drop=TRUE]
+
+To extract a single element of a tibble 
+
+* dataframe:  df1[1,2]
+* tibble:     df1[[1:2]]
+
+
+
+# Recap 
+
+You've learned: 
+What tidyverse is, what it contains, how to install and load it, and why you should really use it! 
+
+What is tidyverse?
+<details>
+<summary>**Answer**</summary>
+A collection of packages designed to streamline data cleaning, data wrangling, plotting, and data analysis. 
+</details>
+
+
+What packages does it contain?
+<details>
+<summary>**Answer**</summary>
+ggplot2, dplyr, tidyr, readr, purr, tibble, stringr, forcats.
+</details>
+
+
+What are the main differences between Base R and Tidyverse?
+<details>
+<summary>**Answer**</summary>
+Differences in loading data, storing data, printing data, and subsetting data.
+</details>
+
+## More resources
+
+The best resource you can use to learn tidyverse is the book R for Data Science, written by Tidyverse creator Hadley Wickham, [R for Data Science](https://r4ds.had.co.nz)  
+
+The Tidyverse website has lots of useful info about the packages: [Tidyverse.org](https://www.tidyverse.org/)   
+
+Here is a list of books and other resources involved with tidyverse: https://www.tidyverse.org/learn/  
+
+Hadley Wickham often tweets lots of useful things and answers to questions about tidyverse (and you'll find lots of great resources using his code through there too!) : https://twitter.com/hadleywickham  
+

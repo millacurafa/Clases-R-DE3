@@ -1,0 +1,108 @@
+---
+title: "Supervised and unsupervised learning"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+```
+
+# Learning Outcomes
+
+* Know the difference between supervised and unsupervised algorithms
+
+
+
+
+# Machine learning problems
+
+<br>
+So far this module we’ve looked at predicting data via regression. This is one of the main types of machine learning problems. The other type of problems we will cover are sorting data into categories/classes (logistic regression) and clustering. Let’s first touch on the differences between the three:
+
+<br>
+
+**Regression**: Regression can be framed as a kind of machine learning problem that tries to predict a continuous value output from input data. As you learnt last week, the input here are predictors, and the output is known as the response. Predicting a person’s income from their age, education is example of regression task.    
+
+<br>
+
+**Classification**: The goal of this technique is to predict whether a certain data point belongs to a certain category. In classification the data we have is categorised under different labels according to some parameters. The classifier learns how to sort the data you have into either of your categories. When you feed it unseen data, and it will attempt to assign labels to the new data (i.e. it tries to “class” your unseen data). This is what we touched on during *logistic regression*, a type of classification technique. What is important to remember for classification problems is that the labels (or classes) you are assigning to your data are known before hand. Classifying emails as either spam or not spam is example of classification problem.       
+
+<br>
+
+**Clustering**: Clustering is the task of partitioning the dataset into groups, called clusters. In clustering you are trying to group data points that are similar together into clusters, while ensuring the clusters themselves are dissimilar to one another. You can think of it as classification, without saying to which classes the data points belong to, or how many classes there are. It determines grouping among unlabelled data. For example, you might be given a set of animal photos that you need to group into species. You may not know how many different animals are in your database, and so you could use clustering algorithms to wade through and specify groups for you. 
+
+
+<br>
+
+
+# Supervised vs Unsupervised Learning
+
+The types of algorithm we can use in our learning will each be best-suited to a particular task. Which one we want to use at any given point will depend on what we're trying to learn and the data we have available to learn from. We can split our algorithms into two broad categories: supervised and unsupervised. Clustering is a method of **unsupervised learning** and is a common technique for statistical data analysis used in many fields. Since this is our first foray into unsupervised learning, let's recap on what this is first. 
+
+## Supervised Learning
+
+Most of the machine learning done in a practical setting falls under the banner of **supervised** learning. We have a collection of input variables `x` and an identified target variable `Y`. Our aim is to find some function of `x` which we can use to predict future values of `Y`, ie. 
+$$Y = f(x)$$
+
+<br> 
+
+We can do this because we have a training set available where all of the data is appropriately labelled and cleaned. Using that data we can approximate the function `f` so that it accurately predicts `Y` all of the time (although not _too_ accurately - remember our earlier discussions of overfitting).
+
+For example we may have customer data (of which we have an extract of below) and we have 'labels' of whether they purchased or didn't purchase an item, the `purchased_item` column. We may want to use supervised learning to create a function i.e. a model to predict the label i.e. whether someone purchased or not, depending on `x`s, which in our case is variables of information about the customer (age, gender etc.). 
+
+<br>
+
+```{r, message = FALSE, echo = FALSE}
+library(tidyverse)
+customers <- tibble(customer_id = c(1, 2, 3, 4, 5, 6),
+                     age = c(34, 87, 40, 30, 33, 65), 
+                     gender = c("M", "F", "F", "M", "M", "M"), 
+                     purchased_item = c("Y", "Y", "N", "N", "Y", "Y"))
+                     
+head(customers)
+```
+
+<br> 
+
+Because we know what we should be getting back from the function, the observed case of whether the customer purchased or not, we are able to fine-tune it as we go (by train/tesing) and make changes if necessary. This is where the supervision comes in; we are **supervising the model's development**. Once the algorithm reaches a performance level which we deem to be acceptable we can terminate the development process.
+
+We can sub-divide supervised learning into two types of problem, which we have already touched on this module:
+
+* Regression
+* Classification
+
+<br>
+
+## Unsupervised Learning
+
+The counterpart to supervised learning is **unsupervised** learning. Although the name implies that it will be the opposite, there are in fact many common features between the two: we still need to provide input variables, and we still use the function generated by the algorithm to to predict future output values.
+
+The main difference is in how we guide the learning, namely that **we don't**. Although the general formula looks the same as it did before, in unsupervised learning we have no knowledge of the expected values of `Y` to guide us. Instead of trying to build a function around the predictors in such a way that they model some expected output we let the algorithm discover interesting patterns in the data before presenting a model based on those patterns.
+
+Unsupervised learning can also be sub-categorised into different types of problem:
+
+* Clustering
+* Association
+
+
+
+# Recap
+
+* Are regression algorithms a form of supervised or unsupervised learning?
+<details>
+<summary>**Answer**</summary>
+Supervised
+</details>
+
+
+# Additional Resources
+
+* [Supervised vs unsupervised learning](https://towardsdatascience.com/supervised-vs-unsupervised-learning-14f68e32ea8d)
+* [A guide to selecting an algorithm](https://hackernoon.com/choosing-the-right-machine-learning-algorithm-68126944ce1f)

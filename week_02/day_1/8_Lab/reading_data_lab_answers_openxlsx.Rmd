@@ -1,0 +1,181 @@
+---
+title: "Reading Data Lab answers"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../resources/note_styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Mhairi McNeill"<br>
+date: "08/07/2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, eval = TRUE)
+```
+
+# Flat Files
+
+Read in the following datasets. You may need define the variable types, skip rows or give your own variable names in each of them.
+
+Before you read in each file, either view it in the Terminal (`less`) or open it in a text editor, so you can see what type it is. 
+
+1. `user-for-x.txt`
+2. `female_names.txt`
+3. `edinburgh-trees.csv`
+
+```{r}
+library(readr)
+uber_for_x <- read_tsv("data/uber-for-x.txt")
+```
+```{r}
+uber_for_x
+```
+
+
+```{r}
+female_names <- read_lines("data/female_names.txt")
+```
+```{r}
+female_names
+```
+
+
+```{r}
+edinburgh_trees <- read_csv("data/edinburgh-trees.csv", skip = 9, col_names = c("Latin Name", "Common Name", "Location", "Lat/Lon", "Age"))
+```
+```{r}
+edinburgh_trees
+```
+
+
+```{r}
+# You could read the names as a separate data-frame and use that to name the full data. Something like this:
+tree_names <- read_csv("data/edinburgh-trees.csv", skip = 2, n_max = 5, col_names = c("letter", "name"))
+
+trees <- read_csv("data/edinburgh-trees.csv", skip = 9, col_names = tree_names$name)
+```
+```{r}
+trees
+```
+
+# Excel Files
+
+Can you figure out how to read all the sheets from `edinburgh_seedmix.xlsx` into one data frame?
+
+<details>
+<summary>**Hint**</summary>
+
+Look back at your notes on loops to see an example of reading multiple files in a loop.
+
+</details>
+
+```{r}
+library(readxl)
+
+seedmix <- NULL
+
+n_sheets <- length(excel_sheets("data/edinburgh_seedmix.xlsx"))
+
+for (sheet in 1:n_sheets) {
+  seedmix_part <- read_excel("data/edinburgh_seedmix.xlsx",
+    sheet = sheet,
+    col_names = c(
+      "park",
+      "location",
+      "m2",
+      "grams",
+      "seed_mix",
+      "species"
+    )
+  )
+  seedmix <- rbind(seedmix, seedmix_part)
+}
+
+seedmix
+```
+
+
+Take the `populism` dataset that we read in earlier and write it to an Excel file. In the Excel file, you want the data for each region in a different sheet.
+
+<details>
+<summary>**Hint 1**</summary>
+Use a loop to go through each part of the data frame.
+</details>
+<details>
+
+<summary>**Hint 2**</summary>
+Use `subset()` to extract only a part of the data frame.
+</details>
+
+```{r}
+library(openxlsx)
+populism <- read_excel('data/populism.xlsx')
+
+# create your workbook
+wb <- createWorkbook()
+
+for (reg in unique(populism$region)) {
+  region_sheet <- subset(populism, region == reg)
+  
+  # add a sheet
+  addWorksheet(wb, sheetName = reg)
+  writeData(wb, sheet = reg, x = region_sheet)
+}
+
+saveWorkbook(wb, file = "populism_loop.xlsx")
+
+```
+
+# Other File Formats
+
+1. Read in `golf.sas7bdat`.
+
+2. What kind of file is this?
+
+3. Convert all the labelled values to their underlying numeric value.
+
+4. Convert all the labelled values to factors.
+
+5. What do you notice about this conversion?
+
+```{r}
+library(haven)
+
+golf <- read_sas("data/golf.sas7bdat")
+zap_labels(golf)
+# This is a file from SAS
+```
+```{r}
+as_factor(golf)
+
+# Just the same as golf! This dataset doesn't use labelled values, even though they are avalible in SAS.
+```
+
+# JSON
+
+Parse the file `starwars.json` as:
+
+1. a `list`
+2. a `data.frame`
+
+
+```{r}
+library(jsonlite)
+
+raw_starwars <- read_file("data/starwars.json")
+starwars <- parse_json(raw_starwars)
+```
+
+
+```{r}
+starwars_df <- fromJSON(raw_starwars)
+```
+
+
+

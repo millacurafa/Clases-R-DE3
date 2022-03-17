@@ -1,0 +1,385 @@
+---
+title: "Homework"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+This homework will recap basic time series, time series modelling, and spatial visualisation. 
+
+You'll need to load the following libraries:  
+
+```{r, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(lubridate)
+library(tsibble)
+library(tsibbledata)
+library(fable)
+```
+
+
+***
+
+# Question 1  
+
+
+Load in the `nyc_bikes` data from the `tsibbledata` package. Have an initial look at it to see what you're working with. Create three new columns: one that stores only the year the bike was used, one that stores only the month the bike was used, and one that stores the date. Use the data stored in `start_time` to create these new columns.   
+
+<details>
+<summary>**Answers**</summary>
+```{r}
+
+nyc_bikes_data <- nyc_bikes
+
+names(nyc_bikes_data)  
+dim(nyc_bikes_data)
+head(nyc_bikes_data,3)
+
+
+nyc_bikes_year <- nyc_bikes_data %>%
+  select(-gender, -type, -birth_year) %>%
+  mutate(year_of_use = year(start_time),
+         month_of_use = month(start_time, label = TRUE), 
+         date_of_use = date(start_time)
+  )
+
+head(nyc_bikes_year,3)
+  
+```
+</details>
+<br>
+
+***
+
+# Question 2  
+
+
+Summarise the number of bike hire counts by month. Make a plot of this data. *Hint: remember that to group time series (`tsibble`) data, you need to use `index_by` instead of `group_by` before your summarise function. What does this plot tell you about the time series? Do you think this downsampled data would be adequate to build a forecast with?  
+
+<details>
+<summary>**Answers**</summary>
+```{r}
+# count by month 
+nyc_bikes_month_summary <- nyc_bikes_year %>% 
+  index_by(month_of_use) %>%
+  summarise(bike_hire_counts = n())
+
+ggplot(nyc_bikes_month_summary) + 
+  aes(x = month_of_use, y = bike_hire_counts) +
+  geom_point() + 
+  geom_line(group = 1) +              
+  ggtitle("Bike hire in NYC") + 
+  xlab("Month") + ylab ("total count")
+```
+</details>
+<br>
+
+***
+
+# Question 3  
+
+Now Summarise the number of bike hire counts by **date** (once a day). Make a plot of this new aggregated data. What does this plot tell you about the time series? Would this data be preferrable for time series forecasting compared to the monthly data?
+
+<details>
+<summary>**Answers**</summary>
+```{r}
+
+# count by date 
+nyc_bikes_date_summary <- nyc_bikes_year %>% 
+  index_by(date_of_use) %>%
+  summarise(bike_hire_counts = n())
+
+nyc_bikes_date_summary 
+
+ggplot(nyc_bikes_date_summary) + 
+  aes(x = date_of_use, y = bike_hire_counts) +
+  geom_point() + 
+  geom_line(group = 1) +              
+  ggtitle("Bike hire in NYC") + 
+  xlab("Date") + ylab ("total count")
+
+# also works with autoplot 
+nyc_bikes_date_summary %>%
+  autoplot() +
+    ggtitle("Bike hire in NYC") + 
+  xlab("Date") + ylab ("total count")
+```
+
+Let's go with our date one. The reasons for this is as follows:
+
+1. Forecasts work better with more data. The monthly data didn't have that many data points.  
+2. There will be daily variation, and monthly variation that will be more accurately captured by using date based data.   
+
+</details>
+<br>
+
+***
+
+# Question 4 
+
+
+Let's begin to build a model with our  For this, we will test the `NAIVE`, `MEAN`, and `SNAIVE` model. 
+
+However, the first thing you'll notice when you try and build a model is that you get an error:
+
+>.data contains implicit gaps in time. You should check your data and convert implicit gaps into explicit missing values using `tsibble::fill_gaps()` if required.
+
+First, create a new tibble which uses the `fill_gaps()` function to fill in missing values. You haven't come across this in class, but you should be able to look it up and use it using the help. Think about what value you might want to fill the missing values with. Justify your choice.   
+*Hint: think back to our missing values lesson. Do you want to leave them blank? Or do you want to impute each day with the median, last observation carried forward, etc.*   
+
+Once you've done that, build your models.    
+
+
+If you cant figure out how to use the `fill_gaps()` function, you can use the code below. But do try first!
+<details>
+<summary>**Hint**</summary>
+```{r, eval=FALSE}
+# fill the gaps : here i'll use median as it's a decent summary of how bike rentals work (not overly affected by seasonal changes)
+nyc_bikes_filled <- nyc_bikes_date_summary %>%
+  fill_gaps(bike_hire_counts = as.integer(median(bike_hire_counts)))
+```
+
+</details>
+<br> 
+
+<details>
+<summary>**Answers**</summary>
+```{r}
+# fill the gaps : here i'll use median as it's a decent summary of how bike rentals work (not overly affected by seasonal changes)
+nyc_bikes_filled <- nyc_bikes_date_summary %>%
+  fill_gaps(bike_hire_counts = as.integer(median(bike_hire_counts)))
+
+# build a model
+bikes_fit <- nyc_bikes_filled %>%
+  model(
+    naive = NAIVE(bike_hire_counts), 
+    mean_model = MEAN(bike_hire_counts), 
+    snaive = SNAIVE(bike_hire_counts)
+  )
+```
+</details>
+<br>
+
+***
+
+# Question 5
+
+Now we have our model fit, build a forecast to predict bike use over the next four months. Plot your models alongside your data.  
+*Hint: forecast parameter would be roughly 120 (30 days x 4 months)*
+
+<details>
+<summary>**Answers**</summary>
+```{r}
+# build a forecast
+bikes_forecast <- bikes_fit %>%
+  fabletools::forecast(h = 30*4)
+bikes_forecast
+
+bikes_forecast %>%
+  autoplot(nyc_bikes_filled, level = NULL) 
+```
+
+
+```{r}
+# create a shorter interval to plot: years after 1980
+bikes_shorter <- nyc_bikes_filled %>%
+  mutate(month = month(date_of_use)) %>%
+  filter(month >= 8)
+
+# check one model at a time
+bikes_forecast %>%
+  filter(.model == "snaive") %>%
+  autoplot(bikes_shorter, level = NULL) 
+
+
+```
+</details>
+<br>
+
+***
+
+# Question 6 
+
+Test your model accuracy : choose a training data set from your main dataset, build a forecast on the training set, and then plot the training set forecast against the real data. Calculate model accuracy. 
+
+<details>
+<summary>**Answers**</summary>
+```{r}
+## test model accuracy 
+# Set training data from Jan to Nov
+train <- nyc_bikes_filled %>%
+  mutate(month = month(date_of_use)) %>%
+  filter(month <= 10)
+
+# run the model on the training set 
+bikes_fit_test <- train %>%
+  model(
+    naive = NAIVE(bike_hire_counts), 
+    mean_model = MEAN(bike_hire_counts), 
+    snaive = SNAIVE(bike_hire_counts))
+
+bikes_fit_test
+
+# forecast from the training set
+bikes_forecast_test <- bikes_fit_test %>%
+  fabletools::forecast(h = 12*6)
+
+# Plot forecasts against actual values
+bikes_forecast_test %>%
+  autoplot(train, level = NULL) + 
+  autolayer(nyc_bikes_filled, color = "black")
+
+```
+
+```{r}
+
+# note accuracy, arrange by best
+accuracy_model <- fabletools::accuracy(bikes_forecast_test, nyc_bikes_filled)
+
+accuracy_model %>% 
+  select(-.type) %>%
+  arrange(RMSE)
+```
+</details>
+<br>
+
+***
+
+# Question 7
+
+Look at your forecast plots and accuracy values. Describe your results. Are your models a good fit for the data? If not, why not? 
+What would you suggest doing with the data if you were expected to present these back to a client? For example, would you ask for more data? Would you test a different model?
+
+
+<details>
+<summary>**Potential answer**</summary>
+
+SUMMARISE YOUR FINDINGS 
+
+Forecast isn't great. This could be for several reasons: 
+
+1. not enough data 
+2. something is affecting it 
+3. wrong model choice 
+
+I'd collect more data if possible - we only have a year's worth so far.   
+
+</details>
+<br>
+
+***
+
+# Question 8
+
+Make a simple ggplot (`geom_point`) which plots the **start** longitude and latitudes of each bike. Create a separate facet for each `bike_id`. Colour the dots in by month of use. What does this tell you about what month each bike was used most in?
+
+Do the same for the **end** longitude and latitudes. 
+
+<details>
+<summary>**Answers**</summary>
+
+```{r}
+library(ggplot2)
+
+# make the month 
+nyc_bikes_spatial <-nyc_bikes %>%
+  select(bike_id, start_time, start_lat, start_long, end_lat, end_long) %>%
+  mutate(month = month(start_time, label = TRUE))
+
+# make a faceted plot : start points
+ggplot(nyc_bikes_spatial) + 
+  geom_point(aes(x=start_lat, y = start_long, colour = month)) +
+  facet_wrap(~bike_id) +
+  ggtitle("NYC bikes: start points") +
+  xlab("Latitude") + ylab("Longitude")
+
+# make a faceted plot : end points
+ggplot(nyc_bikes_spatial) + 
+  geom_point(aes(x=end_lat, y = end_long, colour = month)) +
+  facet_wrap(~bike_id) +
+  ggtitle("NYC bikes : end points") +
+  xlab("Latitude") + ylab("Longitude")
+
+
+
+```
+</details>
+<br>
+
+***
+
+# Question 9 
+
+Create an interactive leaflet plot which plots the start points of the city bikes. Ensure it has at least markers to denote start points (taken from the `nyc_bikes_spatial` data). Feel free to add any additional features you wish.   
+
+<details>
+<summary>**Answer**</summary>
+```{r}
+
+# make a leaflet plot
+library(leaflet)
+
+# create leaflet map
+leaflet(nyc_bikes_spatial) %>%
+  addTiles() %>%
+  addCircleMarkers(lng = ~start_long,
+                   lat = ~start_lat) %>%
+    setView(-74.00, 40.71, zoom = 12) %>%
+  addProviderTiles("CartoDB.Positron")
+```
+
+</details>
+<br>
+
+# Extension
+
+This is VERY much an extension task, and will take a bit of time (as well as googling) if you decide to attempt it. 
+
+1. Adapt your `leaflet` plot which adds lines showing the start and end point of each bike. 
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+# load the geosphere package to add intermediate points (lines)
+library(geosphere)
+
+# subset the data to make it easier
+bikes <- nyc_bikes_data %>%
+  select(bike_id, start_time, start_lat, start_long, end_lat, end_long)
+
+# get start points (longitude has to go first)
+start <- bikes %>%
+  select(start_long, start_lat)
+
+# get end points (longitude has to go first)
+end <- bikes %>% 
+  select(end_long, end_lat)
+
+# convert to matrix  
+start_matrix <- as.matrix(start[ , c(1,2)])
+end_matrix <- as.matrix(end[ , c(1,2)])
+
+# plot using leaflet
+gcIntermediate(start_matrix, end_matrix,  
+           n=100, 
+           addStartEnd=TRUE,
+           sp=TRUE) %>% 
+leaflet() %>% 
+addTiles() %>% 
+addPolylines() 
+
+```
+
+</details>
+<br>
+
+
+
+
+

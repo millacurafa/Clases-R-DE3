@@ -1,0 +1,427 @@
+---
+title: "Variable Engineering"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+ #   css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+library(tidyverse)
+library(fastDummies)
+library(standardize)
+library(janitor)
+```
+# Learning Objectives
+
+* Understand what variable engineering is
+* Handle missing values in a dataset
+* Create numeric dummy variables from categorical variables
+* Create dummy variables
+* Create categorical variables from continuous variables (binning)
+* Use fixed and adaptive width bins to create categorical variables
+* Understand the difference between raw and derived variables
+* Know what feature scaling is
+* Carry out transformations and feature scaling on a dataset
+* Know that better data makes better models
+
+
+**Duration - 120 minutes**
+
+<br>
+
+In an ideal world, our datasets would all be perfectly formed with the data in exactly the format we need it. Unfortunately we don't live in a perfect world, and it's actually pretty rare that we won't have to do _something_ to our data to wrangle it into a useable form. We may be missing bits of data, or have some categorical variables in a format which we can't feed into a model (eg. strings). In this scenario we need to manipulate our data in order to ensure consistency throughout the dataset and that's in a format necessary for our model, a process known as **variable engineering**. It is one step more than what people often call 'data cleaning' - it works to create new features to improve the performance of your model, and can rely on doman expetise and knowledge. 
+
+> *'The features you use influence more than everything else the result. No algorithm alone, to my knowledge, can supplement the information gain given by correct feature engineering'.* - Luca Massaron (Data Scientist & author)  
+
+> *'Much of the success of machine learning is actually success in engineering features that a learner can understand'* - Scott Locklin (Physicist)  
+
+> *'Applied machine learning” is basically feature engineering.* - Andrew Ng (Computer Scientist)  
+
+You may also see this process referred to as **feature engineering**. The two terms are interchangeable in this context, but we'll try to stick to *variable* for consistency. 
+
+For this lesson we will be looking at the `grade` dataset. This gives information about about students, their grades (e.g. average tutorial and assignement grades, as well as their midterm, takehome and final exam grades) as well as what subject they were studying.  
+
+```{r}
+grades <- read_csv("data/grades.csv")
+
+grades
+```
+
+
+# Recap of previously mentioned techniques
+
+## Handling missing data
+
+As you saw back in week 3, it's very common for a dataset to be missing data in some form. This can be for any number of reasons: missing survey responses, failure in logging outputs or other errors in data collection. In R these missing values are represented as `NA`, such as in the `grades` dataset. Can see using the `summary()` function that some of the variables have missing values. 
+
+```{r}
+summary(grades)
+```
+
+You will recall that we have a range of options for addressing this, depending on why the gaps are there and how much data is missing. Also recall that the reason for missing data will influence the way in which you deal with it. There are two very similar options which are the variable engineering equivalent of 'sweeping the problem under the rug': 
+
+* ignoring the variables for which we don't have complete data when selecting variables
+* ignoring the data points which are missing values for our selected variables
+
+Neither is an ideal solution though. If we were missing a value for most data points for a given variable then ignoring that variable could be justified, but if only a small number of data points don't have a value (as in the example above) we risk removing a potentially significant source of data. Likewise removing whole data points would likely mean that valuable data from other variables is removed from the dataset.
+
+What _can_ work is imputation, as discussed in week 3. Here we replace the `NA`s in the dataset with some standardised value to allow us to use the data point without accidentally throwing a `NaN` into a calulation. The tricky part is deciding how to arrive at that value.
+
+Some packages (such as Python's scikit) have built-in tools for estimating missing values, but we can always do our own calculations to find them. 
+
+For categorical variables this can be as simple as assigning a generic "unknown" value, meaning that although the true value is still unknown we can use the data point in calculations without worrying about breaking things.
+
+Continuous variables are slightly harder to replace. We can use methods of single imputation, such as average imputation (replacing with the variable mean) or common point imputation (replacing with the variable median or mode), which were discussed in week 3. Of course, we can't guarantee the accuracy of our replacement, but we can be sure that we won't accidentally be introducing any outliers.
+
+<blockquote class='task'>
+**Task - 15 mins** 
+
+Replace the `NA` values in our dataset by imputing the mean value of the appropriate columns. Refer to the summary above to see which columns need work.
+
+<details>
+<summary>**Answer**</summary>
+
+```{r}
+# Replace missing values in columns 'take_home' and 'final' (have seen from the summary above they have missing values) with column means 
+grades <- grades %>%
+          mutate(take_home = replace(take_home, is.na(take_home), mean(take_home, na.rm = TRUE))) %>%
+          mutate(final = replace(final, is.na(final), mean(final, na.rm = TRUE)))
+
+# Summarise to check
+summary(grades)
+```
+
+</details>
+</blockquote>
+
+## Dealing with outliers 
+
+Dealing with outliers is another variable engineering technique. As discussed in week 3 there are different strategies of how to deal with these, such as removing them, considering them seperately from the rest of the data or replacing them with imputations. 
+
+## Transformations 
+For some models we may need our data to follow a normal distribution and real data may not be normal. There are different tools of transformation we can apply including log transformations (see lesson on log transformations), square roots etc. depending on what kind of skew our data has **to approximate to a more symmetric, normal distribution**. For right skewed distribution, often take square/cube root or logarithm of variable and for left skewed, take square/cube or exponential of variables.
+
+We may also transform variables to **convert non-linear relationships between variables into linear ones**, as linear realtionships is easier to interpret. Log transformation is one of the commonly used transformation technique used in these situations. We will see more on this later in the week. 
+
+# Encoding categorical data (aka dummy variables)
+
+Once we've replaced all the missing values, our continuous data is nearly ready to go (there's another step which we'll look at a little later). The categorical data is a little more complex though. For some ML models, such as decision trees, we can leave categoricals as they are, but for others, such as regression, we need to convert them into numerical represntations in order for the information to be used by the model. Encoding is a general term meaning to represent data in a way that the computer will understand. 
+
+Whether the categorical variable is oridnal (has a natural order) or nominal (no order) we will encode in the same way, but will take a moment to explain each one in turn. 
+
+**Nominal**
+For nominal variables, such as the `subject` column in our grades data, there is no natural order to these. Since we know we need numerical inputs for a model, we may be tempted just to assigned the category levels different numbers (e.g. 1 = english, 2 = physics, 3 = maths etc.). However the issue here is then the computer thinks that maths is greater than physics and physics is greater than english and so on, which is not the case. Futhermore, if we were to fit a regression to this, say using subject to predict final grade
+$$\widehat{final} = b_0 + b_{\textrm{subject}} \times \textrm{subject} $$
+then if the coefficient was calculated was positive then the final grade for a physics student would always be higher than for a english student, and that of a maths student would always be higher than both physics and english students, but in fact this might not be the case - perhaps the relationship is in fact that english students tend to get much higher grades that other subjects, but because this ordering has been assigned this doesn't come through in the model. There is also the issue of assuming equal distance between levels (which will explain in the ordinal explination below).  
+
+**Ordinal**
+In some cases we have a natural ordering, so may think that assigning category levels different numbers would work here. Taking size as an example, there is a clear order inherent in describing things as "small", "medium" or "large" and we may think to assign them with the numbers, 0 = small, 1 = medium, 2 = large.  However with this encoding the computer assumes that the levels have equal distance between them e.g. the difference is maginitude between medium and small is the same as is between large and medium and so on, which is most often times unlikely to be the case. 
+
+So how do we get round this problem of converting categorical variables to numerical for the computer to understand? By creating new variables which separates the category information into multiple columns with true/false values for each possible category. 
+
+The new variables we create as part of this process are known as **dummy variables**. They play a very important role in model development, allowing us to isolate and neutralise the effects of certain categories of data. A common example is found in research, where we want to indicate control and test groups for an experiment.
+
+## Creating dummy variables
+
+Our first step is finding out what our values actually are, and how many columns we're going to need:
+
+```{r}
+# Values
+grades %>%
+  distinct(subject)
+```
+
+So there are 5 distinct values for the subject column.  
+
+We then find the rows in our dataframe where the `subject` value is equal to the first item in our list, i.e. english, and create a column with binary values 1 or 0 depending on whether `subject` is equal to 5 or not:
+
+```{r}
+grades_subject_dummy <- grades %>%
+  mutate(subject_engl = ifelse(subject == "english", 1, 0))
+```
+
+
+If we repeat this for the other values, we replace a single variable with arbitrary numbering with five distinct variables each showing a different binary value:
+
+```{r}
+grades_subject_dummy <- grades_subject_dummy %>%
+  mutate(subject_phys = ifelse(subject == "physics", 1, 0)) %>%
+  mutate(subject_maths = ifelse(subject == "maths", 1, 0)) %>%
+  mutate(subject_fren = ifelse(subject == "french", 1, 0)) %>%
+  mutate(subject_bio = ifelse(subject == "biology", 1, 0))
+```
+
+finally we need to drop the now redundant `subject` column:
+
+```{r}
+grades_subject_dummy <- grades_subject_dummy %>%
+            select(-subject)
+
+grades_subject_dummy
+```
+
+Our dataset now includes variables which say definitively whether a student is studying a subject or not, rather than giving us a value which we have to somehow interpret. When dealing with nominal variables this will be very useful.
+
+## The dummy variable trap
+
+We've actually done more work than we really needed to here. We've created a dummy variable for every possible value, but in fact that's one more than we need. Every data point **must** have a values of "1" for one of the five dummy variables because of how we've defined them. Now think about how the dataframe would look if we only had four dummy variables. We would end up with some data points which had a `0` in each column, but because we know that there are only five possible values we can infer this particular data point must have value "1" for the variable which we haven't represented. In general, **if we have n values we only need n-1 dummy variables**. 
+
+The scenario where we have n dummy variables for n values is known by some as the **dummy variable trap**. When this occurs we have two or more variables which are _multicollinear_, ie. one can be predicted from the other(s). Collinearity between variables is undesirable for many machine learning models (including regression), and while we should take care of it at the variable selection stage (a future lesson) it would be better to avoid creating the work for ourselves in the first place!
+
+Note: sometimes creating  dummy variables is referred to as **one hot encoding**. Usually when using the term 'one hot encoding' it refers to the creation of n dummy variables, for a model where multicollinearity is not an issue, where as dummy encoding is when we remove one variable to avoid multicollinearity. 
+
+## Dummying with a package
+
+As expected, R has a package which can do the dummying for us - which is good as some variables have many category levels so it would take a while to do 'manually'. 
+
+The `fastDummies` package will give us access to the `dummy_cols()` function (among others), which will create dummy variables for us. The 3 arguments we will be using for the function are:
+
+1. *select_columns*: the columns to dummy 
+2. *remove_first_dummy*: an instruction to create n-1 columns. It is optional and defaults to FALSE; we must explicitly set it to be TRUE to avoid the dummy variable trap. 
+3. *remove_selected_columns*: removes the columns used to generate the dummy columns. It is optional and defaults to FALSE; we must explicitly set it to be TRUE if we want to remove the variable (which will likely be the case). 
+
+The example below shows how we could use it to create dummy variables for our class grades (doing what we have done in the above example). Note that we still need to manually remove the column which we have dummied.
+
+```{r}
+grades_subject_dummy2 <- grades %>%
+  fastDummies::dummy_cols(select_columns = "subject", remove_first_dummy = TRUE) 
+
+grades_subject_dummy2
+```
+
+You will see that the column which flags where subject was biology (the first category alphabetically) has not been created. This is beacuse we set *remove_first_dummy = TRUE*. The category biology is then known as the reference category, because the results of the model are in reference for that category. There is more information in how to interpreting a regression model with this reference category, however this is introduced in more detail in the multiple regression lesson later today (but it is here for when referring back to notes). If you wanted to change it so another subject was the reference category you could do so. 
+
+<details>
+<summary>**Interpreting dummy variables with reference category**</summary>
+The 'missing' category is known as the reference category, because the results of the model are in reference for that category. For example if we go back to our scenario of fitting a regression model for final grade based on subject, now we would have something like so
+$$\widehat{final} = b_0 + b_{\textrm{physics}} \times \textrm{physics} + b_{\textrm{maths}} \times \textrm{maths} + b_{\textrm{french}} \times \textrm{french} + b_{\textrm{english}} \times \textrm{english}$$
+
+If the coefficient for the physics variable, $b_{\textrm{physics}}$, was positive, we would say that on average the grade for a physics student is higher that of an biology student (can think of english as the physics variable being 0). If the coefficient was negative the converse would be true. If the coefficient for maths was higher than the coefficient for physics then we would interpret that on average maths students get higher grades than physics students. 
+</details>
+</br>
+
+This has yielded the same results as if we had manually created the dummies. But we usually don't even need to do this step at all, when we do any sort of regression modelling R (i.e. using `lm()`) will create the dummies for us (as we'll see in lessons coming up).
+
+## Grouping low frequency categories
+You may find you have a categorical variable that has many categories, if you create dummy variables for all these categories it can lead to a very wide and sparse dataset, which can be problematic (we will discuss this more in feature reduction lesson). To help with this one method is to group low frequency categories into a new category before creating dummy variables. 
+
+# Binning
+
+Although we can work with them straight away, there may be occasions where we want to perform a similar encoding procedure on our continuous variables. This process is known as **binning**, where we split our data among different "bins" which each represent a range of data. 
+
+Let's look again at our test scores. We have a continuous variable representing the final mark (the `final` column), but this might not be the best format for this information if we want to use it in a model. We have 99 students in our dataset, which means almost 99 unique values (allowing for the `NA`s we replaced earlier). A large number of values can make modelling difficult, so we may want to split our data into discrete groups. We may also want to mitigate the impact of outliers on our model, which can also be handled via binning.
+
+In terms of our scores, we could use these groups (or "bins") to represent grades. Let's split them as follows:
+
+| Grade | Score Range      |
+|-------|------------------|
+| F     | score &#60; 50       |
+| C     | 50 &#8804; score &#60; 60 |
+| B     | 60 &#8804; score &#60; 70 |
+| A     | 70 &#8804; score      |
+
+Note that we don't need to make our bins equally-sized, either in terms of the range they cover, or the number of data points they contain. However, if we do wish to ensure that data is split evenly, e.g. assigning control and test groups, binning is also a useful tool for ensuring that it is done so. 
+
+We create our bins (manually) in the same way as we did for our encoding in the previous section. Remember that the dummy variable trap applies here too!
+
+```{r}
+grades_final_dummy <- grades %>%
+  mutate(grade_a = ifelse(final >= 70, 1, 0)) %>%
+    mutate(grade_b = ifelse(final >= 60 & final < 70, 1, 0)) %>%
+    mutate(grade_c = ifelse(final >= 50 & final < 60, 1, 0)) %>%
+      mutate(grade_f = ifelse(final < 50, 1, 0)) %>%
+    select(-final)
+ 
+grades_final_dummy
+```
+
+Again, this can be time consuming to do manually if we have many bins. The function `cut()` can also be useful to make creating bins. 
+
+<blockquote class='task'>
+**Task - 10 mins** 
+
+Using the help file for `cut()` repeat the exercise above to make dummy vairables for the final grades. Name your data 'grades_final_dummy2'
+
+<details>
+<summary>**Hint 1**</summary>
+For the breaks argument the first and last values will want to have the smallest and largest possible values the 'final' variable may take. 
+</details>
+
+<details>
+<summary>**Hint 2**</summary>
+Once you have used `cut()` you will want to use the `dummy_cols()` function to create the dummy variables. 
+</details>
+
+<details>
+<summary>**Answer**</summary>
+
+Create a variable with the new categories:
+```{r}
+grades_final_dummy2 <- grades %>%
+# need to be careful here about inclusivity, i.e. whether in each break it includes the break number to the left or right break - in our case for example if the score of 50 sat in F or C. In order for it to sit in C we need to ensure that the breaks are open to the right (we use the argument 'right = FALSE' to achieve this)
+  mutate(final_grade = cut(final, breaks = c(-Inf, 50, 60, 70, Inf), right = FALSE, labels = c("F", "C", "B", "A"))) 
+
+grades_final_dummy2
+```
+
+Create dummy variables based on the new categorical variable:
+```{r}
+grades_final_dummy2 <- grades_final_dummy2 %>%
+  dummy_cols(select_columns = "final_grade", remove_first_dummy = TRUE) %>%
+  select(-c(final, final_grade)) #remove the columns that the dummy variables are based on
+    
+grades_final_dummy2
+```
+
+Note: In `cut()` it is also possible to specify the number of breaks, rather than determining the break points, and it will create n intervals of approximately equal width.
+
+</details>
+</blockquote>
+
+Some people may prefer the manual method of creating bins (which is no problem at all - they are just different ways of doing the same thing), but `cut()` can come in handy if you have many many bins to make, and so manually doing so will be very time consuming. 
+
+# Raw vs. derived variables
+
+Earlier we spoke about one way of segregating data by type: categorical and continuous variables. Our dataset now contains variables which can be segregated in a different way.
+
+When we gather data, like our test results, the dataset representing it is made up of **raw variables**. A raw variable is one which represents something gathered directly from the source. Some of these may be continuous (like the scores above) but many will be categorical (like the `prefix` variable). In some cases the raw variables will be enough for our model, but not always.
+
+If that is the case we need to calculate some **derived variables**. Binning is an example of this process: we take our raw variables and apply some metric to them to create new variables _derived from_ their values. Derived variables could also come from simple calculations, for example using date of birth (raw) to calculate a person's age (derived), or converting times/dates into a different time zone. These calculations could be based on multiple raw variables; we could use height and weight to calculate BMI. 
+
+# Variable Scaling
+
+We've already seen that our models will only work with numerics inputs -- that's one of the reasons for creating dummy variables. That also means that we don't have any concept of units of measurement in our data; our model can't tell that 5000g and 5kg are the same, it can only use the numbers. In an ideal world the person responsible for gathering our data would have taken care of that and ensured everything was in the same units, but we can't guarantee it. With no context the larger number will have a bigger impact than it should on our model.
+
+To address this we bring all of our variables down to the same magnitude, a process known as **variable scaling**. This ensures that all our variables lie within the same interval (usually between 0 and 1 or between -1 and 1) but crucially still retain some difference in size. This means that larger numbers still have a larger effect, but values which have been incorrectly or artificially inflated through the use of incorrect units, for example, don't.
+
+There are different ways in which we can perform scaling, depending on the data available and what we want to achieve, but the most common way is standardisation:
+
+**Standardisation**
+
+This brings the feature column closer to the normal distribution in a way which retains information about outliers and helps the model to weight the parameters. It centers the column at mean 0 with standard deviation 1 using the following formula, where &#956; is the mean value of the column and &#963; is its standard deviation:
+
+$$x' = \frac{x - \mu}{\sigma}$$
+
+There are some other scaling methods in the dropdown for information.
+
+<details>
+<summary>**Other scaling methods**</summary>
+
+* **Min-Max Scaling** -- This rescales the feature to lie in the interval [0, 1] and is achieved by applying the formula below to each value:
+
+$$x' = \frac{x - x_{min}}{x_{max} - x_{min}}$$
+
+
+
+* **Mean-Value Normalisation** -- This will bring the data into the interval [-1, 1] with mean 0 and is useful for algorithms requiring zero-centric data. The formula is:
+
+$$x' = \frac{x - \mu}{x_{max} - x_{min}}$$
+
+</details>
+<br>
+Variable scaling will often be useful, but not always. When using a _distance-based_ model (such as k-nearest neighbours) scaling is critical and **every** feature should be scaled. When using a _tree-based_ model, on the other hand, scaling isn't necessary. We will cover these both in the coming weeks. 
+
+There are also some specific algorithms, such as Naive Bayes, which are set up to perform scaling operations on their inputs and so further scaling when preparing the data is uneccessary (and may even have an adverse effect on the results).
+
+Section 1, 2 and 3 in this [blog](https://sebastianraschka.com/Articles/2014_about_feature_scaling.html) is useful for listing different models that use scaling (focusing on the commonly used standardisation). 
+
+## Scaling in practice
+
+Let's return to our test results one more time. We've already created lots of lovely 1s and 0s by binning our data, now lets get the rest of our values looking the same!
+
+We'll start off by looking at the `assignment` column and doing standardisation scaling on it. First up, we need to calculate the mean and standard deviation of the variable:
+
+```{r}
+assignment_mean <- mean(grades$assignment)
+assignment_sd <- sd(grades$assignment)
+```
+
+<div class="emphasis">
+Note that this will only work if we have already replaced the `NA` values in our dataset. If we don't the `mean` function will see `NA` as the mean value and return that, which will cause problems in the next step.
+</div>
+
+The next step is to define our function (with an optional small helper beforehand):
+
+```{r}
+assignment_standardisation_formula <- function(x){
+  x = (x - assignment_mean) / assignment_sd
+}
+```
+
+Finally we apply the function to each value in the `assignment` column:
+
+```{r}
+grades_assign_stand <- grades %>%
+  mutate(assignment = map_dbl(assignment, assignment_standardisation_formula))
+
+grades_assign_stand
+```
+
+Our students' assignment scores have now been scaled and now follow a normal distribution with mean 0 with standard deviation 1.
+
+As you've probably guessed by now there are functions in R avaiable to help with the process, in this case base R includes the `scale()` function. If we don't specify the arguments for the function - centre and scale - the default is to set these to the column mean and standard deviation i.e. it performs standardisation. But we can specify these arguments to perform min-max scaling and mean-value normalisation (which are the other types of scaling in the dropdown. 
+
+Below are the exercises performed above using the `scale()` function:
+```{r, eval = FALSE}
+# 1. Standardisation of assignment
+grades %>%
+  mutate(assignment = scale(assignment)) #the default here is to centre by the mean and scale by the standard dev. so we don't need to specify these arguments
+
+# 2. Min-max scaling of assignment
+assignment_min <- min(grades$assignment)
+assignment_max <- max(grades$assignment)
+assignment_interval <- assignment_max - assignment_min
+
+grades %>%
+  mutate(assignment = scale(assignment, center = assignment_min, scale = assignment_interval))
+
+# 3. Mean-value normalisation of assignment
+grades %>%
+  mutate(assignment = scale(assignment, scale = assignment_interval)) #the default here is to centre by the mean so we don't need to specify this argument
+```
+
+<div class="emphasis">
+If you're working with R (or indeed Python) it's unlikely that you'll need to do these calculations manually. There are packages and libraries with built-in methods which will calculate the formulae or even carry out the whole scaling process for you. It's important to know what's going on though, just in case you don't have the tools to hand!
+</div>
+
+# Summary
+
+|Variable engineering          |What it does                                                  |Library    |Function|
+|---                           |---                                                           |---        |---|
+|Dummy variables               |Converts categorical variables into (numeric) binary variables|fastDummies|dummy_cols()|
+|Binning                       |Converts continuous variables into categorcial variables      |Base R     |cut()|  
+|Standarisation                |Converts variables on the same scale                          |Base R     |scale()| 
+
+# Recap
+
+* How do we deal with missing continuous variables?
+<details>
+<summary>**Answer**</summary>
+Replace them with the mean value of that variable
+</details>
+* What are dummy variables?
+<details>
+<summary>**Answer**</summary>
+Variables we create to help us better represent categorical data
+</details>
+* If we have five "bins" for our data, how many variables do we need to represent them?
+<details>
+<summary>**Answer**</summary>
+Four - n-1 variables for n bins
+</details>
+* If I gathered people's collar measurements and used them to calculate their shirt size, which would be the raw variable and which the derived?
+<details>
+<summary>**Answer**</summary>
+ Collar measurement is raw and shirt size is dervied
+</details>
+
+# Additional Resources
+
+* [End-to-end model development](https://towardsdatascience.com/machine-learning-general-process-8f1b510bd8af) -- this goes beyond what we covered in this lesson and into what we'll talk about next
+* [More on variable scaling](https://medium.com/greyatom/why-how-and-when-to-scale-your-features-4b30ab09db5e)

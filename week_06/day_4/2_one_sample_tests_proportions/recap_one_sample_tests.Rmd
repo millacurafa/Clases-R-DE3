@@ -1,0 +1,316 @@
+---
+title: "One-sample hypothesis tests - proportions"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+# Learning Objectives<br>
+* Perform a one-sample hypothesis test for proportion using computational methods
+* Interpret results of a one-sample hypothesis test for proportion using computational methods
+
+**Duration - 90 mins**<br>
+
+<hr>
+
+# Introduction
+
+In the last lesson we introduced the concept of hypothesis testing by performing a one-sample mean test. We wanted to investigate whether the population average (mean) rating was significantly different from a given value of $3.93$, i.e.
+
+<br>
+<center>
+$H_0$: $\mu_{\textrm{average_rating}} = 3.93$ (the population mean is $3.93$)<br>
+$H_a$: $\mu_{\textrm{average_rating}} \ne 3.93$ (the population mean is different from $3.93$)
+</center>
+<br>
+
+We will continue with the Goodreads dataset, but in this lesson we will look to answer questions about **proportions** of the population. 
+
+# Hypothesis tests for proportions
+
+Say we want to answer the following question:
+
+<br>
+<center>
+*"Does the proportion of books in the Goodreads database that lack text reviews **differ significantly** from $7\%$?"*
+</center>
+<br>
+
+First let's load in the data and do a bit of tidying (same as the last lesson):
+
+```{r, message=FALSE}
+library(tidyverse)
+library(janitor)
+library(infer)
+```
+
+```{r, message=FALSE, warning=FALSE}
+books <- read_csv("data/books.csv")
+```
+
+```{r}
+# Slack this out 
+
+books_tidy <- books %>%
+  clean_names() %>%
+  filter(!is.na(average_rating)) %>%
+  rename(num_pages = number_num_pages) %>%
+  glimpse()
+```
+
+So let's take a look at the proportion of books with no text reviews in the sample. We do this by filtering the `text_reviews_count` variable:
+
+```{r}
+books_tidy %>%
+  group_by(text_reviews_count) %>%
+  summarise(prop = n()/nrow(books)) %>%
+  filter(text_reviews_count == 0)
+```
+
+In the sample the proportion of books without text reviews is $6.45\%$. This is slightly less than $7\%$, but we want to know if this difference from $7\%$ is statistically significant or might be due to sampling variation. 
+
+We will set up a hypothesis test to answer this question. Let's recap on the steps taken in a hypothesis test:
+
+## Elements of a hypothesis test 
+
+<br>
+<div class='emphasis'>
+**Step-through of a hypothesis test**<br><br>
+
+1. We decide upon a **significance level** $\alpha$ for our test. This is the **false positive** or **type-I error** rate: it tells us **how often we will incorrectly reject $H_0$ and accept $H_a$ in cases where $H_0$ is actually true**.<br><br> Often we set $\alpha = 0.05$: if you've done any statistics before, you may have seen this value being used essentially by convention. A value $\alpha = 0.01$ is also often used: this results in a more stringent test. 
+
+2. Next, we calculate the **statistic** we are interested in from the current sample. In the present case we calculate $\frac{\textrm{number of books with no text reviews}}{\textrm{total number of books}}$ from the current sample.
+
+3. Next, we treat the situation specified by the **null hypothesis as if it were true**, and use this to generate a sampling distribution, which we call the **null sampling distribution**. 
+
+4. Finally, we see where our calculated statistic falls on the null sampling distribution. We calculate the **probability of getting a statistic equal to or greater than our observed value**, i.e. how much of the null distribution lies beyond our observed statistic. We call this the **$p$-value** of the test.
+
+5. Finally:
+    * if the calculated $p$-value is **less than or equal to** $\alpha$ then **we reject the null hypothesis in favour of the alternative hypothesis**. 
+    * if the $p$-value is greater than $\alpha$ then we **fail to reject the null hypothesis**.
+</div>
+<br>
+
+We will see that the only differences between a one-sample mean test and a one-sample proportion test occur in:
+
+* step 2 - the observed statistic calculated (one is a mean and one is a proportion) 
+* step 3 - how the null distribution is generated (which we will see soon)
+
+## Example test
+
+Let's start by setting a significance level $\alpha = 0.05$, and setting up our hypotheses:
+
+<br>
+<center>
+$H_0$: $\pi_{\textrm{no_text_review}} = 0.07$<br>
+$H_a$: $\pi_{\textrm{no_text_review}} \ne 0.07$
+</center>
+<br>
+
+Like last time we will be using the `infer` package for hypothesis testing. 
+
+If we are calculating a proportion, we need to have a categorical variable with two levels, so we will create a variable that is binary flag consisting of one of values 'text_review' or 'no_text_review'. 
+
+```{r}
+books_tidy_prop <- books_tidy %>%
+  mutate(text_reviews_flag = ifelse(text_reviews_count > 0, "text_review", "no_text_review"))
+
+head(books_tidy_prop)
+```
+
+We need to tell `infer` what the 'success' category is for our proportion. In our case a 'success' is a book that has no text reviews (i.e. when our `text_reviews_flag` column has a value `no_text_review`) because that's what we are using to calculate our proportion, $\frac{\textrm{number of books with no text reviews}}{\textrm{total number of books}}$. 
+
+Next we generate our null distribution. We do this by **simulation**.
+
+<br>
+<div class='emphasis'>
+**Generation of the null hypothesis**<br>
+
+We will use **simulation** to create the null distribution.   
+
+To think of this process consider a (really weird) unfair coin where the probability of getting a 'heads' (which we will view as a 'success') has a probability of 7%, i.e. our null hypothesis scenario. We will simulate flipping this unfair coin as many times as there are outcomes in our data set (in the case of `books_tidy`, $10,999$ times, corresponding to the number of rows) . We then add up the number of 'heads' we obtained from all of these flips, say $760$, and divide by the total number of flips, e.g. $760 / 10999 = 0.06910$ - this is our simulated success proportion. We then repeat this process many times (say $10,000$ times) to create $10,000$ simulated scenarios in each of which $H_0$ was assumed true: this is our null distribution of the simulated proportions of success.  
+</div>
+<br>
+
+Generating the null hypothesis from simulation is more power intensive than bootstrapping and so it can be slower to run. We will do $1,000$ repetitions (reps) for speed here but larger numbers of reps may be needed to increase precision. You should test this in production code.
+
+```{r}
+null_distribution <- books_tidy_prop %>%
+  specify(response = text_reviews_flag, success = "no_text_review") %>% 
+  hypothesize(null = "point", p = 0.07) %>%
+  generate(reps = 1000, type = "simulate") %>%
+  calculate(stat = "prop") #we specify that the stat is proportion (in the last lesson it was mean)
+
+head(null_distribution)
+```
+
+Let's visualise this distribution
+
+```{r}
+null_distribution %>%
+  visualise()
+```
+
+We calculated the observed stat of $6.45\%$ using `dplyr`. Let's assign this to an object named `observed_stat` so we can use it in our hypothesis test. We can also use the `infer` functions `specify()` and `calculate()` to calculate it, as an alternative to the `dplyr` functions: 
+
+```{r}
+observed_stat <- books_tidy_prop %>% 
+  specify(response = text_reviews_flag, success = "no_text_review") %>% 
+  calculate(stat = "prop")
+
+observed_stat
+```
+
+Let’s plot this on the null distribution.
+
+```{r}
+null_distribution %>%
+  visualise() + #remembering that it is a '+' here not '%>%' because using ggplot functionality to visualise
+  shade_p_value(obs_stat = observed_stat, direction = "both") #it is a two-sided test as the alternative is whether the proportion is different in either left or left direction
+```
+
+Our observed statistic is quite far to the left hand side of the null distribution. We will now calculate the p-value, recalling that this is the probability, that under $H_0$, we observe a value as or more extreme that our observed statistic. In the visualisation above that is the shaded red areas of the null distribution. 
+
+```{r}
+p_value <- null_distribution %>%
+  get_p_value(obs_stat = observed_stat, direction = "both")
+
+p_value
+```
+
+Again, it may help to think of a low p-value as being ‘surprising’, it means we’ve seen something significantly different from the behaviour expected if $H_0$ were true.
+
+Here the p-value is less than our significance level of $0.05$, i.e. the cut-off beyond which we reject $H_0$. So we reject $H_0$ in favour of $H_a$. Based on the data, the proportion of books in the Goodreads database with no text reviews is significantly different from $7\%$. 
+
+<br>
+<blockquote class='task'>
+**Task - 15 mins**
+
+Let's say you work for a publishing company and you want to use the Goodreads database to provide insight for future investment. Your CEO has decided they want to invest in French language books, if there is compelling evidence that there is a lack of such books in the marker. Based on their experience of the industry, they have decided that if the proportion of books published in French is less than $1.5\%$ then they will invest in publishing more. 
+
+The hypothesis test corresponding to this business question is
+
+<br>
+<center>
+$H_0$: $\pi_{\textrm{French}} = 0.015$<br>
+$H_a$: $\pi_{\textrm{French}} < 0.015$
+</center>
+<br>
+
+Let's say answering this question is very important to the business because it will be used to justify investment, so we want to be 'stricter' and perform a more 'conservative' test. This is because, if we reject $H_0$, we will be investing money, and so it will be more costly to make a type-I error (a false positive, i.e. we conclude that the proportion of books that are French is less than $1.5\%$ even though it is not in reality), than a type-II error (a false negative). 
+
+We would do this by decreasing our significance level $\alpha$ for the test. By decreasing $\alpha$ we **reject $H_0$ less often** and need to have very strong evidence to do so.
+
+So, we will test this hypothesis at a significance level of $\alpha = 0.01$. 
+
+<details>
+<summary>**Solution**</summary>
+
+Let's calculate the observed statistic, the proportion of books written in French. First we create a variable that has two levels indicating whether a book is written in French or not. 
+
+```{r}
+books_tidy_prop <- books_tidy %>%
+  mutate(french_lang = ifelse(language_code == "fre", "french", "not_french"))
+```
+
+We then calculate the observed statistic, where being written in French is the 'success'. 
+
+```{r}
+observed_stat <- books_tidy_prop %>%
+  specify(response = french_lang, success = "french") %>% 
+  calculate(stat = "prop")
+
+observed_stat
+```
+
+Now generate the null distribution. The value $\pi_0$ we put in here should be the one assuming $H_0$ is true.
+
+```{r}
+null_distribution <- books_tidy_prop %>%
+  specify(response = french_lang, success = "french")%>% 
+  hypothesize(null = "point", p = 0.015) %>%
+  generate(reps = 1000, type = "simulate") %>%
+  calculate(stat = "prop") 
+```
+
+Visualise the null distribution and overlay the observed statistics. Here we use `direction = "less"` as $H_a$ was $p_{\textrm{French}} < 0.015$
+
+```{r}
+null_distribution %>%
+  visualise() +
+  shade_p_value(obs_stat = observed_stat, direction = "less")
+```
+
+We see that the observed value is fairly well centred in the null distribution, and so it looks likely we will not be rejecting $H_0$. To confirm this, let's calculate the $p$-value
+
+```{r}
+p_value <- null_distribution %>%
+  get_p_value(obs_stat = observed_stat, direction = "less")
+
+p_value
+```
+
+Since our p-value is **greater** than $\alpha = 0.01$ we **fail to reject** $H_0$. There is not enough evidence to say that the proportion of books in French is less than $1.5\%$. Therefore this would be used as evidence against investing in publishing books in French (according to our CEO's logic anyway!). 
+Recall again that we do not accept $H_0$, we just fail to reject it. We aren't saying that $H_0$ is true, it may well be false, but we don't have enough evidence to say so. 
+
+</details>
+</blockquote>
+<br>
+
+## Reminder - slow run times for large datasets
+
+During the earlier lesson we flagged that `infer` can be slow when dealing with proportions using categorial variables. So if you face issues with long run times due to the size of your dataset, you can treat the proportion as a mean of a binary indicator variable (that you would need to create in your dataset) and use the steps of a one-sample test for a mean. If your code runs fast enough using the method we just covered, that's preferable. 
+
+We have included code that performs the 'books in French' hypothesis test from above by treating it as a one-sample mean test. See the drop down below for details (we've also increased the number of reps for more accuracy). 
+
+<details>
+<summary>**Proportion treated as mean**</summary>
+
+```{r}
+books_tidy_prop <- books_tidy_prop %>%
+  mutate(french_lang_flag = ifelse(language_code == "fre", 1, 0))
+
+observed_stat <- books_tidy_prop %>%
+  specify(response = french_lang_flag) %>% 
+  calculate(stat = "mean")
+
+null_distribution <- books_tidy_prop %>%
+  specify(response = french_lang_flag)%>% 
+  hypothesize(null = "point", mu = 0.015) %>%
+  generate(reps = 10000, type = "bootstrap") %>%
+  calculate(stat = "mean")
+
+p_value <- null_distribution %>%
+  get_p_value(obs_stat = observed_stat, direction = "less")
+
+p_value
+```
+
+
+</details>
+
+# Recap
+
+<br>
+
+* How do we calculate the null distribution for a one-sample proportion test
+<details>
+<summary>**Answer**</summary>
+We simulate the scenario if $H_0$ is true, i.e. the probability of 'success' is set to $\pi_0$. We add up the number of 'successes' from a number of random 'success'/'fail' flips equal to the number of rows in the dataset and use this to calculate a simulated 'success' proportion. We repeat this a given number of times (say $10,000$ times) and the resulting $10,000$ proportions form the null distribution. 
+
+</details>
+
+<br>
+
+# Additional resources
+
+* [infer online resource](https://infer.netlify.com/articles/infer.html)

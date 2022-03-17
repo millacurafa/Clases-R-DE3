@@ -1,0 +1,100 @@
+---
+title: "Python analysis lab - Answers"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+  pdf_document: default
+---
+
+```{r, echo = FALSE}
+library(reticulate)
+use_python("/anaconda3/bin/python")
+```
+
+* Load in the dataset, calling it `drinks_content`, and then briefly explore it, printing out: first 5 rows, last 5 rows, and then all of the data. Find out the dimensions of the data (number of rows and columns) and the column names.
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+```
+
+```{python}
+drinks_content = pd.read_csv("starbucks_drinkMenu_expanded.csv")
+# First 5 rows
+drinks_content.head()
+
+# Last 5 rows
+drinks_content.tail()
+
+# Print everything
+drinks_content
+
+# Dimensions
+drinks_content.shape
+
+# Column names
+drinks_content.columns
+```
+
+* We're going to be looking at the number of `Calories` in each drink.
+Calculate some quick summary statistics to check the mean, the variance, and the normality of this variable (i.e. plot a histogram).
+
+```{python}
+# Check the mean
+drinks_content["Calories"].mean()
+
+# Check the variance
+drinks_content["Calories"].var()
+
+# Histogram
+drinks_content["Calories"].plot(kind = "hist")
+plt.show()
+```
+
+* Check if you have any outliers in the `Calories` variable by creating a boxplot. (There is no need to change or remove any outliers you find)
+
+```{python}
+# Create a boxplot
+drinks_content["Calories"].plot(kind = "box")
+plt.show()
+```
+
+* Select the variables `Beverage_category`, `Beverage`, `Beverage prep` and `Calories` from the `drinks_content` data frame, and assign the selected columns to a new data frame called `drinks`. Check if there are any `NaN` values anywhere in the data, and drop any rows containing them.
+
+```{python}
+# Select dataset with specific columns
+drinks = drinks_content[["Beverage", "Beverage_category", "Beverage_prep", "Calories"]]
+
+# Check if there are NA values
+drinks.isna().sum()
+
+# There shouldn't be any, but if there are:
+drinks.dropna(inplace = True)
+```
+
+* Filter the data so we only take "Classic Espresso Drinks", and save this in a new data frame called `espresso_drinks`.
+
+```{python}
+# Filter out espresso drinks
+espresso_drinks = drinks[drinks["Beverage_category"] == "Classic Espresso Drinks"]
+espresso_drinks
+```
+
+* Group your `espresso_drinks` data frame by the type of beverage prep, and then find out the mean calories for each drink group.
+
+```{python}
+espresso_drinks.groupby("Beverage_prep").mean()
+```
+
+* Get the same grouped mean `Calories` values as above, but this time sorted in descending order.
+
+```{python}
+espresso_drinks.groupby("Beverage_prep").mean().sort_values(by = "Calories", ascending = False)
+```
+
+

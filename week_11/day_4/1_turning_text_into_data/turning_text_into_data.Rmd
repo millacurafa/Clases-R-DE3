@@ -1,0 +1,350 @@
+---
+title: "Turning Text into Data"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../../styles.css
+  pdf_document: default
+---
+
+<div class="blame">
+author: "Mhairi McNeill"<br>
+date: "27/08/2019"
+</div>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center", message = FALSE, warning = FALSE)
+```
+
+# Learning Objectives
+
+* Know how to convert from text data to tokenised text data using `unnest_tokens`.
+* Understand how text data can be cleaned.
+
+**Duration - 1 hour 30 minutes**
+
+Over the next couple days you are going to learn how to work with and analyse text data. We've worked with small amounts of text data before; anything that is a categorical variable in our dataset counts as text data. But how do you work with a large chunk of text like a set of articles, or a book?
+
+In this lesson we'll learn how you can turn text into a format that is useful, in particular how to turn text into a data frame. We'll do this using the `tidytext` package.
+
+# Un-nesting tokens
+
+## The `unnest_tokens` function
+
+To start we need to install the `tidytext` package. This package helps us transform text into *tidy* data; that is data where each variable is a column and each observation a row.
+
+```{r, eval = FALSE}
+install.packages("tidytext")
+```
+
+We'll need to load the package, along with `dplyr`, which will allow us to manipulate the tidy data frame we are going to make.
+
+```{r}
+library(tidytext)
+library(dplyr)
+```
+
+Here's an example of very simple text data - just a three element character vector. Don't worry we'll be working with more complicated, realistic data soon!
+
+```{r}
+phrases <- 
+c(
+  "here is some text",
+  "again more text",
+  "text is text"
+)
+```
+
+We need this text to be in a data frame before we can start using `tidytext`. In this case we've also given each element of the vector an ID.
+
+```{r}
+example_text <- tibble(
+  phrase = phrases,
+  id     = 1:3
+)
+
+example_text
+```
+
+Now that our data is inside a data frame we can use the `unnest_tokens` function from `tidytext` to transform this data.
+
+The `unnest_tokens` function is probably the most important function in tidytext. It takes data from a character vector and splits it into *tokens*. For just now, the tokens will be words, but it's also possible to specify that our tokens are sentences, or characters. We'll see the options for different tokens later.
+
+The `unnest_tokens` function takes three mandatory arguments. The first is the data frame that contains our text data; here we have piped that in. The second is the new column that we are going to create that contains our tokens, in our case we've called it `word` because the tokens are words. And the third argument is the name of the column that contains the text data that we are going to tokenise, in our case `phrase`.
+
+```{r}
+words_df <- 
+example_text %>%
+  unnest_tokens(word, phrase)
+
+words_df
+```
+
+You'll notice that the ID column has been preserved. You can go and check that all the words that appeared in the first phrase have id 1, all the words that appeared in the second phrase have id 2 etc. This is really useful when we have extra information about the text in our original data that we want to preserve through tokenisation.
+
+Now that we have a tidy data frame, it's easy to manipulate using `dplyr`. To start, let's put our words in alphabetical order.
+
+```{r}
+words_df %>% 
+  arrange(word)
+```
+
+A really common task that you'll want to perform is finding out how often each word appears in each phrase. We can do this with a group by and summarise.
+
+```{r}
+words_df %>%
+  group_by(word, id) %>%
+  summarise(
+    count = n()
+  )
+```
+
+Or you may want to count the words across all phrases. Again, this is done with group by and summarise. 
+
+```{r}
+words_df %>%
+  group_by(word) %>%
+  summarise(
+    count = n()
+  ) %>%
+  arrange(desc(count))
+```
+
+With only a small amount of code we can see that the most common word in our phrases was 'text' and it appears 4 times.
+
+## Capitals and punctuation
+
+Here's an example of another small text dataset. Before you run the code below, have a think about the data frame you will produce.
+
+```{r}
+phrases <- 
+c(
+  "Here is some text.",
+  "Again, more text!",
+  "TEXT is text?"
+)
+
+example_text <- tibble(
+  phrase = phrases,
+  id     = 1:3
+)
+
+example_text %>%
+  unnest_tokens(word, phrase)
+```
+
+Is this what you were expecting? Probably not, by default `tidytext` converts all text to lower case before tokenising into words. It also ignores punctuation.
+
+This is normally a good thing: most times when you are analysing text, you don't care about the difference between "Text", "text," and "text". You just want to know how often the word text appears in the data in any context.
+
+However, if you do care about different capitalisations you can set `to_lower` to be `FALSE` inside `unnest_tokens`. You cannot currently choose to not strip punctuation.
+
+```{r}
+words_df <- 
+example_text %>%
+  unnest_tokens(word, phrase, to_lower = FALSE)
+
+words_df
+```
+
+Again, let's find out how often each word appears and arrange from the most common word to the least common.
+
+```{r}
+words_df %>%
+  group_by(word) %>%
+  summarise(
+    count = n()
+  ) %>%
+  arrange(desc(count))
+```
+
+Since this is such a common pattern (not just in text mining, but in many types of analysis) `dplyr` provides a short-cut. The function `count` will group by the variable or variables given, and summarise by `n()`.
+
+```{r}
+words_df %>%
+  count(word)
+```
+
+You can even set `sort = TRUE` to do the final arrange step too.
+
+```{r}
+words_df %>%
+  count(word, sort = TRUE)
+```
+
+In the rest of these notes we will be using the shortcut version. 
+    
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Below is the first four lines of the Robert Frost poem "Stopping by Woods on a Snowy Evening".
+
+```{r}
+lines <- 
+c(
+  "Whose woods these are I think I know.",
+  "His house is in the village though;", 
+  "He will not see me stopping here",
+  "To watch his woods fill up with snow."
+)
+```
+
+1. Create a data frame that has two variables: one with each word, the second with the line number of the word.
+2. Use this data frame to find all the words that appear more than once in the four lines.
+
+<details>
+<summary> **Solution** </summary>
+
+1.
+```{r}
+poem_df <- 
+tibble(
+  line = lines,
+  line_no = 1:4
+) %>%
+unnest_tokens(word, line)
+
+poem_df
+```
+
+2.
+
+```{r}
+poem_df %>%
+  count(word) %>%
+  filter(n > 1)
+```
+
+</details>
+</blockquote>
+
+# Removing stop words
+
+As promised, let's look at a more realistic text dataset. The library `harrypotter` contains the text of all seven Harry Potter books. You will need to install it from GitHub.
+
+```{r, eval = FALSE}
+devtools::install_github("bradleyboehmke/harrypotter")
+```
+
+And load the library.
+
+```{r}
+library(harrypotter)
+```
+
+Each book is stored as a character vector, where each element contains all the text in one chapter.
+
+```{r}
+str(philosophers_stone)
+```
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Use `unnest_tokens` to find the most common words in "The Philosopher's Stone".
+
+What do you notice about the most common words?
+
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+book_1 <- 
+tibble(
+  chapter = 1:17,
+  text = philosophers_stone
+) %>%
+  unnest_tokens(word, text)
+
+book_1 %>%
+  count(word, sort = TRUE)
+```
+
+The most common words are not very interesting! They are words common to all English texts.
+
+</details>
+</blockquote>
+
+These common English words are known as **stop words**. The `tidytext` library has a built-in data frame that contains stop words. This means we can remove the stop words from our data by using `anti_join`.
+
+```{r}
+book_1 %>%
+  anti_join(stop_words) %>%
+  count(word, sort = TRUE)
+```
+
+Looking at the `stop_words` data frame in more detail, you can see that it actually contains several different lists of stop words, or lexicons.
+
+```{r}
+stop_words
+```
+
+There different lexicons are available, each of a different size and each containing different words.
+
+```{r}
+stop_words %>%
+  count(lexicon, sort = TRUE)
+```
+
+You may want to only remove the stop words from one lexicon. Again, this is easy to do, if you know how to use `filter` from `dplyr`.
+
+```{r}
+book_1 %>%
+  anti_join(filter(stop_words, lexicon == "snowball")) %>%
+  count(word, sort = TRUE)
+```
+
+<blockquote class = 'task'>
+**Task - 5 minutes**
+
+Find the most common words, not including stop words, in the book "Chamber of Secrets".
+
+<details>
+<summary> **Solution** </summary>
+
+```{r}
+str(chamber_of_secrets)
+```
+```{r}
+book_2 <- 
+tibble(
+  chapter = 1:19,
+  text = chamber_of_secrets
+) %>%
+  unnest_tokens(word, text)
+
+book_2 %>%
+  anti_join(stop_words) %>%
+  count(word, sort = TRUE)
+```
+
+</details>
+</blockquote>
+
+
+# Recap 
+
+* Which function do you use to convert from text into words?
+<details>
+<summary> **Solution** </summary>
+`unnest_tokens`
+</details>
+
+* Which function do you use to count the number of words and arrange in order?
+<details>
+<summary> **Solution** </summary>
+`count(..., sort = TRUE)`
+</details>
+
+* How do you remove stopwords from a data frame?
+<details>
+<summary> **Solution** </summary>
+`anti_join(stopwords)`
+</details>
+
+# Additional Resources
+
+For more on the tidytext package: https://www.tidytextmining.com/tidytext.html

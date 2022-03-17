@@ -1,0 +1,86 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r}
+library(tidyverse)
+library(here) 
+
+birds <- read_csv(here("clean_data/birds.csv"))
+```
+
+For each question where we ask for bird names, give the bird's common name, scientific name and species abbreviation.
+
+# 
+
+Which bird had the most individual sightings?
+
+```{r}
+birds %>%
+  group_by(common_name, scientific_name, species_abbreviation) %>%
+  summarise(
+    count = n()
+  ) %>% 
+  arrange(desc(count))
+```
+
+#
+
+Which bird had the highest total count?
+
+```{r}
+birds %>%
+  group_by(common_name, scientific_name, species_abbreviation) %>%
+  summarise(
+    count = sum(count, na.rm = TRUE)
+  ) %>% 
+  arrange(desc(count))
+```
+
+# 
+
+Which bird had the highest total count above a latitude of -30?
+
+```{r}
+birds %>%
+  filter(lat > -30) %>%
+  group_by(common_name, scientific_name, species_abbreviation) %>%
+  summarise(
+    count = sum(count, na.rm = TRUE)
+  ) %>% 
+  arrange(desc(count))
+```
+
+
+#
+
+How many different types of birds were only ever seen in groups of 1?
+
+```{r}
+birds %>%
+  group_by(common_name, scientific_name, species_abbreviation) %>%
+  summarise(
+    max_count = max(count)
+  ) %>% 
+  filter(max_count == 1) %>%
+  nrow()
+```
+
+#
+
+How many penguins were seen?
+
+```{r}
+birds %>%
+  filter(str_detect(common_name, "penguin|Penguin")) %>%
+  summarise(
+    sum(count, na.rm = TRUE)
+  )
+```
+
+
+

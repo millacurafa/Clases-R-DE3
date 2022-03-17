@@ -1,0 +1,208 @@
+---
+title: "Homework - `ggplot2` advanced Answers"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+    pdf_document: default
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center", message = FALSE)
+```
+
+# Learning Objectives<br>
+
+* Practice making plots with ggplot2
+* Create your own theme and use it with plots
+
+# Background
+
+QikBit is a start-up company producing low cost fitness trackers. Their flagship product, the KwikBit Unit1 (spot the mistake on the patent form) reproduces the functionality of the best in class commercial fitness trackers, but is cheap to make.  They are currently preparing to pitch to a potential investor and require a selection of charts to include in their presentation and promotional materials.
+
+# Data
+
+The data for this assignment is provided in the CodeClanData package.
+
+* `qb_revenue_breakdown`
+* `qb_monthly_sales`
+* `qb_competitors`
+* `qb_device_data`
+
+# MVP
+
+## Part 1
+
+1. Take the data in the dataset `qb_revenue_breakdown` and make a stacked bar chart showing the sources of revenue across the two years in the dataset.
+
+```{r, message = FALSE, warning = FALSE}
+library(ggplot2)
+library(CodeClanData)
+library(dplyr)
+
+ggplot(qb_revenue_breakdown) +
+  aes(x = Year, y = Revenue, fill = Product) +
+  geom_col() 
+```
+
+2.	Make a line chart showing monthly sales of the "flagship product" - the KwikBit Unit1 - over the last year. This data is inside `qb_monthly_sales`, but you will need to use `subset`.
+
+```{r}
+kwikbit_sales <- subset(qb_monthly_sales, Cashflow == "Kwikbit Unit 1 Sales")
+
+ggplot(kwikbit_sales) +
+  aes(x = Date, y = Amount) +
+  geom_line() 
+```
+
+3.	Make a line chart showing monthly revenue and costs over the last year. This data is also in `qb_monthly_sales`.								
+
+```{r}
+revenue_and_costs <- subset(qb_monthly_sales, Cashflow != "Kwikbit Unit 1 Sales")
+
+ggplot(revenue_and_costs) +
+  aes(x = Date, y = Amount, colour = Cashflow) +
+  geom_line() 
+```
+
+4.	Show annual sales of personal fitness trackers over the last 5 years broken down by company as a ribbon plot (use `geom_area`). This data is in `qb_competitors`.
+
+```{r}
+ggplot(qb_competitors) +
+  aes(x = Year, y = Revenue, fill = Company) +
+  geom_area() 
+```
+
+5. Now show the sales from the 5 competitors as a line graph. Include an extra layer that shows the data points used to make the lines.
+
+```{r}
+ggplot(qb_competitors) +
+  aes(x = Year, y = Revenue, colour = Company) +
+  geom_line() +
+  geom_point() 
+```
+
+6. Now the company wants to compare the number of steps that their device counts vs. their competitors. Make a line graph of the number of steps throughout time, and use faceting to compare between individuals and people. Data is in `qb_device_data`.
+
+```{r}
+qb_device_data <- 
+mutate(qb_device_data, decimal_hour = (hours + mins)/60)
+
+ggplot(qb_device_data) +
+  aes(x = decimal_hour, y = counts) +
+  geom_line() + 
+  facet_grid(id ~ device)
+```
+
+
+## Part 2 
+
+Take the plots that you produced in part one and now polish them by:
+
+1. Adding appropriate labels
+2. Changing the scales and coordinates when appropriate.
+3. Applying a unified theme, which is described below:
+  * Graphs should have white backgrounds, and use colour sparingly.
+  * There should be faint grid lines.
+  * Font sizes should be ~12pt although titles should be slightly larger and axis labels can be slightly smaller. 
+  * All plots should use colours from the following company colour scheme.
+
+```{r, eval=TRUE, echo=FALSE, fig.cap="", out.width = '100%'}
+knitr::include_graphics("palette.JPG")
+```
+
+```{r, echo=TRUE}
+col_scheme <- c("#E89FE9", "#50434F", "#B6A7B5", "#F9A472", "#BD7040")
+```
+
+```{r}
+theme_qb <- 
+  theme(
+    text = element_text(size = 12),
+    title = element_text(size = 14),
+    axis.text = element_text(size = 10),
+    panel.background = element_rect(fill = "white"),
+    panel.grid = element_line(colour = "grey90", linetype = "dashed")
+  )
+```
+
+```{r}
+ggplot(qb_revenue_breakdown) +
+  aes(x = Year, y = Revenue, fill = Product) +
+  geom_col() +
+  scale_fill_manual(values = col_scheme) +
+  ggtitle(
+    "Breakdown of QikBit Revenue by Product Line",
+    subtitle =  "2018 and 2019"
+  ) +
+  theme_qb
+```
+
+```{r}
+kwikbit_sales <- subset(qb_monthly_sales, Cashflow == "Kwikbit Unit 1 Sales")
+
+ggplot(kwikbit_sales) +
+  aes(x = Date, y = Amount, group = Cashflow) +
+  geom_line(size = 2, colour = col_scheme[3]) +
+  theme_qb +
+  scale_y_continuous("Sales", labels = scales::dollar_format(prefix = "£")) +
+  ggtitle("Sales of Kwikbit Unit1", subtitle = "1 Aug 2018 to 1 July 2019")
+```
+
+```{r}
+revenue_and_costs <- subset(qb_monthly_sales, Cashflow != "Kwikbit Unit 1 Sales")
+
+ggplot(revenue_and_costs) +
+  aes(x = Date, y = Amount, colour = Cashflow, group = Cashflow) +
+  geom_line(size = 2) +
+  theme_qb +
+  scale_colour_manual(values = col_scheme) +
+  scale_y_continuous("Sales", labels = scales::dollar_format(prefix = "£")) +
+  ggtitle("QikBit - Revenue and Costs", subtitle = "1 Aug 2018 to 1 July 2019")
+```
+
+```{r}
+ggplot(qb_competitors) +
+  aes(x = Year, y = Revenue, fill = Company) +
+  geom_area() +
+  scale_y_continuous(labels = scales::dollar) +
+  theme_qb +
+  scale_fill_manual(values = col_scheme) +
+  ggtitle(
+    "Revenue in the Fitness Tracker Market by Company",
+    subtitle = "2015 - 2019"
+  )
+```
+
+```{r}
+ggplot(qb_competitors) +
+  aes(x = Year, y = Revenue, colour = Company) +
+  geom_line() +
+  geom_point() +
+  scale_y_continuous(labels = scales::dollar) +
+  theme_qb +
+  scale_colour_manual(values = col_scheme) +
+  ggtitle(
+    "Revenue in the Fitness Tracker Market by Company",
+    subtitle = "2015 - 2019"
+  )
+```
+
+```{r}
+ggplot(qb_device_data) +
+  aes(x = decimal_hour, y = counts, colour = device) +
+  geom_line() + 
+  scale_x_continuous("Time (hours)") +
+  scale_y_continuous("Steps") +
+  facet_grid(id ~ device) +
+  scale_colour_manual(values = col_scheme) +
+  theme_qb +
+  ggtitle("Comparison between KwikBit Unit1 and Competitors for 5 individuals")
+```
+
+# Extension
+
+Try out different ways of plotting these three datasets. Which graphs do you think are particularly effective at showing QikBit's success?

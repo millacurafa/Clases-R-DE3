@@ -1,0 +1,88 @@
+---
+title: "Critical Data Elements"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    df_print: paged
+    css: ../../../styles.css
+    author: "Jo Watts"
+    date: "26th January 2020"
+  pdf_document: default
+---
+
+# Learning Objectives
+
+* Know what do we mean by critical data elements
+* Be able to identify CDEs
+* Understand the importance of data ownership
+
+**Duration - 30 minutes**
+
+# What is a Critical Data Element?
+
+Most organisations have lots of data and it is not all equally important. Critical Data Elements (CDEs), also often called KDEs (Key Data Elements) are the starting point for any data governance programme. It is impossible to monitor every single item of data, therefore companies need to identify the **most important items of data**, these are the **CDEs**. By identifying CDEs, an organisation is able to limit the scope of its data management and data governance efforts.
+
+<blockquote class='task'>
+
+**Critical Data Element (CDE):** data that is critical to the success of the business
+
+</blockquote>
+
+Once CDEs have been identified then it is these data items for which data quality rules are created and reported on, and for which owners are found. The data governance programme is built around CDEs.
+
+# How can CDEs be identified?
+
+Data items might be critical for a number of reasons:
+
+* They might form part of **regulatory reporting**, resulting in fines if they were mis-reported
+* They might form part of **financial reporting**
+* They might be **shared with customers**, resulting in reputational impact if they were incorrect
+* They might be critical to the organisation's **ability to operate**, such as customer data, or data that **drives strategic decisions** 
+
+Whichever of these reasons it might be, they share a common theme; the business needs them to be as accurate as possible.
+
+Master data is critical by definition, as it is shared across the organisation.
+
+A CDE can be defined at any point during the data items journey through an organisation, in an report or KPI, or at its golden source, or any point in between.
+
+<blockquote class='task'>
+**Task - 5 minutes**
+
+From your knowledge of your previous organisation, pick 5 data items that should have been classified as CDEs, including the reason they were critical
+
+<details> 
+<summary>**Examples**</summary>
+
+* National Insurance number for payroll
+* Customer email address for contact
+* Customer mobile number for contact
+* List of product codes is master data
+
+</details>
+</blockquote>
+
+How many CDEs is the right number for an organisation? This is a difficult question, and depends on the resources available to support a data governance programme and their risk appetite. If the organisation has a low risk appetite, or is very high profile, then they may need more CDEs, to ensure they are not subject to fines, or negative press. 
+
+The simple answer however is to **start small**, with a handful and grow these over time.
+
+# Identifying owners for CDEs
+
+Identifying owner for CDEs is a difficult task, as it is a role that historically senior managers are not familiar with and therefore are reticent about taking on.
+
+The easiest way to identify an owner is to ask: **who will care most when the data is wrong?**
+
+It may be the area of the organisation that captures the data, but not necessarily.
+
+The owner should be an individual who is **sufficiently senior** to be able to make changes if the data is wrong. They should have **access to budgets**, have the 
+**authority to instigate remediation** and cleansing activities and be able to **change processes and systems** to improve the data quality.
+
+In small organisations, the CEO might find themselves responsible for most of the data, however they will delegate their accountability and responsibility through their data stewards.
+
+<blockquote class='task'>
+**Task - 5 minutes**
+
+For each of the CDEs identified in section 3, what role should the ownership have sat with?
+
+</blockquote>

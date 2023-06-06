@@ -164,7 +164,7 @@ Additional lessons
 
 ### Day 5 - Data visualisation tools
 * Tableau workshop [video](https://www.youtube.com/watch?v=wz4vtMGl3L4)
-* [Data visualisation tools](week_05/day_5/data_viz_tools/Data visualisation tools v2 (1).key) [(folder)](week_05/day_5/data_viz_tools/) [video](https://www.youtube.com/watch?v=4vxrLfzomhE)
+* [Data visualisation tools](week_05/day_5/data_viz_tools/Data visualisation tools v2 \(1).key) [(folder)](week_05/day_5/data_viz_tools/) [video](https://www.youtube.com/watch?v=4vxrLfzomhE)
 * [**Weekend homework**](week_05/day_5/1_weekend_homework/shiny_weekend_homework.html) [(folder)](week_05/day_5/1_weekend_homework/) 
 
 ## Week 6

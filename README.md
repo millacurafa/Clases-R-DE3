@@ -234,9 +234,9 @@ Additional lessons
 * [Interview case study](week_09/day_1/cancer_analysis_case_study/case_study.html)
 
 ### Day 2 - Brand of Me, Inspire & CV
-* [Brand of Me](week_09/day_2/Brand of Me Lesson Plan - DATA Careers Week.pptx)
-* [CV Workshop](week_09/day_2/CV Workshop - DATA Careers Week.pdf)
-* [Inspire](week_09/day_2/Inspire Lesson Plan - DATA Careers Week.pptx)
+* [Brand of Me](week_09/day_2/Brand_of_Me_Lesson_Plan-DATA_Careers_Week.pptx)
+* [CV Workshop](week_09/day_2/CV_Workshop-DATA_Careers_Week.pdf)
+* [Inspire](week_09/day_2/Inspire_Lesson_Plan-DATA_Careers_Week.pptx)
 
 ### Day 3 - Business Questions
 * [Business questions](week_09/day_3/business_questions/business_question.html)

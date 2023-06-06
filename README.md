@@ -40,12 +40,12 @@
 ## Week 2
 
 ### Day 1 - Loading data
-* [Storage Options] (week_02/day_1/1_StorageOptions/storage_options.html) [(folder)] (week_02/day_1/1_StorageOptions/)
-* [Flat files CSV and delimited] (week_02/day_1/2_FlatFilesCSVandDelimited/flat_files_csv_and_delimited.html) [(folder)] (week_02/day_1/2_FlatFilesCSVandDelimited/) 
-* [Excel Files] (week_02/day_1/3_ExcelFiles/excel_files_openxlsx.html) [(folder)] (week_02/day_1/3_ExcelFiles/)
-* [Other file formats] (week_02/day_1/4_OtherFileFormats/native_file_formats.html) [(folder)] (week_02/day_1/4_OtherFileFormats/)
-* [JSON files] (week_02/day_1/5_JSONFiles/json_files.html) [(folder)] (week_02/day_1/5_JSONFiles/)
-* [Parsing data] (week_02/day_1/7_ParsingData/parsing_data.html) [(folder)](week_02/day_1/7_ParsingData/)
+* [Storage Options](week_02/day_1/1_StorageOptions/storage_options.html) [(folder)] (week_02/day_1/1_StorageOptions/)
+* [Flat files CSV and delimited](week_02/day_1/2_FlatFilesCSVandDelimited/flat_files_csv_and_delimited.html) [(folder)] (week_02/day_1/2_FlatFilesCSVandDelimited/) 
+* [Excel Files](week_02/day_1/3_ExcelFiles/excel_files_openxlsx.html) [(folder)] (week_02/day_1/3_ExcelFiles/)
+* [Other file formats](week_02/day_1/4_OtherFileFormats/native_file_formats.html) [(folder)] (week_02/day_1/4_OtherFileFormats/)
+* [JSON files](week_02/day_1/5_JSONFiles/json_files.html) [(folder)] (week_02/day_1/5_JSONFiles/)
+* [Parsing data](week_02/day_1/7_ParsingData/parsing_data.html) [(folder)](week_02/day_1/7_ParsingData/)
 * [**Lab** - Loading data](week_02/day_1/8_Lab/reading_data_lab_openxlsx.html) [(folder)](week_02/day_1/8_Lab/)
 * [**Homework**] (week_02/day_1/9_Homework/homework.html)  [(folder)](week_02/day_1/9_Homework/)
 
